@@ -79,6 +79,7 @@ impl crate::commands::command_contract::CommandSpec for TempbanCommand {
             description: "Ban temporairement un ou plusieurs membres.",
             examples: &["+tempban @User 1d"],
             default_aliases: &["tb"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

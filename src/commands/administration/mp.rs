@@ -467,6 +467,7 @@ impl crate::commands::command_contract::CommandSpec for MpCommand {
             description: "Permet de configurer, envoyer, lister et supprimer des messages prives envoyes.",
             examples: &["+mp", "+help mp"],
             default_aliases: &["dmsg"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

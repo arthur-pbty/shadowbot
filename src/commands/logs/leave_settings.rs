@@ -136,6 +136,7 @@ impl crate::commands::command_contract::CommandSpec for LeaveSettingsCommand {
                 "+leave settings on #logs {user} a quitte",
             ],
             default_aliases: &["lset"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

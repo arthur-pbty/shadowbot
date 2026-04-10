@@ -70,6 +70,7 @@ impl crate::commands::command_contract::CommandSpec for DiscussionCommand {
             description: "Envoie un message de discussion sur un serveur cible.",
             examples: &["+discussion", "+dn", "+help discussion"],
             default_aliases: &["dsc"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

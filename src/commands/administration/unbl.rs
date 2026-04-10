@@ -72,6 +72,7 @@ impl crate::commands::command_contract::CommandSpec for UnblCommand {
             description: "Retire un utilisateur de la blacklist globale du bot.",
             examples: &["+unbl", "+ul", "+help unbl"],
             default_aliases: &["unb"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

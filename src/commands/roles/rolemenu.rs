@@ -591,6 +591,7 @@ impl crate::commands::command_contract::CommandSpec for RolemenuCommand {
             description: "Ouvre un panneau interactif (boutons + modales) pour construire un embed de roles et des boutons auto-roles.",
             examples: &["+rolemenu", "+rolemenu 123456789012345678", "+help rolemenu"],
             default_aliases: &["rmenu"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

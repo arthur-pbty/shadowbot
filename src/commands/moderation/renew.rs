@@ -61,6 +61,7 @@ impl crate::commands::command_contract::CommandSpec for RenewCommand {
             description: "Supprime puis recree un salon textuel en conservant les options principales.",
             examples: &["+renew", "+renew #general"],
             default_aliases: &["nuke", "rebuildch"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

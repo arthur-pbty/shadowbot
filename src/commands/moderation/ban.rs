@@ -68,6 +68,7 @@ impl crate::commands::command_contract::CommandSpec for BanCommand {
             description: "Ban un ou plusieurs membres.",
             examples: &["+ban @User"],
             default_aliases: &["b"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -135,6 +135,7 @@ impl crate::commands::command_contract::CommandSpec for JoinCommand {
                 "+join settings on #welcome Bienvenue {user}",
             ],
             default_aliases: &["jset"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

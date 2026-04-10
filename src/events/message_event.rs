@@ -115,6 +115,43 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
 
     let command_key = permissions::command_key(&command, &args);
 
+    if msg.guild_id.is_none() {
+        let dm_metadata = crate::commands::command_metadata_by_key(&command_key)
+            .or_else(|| {
+                let mapped = match command_key.as_str() {
+                    "show_pics" => Some("showpics"),
+                    "suggestion_create" | "suggestion_settings" => Some("suggestion"),
+                    "ticket_settings" => Some("ticket"),
+                    "ticket_add" => Some("add"),
+                    "ticket_remove" => Some("del"),
+                    "ticket_close" => Some("close"),
+                    "set_perm" => Some("set"),
+                    "change_reset" => Some("change"),
+                    "server_list" => Some("server"),
+                    "end_giveaway" => Some("end"),
+                    "mp_settings" | "mp_sent" | "mp_delete" => Some("mp"),
+                    _ => None,
+                };
+
+                mapped.and_then(crate::commands::command_metadata_by_key)
+            })
+            .or_else(|| crate::commands::command_metadata_by_key(&command));
+
+        if let Some(meta) = dm_metadata {
+            if !meta.allow_in_dm {
+                let embed = serenity::builder::CreateEmbed::new()
+                    .title("Commande indisponible en DM")
+                    .description(format!(
+                        "La commande `+{}` n'est pas autorisee en message prive.",
+                        command.replace('_', " ")
+                    ))
+                    .color(0xED4245);
+                crate::commands::common::send_embed(ctx, msg, embed).await;
+                return;
+            }
+        }
+    }
+
     let can_use = permissions::can_use_command(ctx, msg, &command_key).await;
     if !can_use {
         let required = permissions::command_required_permission(ctx, &command_key).await;

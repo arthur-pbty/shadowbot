@@ -76,6 +76,7 @@ impl crate::commands::command_contract::CommandSpec for SnipeCommand {
             description: "Affiche le dernier message supprime dans le salon ou un index de messages supprimes.",
             examples: &["+snipe", "+se", "+help snipe"],
             default_aliases: &["snp"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

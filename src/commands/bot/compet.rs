@@ -94,6 +94,7 @@ impl crate::commands::command_contract::CommandSpec for CompetCommand {
             description: "Configure la rotation des messages d activite en mode competing.",
             examples: &["+compet", "+ct", "+help compet"],
             default_aliases: &["cpt"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -65,6 +65,7 @@ impl crate::commands::command_contract::CommandSpec for CleanupCommand {
             description: "Deconnecte tous les utilisateurs presents dans un salon vocal cible.",
             examples: &["+cleanup #General"],
             default_aliases: &["vclean", "vcleanup"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

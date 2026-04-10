@@ -328,6 +328,7 @@ impl crate::commands::command_contract::CommandSpec for SetCommand {
             description: "Modifie le nom, lavatar, la banniere ou des options avancees via les sous commandes.",
             examples: &["+set", "+st", "+help set"],
             default_aliases: &["cfg"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

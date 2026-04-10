@@ -88,6 +88,7 @@ impl crate::commands::command_contract::CommandSpec for CloseCommand {
             description: "Ferme le ticket courant et enregistre optionnellement une raison.",
             examples: &["+close", "+close Raison", "+help close"],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 2,
         }
     }

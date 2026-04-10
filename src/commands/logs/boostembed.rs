@@ -684,6 +684,7 @@ impl crate::commands::command_contract::CommandSpec for BoostembedCommand {
             description: "Ouvre un panneau avec composants pour paramétrer l'embed boost et le salon où il est envoyé.",
             examples: &["+boostembed", "+boostembed settings", "+boostembed test"],
             default_aliases: &["bembed"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

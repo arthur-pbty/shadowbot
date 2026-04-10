@@ -99,6 +99,7 @@ impl crate::commands::command_contract::CommandSpec for RoleCommand {
             description: "Affiche les informations utiles dun role cible.",
             examples: &["+role", "+re", "+help role"],
             default_aliases: &["rol"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

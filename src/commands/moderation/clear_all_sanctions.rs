@@ -60,6 +60,7 @@ impl crate::commands::command_contract::CommandSpec for ClearAllSanctionsCommand
             description: "Efface toutes les sanctions de tous les membres du serveur.",
             examples: &["+clear all sanctions"],
             default_aliases: &["casanctions"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -72,6 +72,7 @@ impl crate::commands::command_contract::CommandSpec for VoiceMoveCommand {
             description: "Deplace tous les membres d'un salon vocal vers un autre salon.",
             examples: &["+voicemove #General #Event"],
             default_aliases: &["vmove", "vmoveall"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -93,6 +93,7 @@ impl crate::commands::command_contract::CommandSpec for RolemembersCommand {
             description: "Affiche les membres associes a un role donne.",
             examples: &["+rolemembers", "+rs", "+help rolemembers"],
             default_aliases: &["rmb"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

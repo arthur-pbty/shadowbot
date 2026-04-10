@@ -80,6 +80,7 @@ impl crate::commands::command_contract::CommandSpec for UnTempRoleCommand {
             description: "Retire immediatement un role temporaire et desactive son expiration.",
             examples: &["+untemprole @User @VIP"],
             default_aliases: &["untrole", "deltrole"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

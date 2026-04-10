@@ -94,6 +94,7 @@ impl crate::commands::command_contract::CommandSpec for PlaytoCommand {
             description: "Configure la rotation des messages d activite en mode playing.",
             examples: &["+playto", "+po", "+help playto"],
             default_aliases: &["ply"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

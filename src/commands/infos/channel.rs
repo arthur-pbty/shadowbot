@@ -105,6 +105,7 @@ impl crate::commands::command_contract::CommandSpec for ChannelCommand {
             description: "Affiche les informations utiles dun salon texte ou vocal cible.",
             examples: &["+channel", "+cl", "+help channel"],
             default_aliases: &["chl"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

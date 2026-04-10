@@ -34,6 +34,7 @@ impl crate::commands::command_contract::CommandSpec for SayCommand {
             description: "Envoie un message brut dans le salon courant via le bot.",
             examples: &["+say", "+sy", "+help say"],
             default_aliases: &["sym"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

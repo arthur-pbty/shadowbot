@@ -109,6 +109,7 @@ impl crate::commands::command_contract::CommandSpec for EndCommand {
             description: "Permet de stopper instantanement un giveaway avec l'identifiant du message.",
             examples: &["+end giveaway 123456789012345678"],
             default_aliases: &["gend"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

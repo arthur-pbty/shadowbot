@@ -54,6 +54,7 @@ struct HelpPage {
 struct CommandDoc {
     key: &'static str,
     command: &'static str,
+    allow_in_dm: bool,
     default_permission: u8,
     params: &'static str,
     summary: &'static str,
@@ -323,6 +324,7 @@ fn command_doc(key: &str) -> Option<CommandDoc> {
     Some(CommandDoc {
         key: meta.name,
         command: meta.name,
+        allow_in_dm: meta.allow_in_dm,
         default_permission: meta.default_permission,
         params: meta.params,
         summary: meta.summary,
@@ -770,6 +772,11 @@ pub async fn handle_help(ctx: &Context, msg: &Message, args: &[&str]) {
                     .field("Catégorie", help_page_title_for_command_key(doc.key), false)
                     .field("Alias", alias_text, false)
                     .field("Paramètres", doc.params, false)
+                    .field(
+                        "Disponible en DM",
+                        if doc.allow_in_dm { "Oui" } else { "Non" },
+                        true,
+                    )
                     .field("Résumé", doc.summary, false)
                     .field("Exemples", truncate_text(&examples, 1024), false);
 
@@ -822,6 +829,7 @@ impl crate::commands::command_contract::CommandSpec for HelpCommand {
             description: "Affiche les pages daide du bot ou la fiche detaillee dune commande avec parametres, aliases et exemples.",
             examples: &["+help", "+hp", "+help help"],
             default_aliases: &["hp"],
+            allow_in_dm: true,
             default_permission: 0,
         }
     }

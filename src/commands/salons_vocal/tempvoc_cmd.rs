@@ -29,6 +29,7 @@ impl crate::commands::command_contract::CommandSpec for TempvocCmdCommand {
             description: "Affiche un rappel des commandes et du fonctionnement de tempvoc.",
             examples: &["+tempvoc cmd", "+help tempvoc_cmd"],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

@@ -514,6 +514,7 @@ impl crate::commands::command_contract::CommandSpec for SuggestionCommand {
                 "+help suggestion",
             ],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

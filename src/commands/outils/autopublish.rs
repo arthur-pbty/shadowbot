@@ -128,6 +128,7 @@ impl crate::commands::command_contract::CommandSpec for AutopublishCommand {
                 "+help autopublish",
             ],
             default_aliases: &["apb"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

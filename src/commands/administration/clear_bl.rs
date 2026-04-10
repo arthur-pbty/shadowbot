@@ -46,6 +46,7 @@ impl crate::commands::command_contract::CommandSpec for ClearBlCommand {
             description: "Supprime toutes les entrees de la blacklist globale.",
             examples: &["+clear bl", "+cl", "+help clear bl"],
             default_aliases: &["cbl"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

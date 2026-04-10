@@ -84,6 +84,7 @@ impl crate::commands::command_contract::CommandSpec for ChangeCommand {
             description: "Definit le niveau ACL requis pour une commande ou reinitialise les overrides.",
             examples: &["+change", "+ce", "+help change"],
             default_aliases: &["chg"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

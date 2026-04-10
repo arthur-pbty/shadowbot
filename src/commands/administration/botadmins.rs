@@ -142,6 +142,7 @@ impl crate::commands::command_contract::CommandSpec for BotadminsCommand {
             description: "Affiche les utilisateurs ayant des droits admin sur le bot.",
             examples: &["+botadmins", "+bs", "+help botadmins"],
             default_aliases: &["bad"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

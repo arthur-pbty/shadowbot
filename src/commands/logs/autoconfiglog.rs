@@ -60,6 +60,7 @@ impl crate::commands::command_contract::CommandSpec for AutoconfiglogCommand {
             description: "Cree automatiquement les salons de logs et les configure.",
             examples: &["+autoconfiglog"],
             default_aliases: &["acl"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

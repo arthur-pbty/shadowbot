@@ -63,6 +63,7 @@ impl crate::commands::command_contract::CommandSpec for DelCommand {
             description: "Supprime les permissions ACL associees a un role ou utilisateur.",
             examples: &["+del", "+dl", "+help del"],
             default_aliases: &["dlp"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

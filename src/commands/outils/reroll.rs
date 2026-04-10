@@ -65,6 +65,7 @@ impl crate::commands::command_contract::CommandSpec for RerollCommand {
             description: "Choisit un nouveau gagnant depuis le message cible.",
             examples: &["+reroll"],
             default_aliases: &["rro", "greroll"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -164,6 +164,7 @@ impl crate::commands::command_contract::CommandSpec for TicketMemberCommand {
             description: "Ajoute un membre supplementaire au ticket courant via +add.",
             examples: &["+add @User", "+help add"],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 2,
         }
     }

@@ -47,6 +47,7 @@ impl crate::commands::command_contract::CommandSpec for UnbanCommand {
             description: "Unban un ou plusieurs membres.",
             examples: &["+unban @User"],
             default_aliases: &["ub"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

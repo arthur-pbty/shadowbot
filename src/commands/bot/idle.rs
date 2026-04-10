@@ -38,6 +38,7 @@ impl crate::commands::command_contract::CommandSpec for IdleCommand {
             description: "Change le statut du bot en idle et sauvegarde ce statut.",
             examples: &["+idle", "+ie", "+help idle"],
             default_aliases: &["idl"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

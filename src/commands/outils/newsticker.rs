@@ -30,6 +30,7 @@ impl crate::commands::command_contract::CommandSpec for NewStickerCommand {
             description: "Cree un nouveau sticker a partir d'un sticker ou fichier repondu.",
             examples: &["+newsticker cool_pack"],
             default_aliases: &["stcreate", "nst"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

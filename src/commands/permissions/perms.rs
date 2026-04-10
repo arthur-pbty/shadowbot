@@ -74,6 +74,7 @@ impl crate::commands::command_contract::CommandSpec for PermsCommand {
             description: "Affiche les permissions ACL configurees par role ou scope.",
             examples: &["+perms", "+ps", "+help perms"],
             default_aliases: &["prm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

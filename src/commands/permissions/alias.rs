@@ -130,6 +130,7 @@ impl crate::commands::command_contract::CommandSpec for AliasCommand {
             description: "Liste, ajoute ou supprime des aliases de commandes stockes en base.",
             examples: &["+alias", "+as", "+help alias"],
             default_aliases: &["als"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

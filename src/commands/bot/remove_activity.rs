@@ -41,6 +41,7 @@ impl crate::commands::command_contract::CommandSpec for RemoveActivityCommand {
             description: "Arrete la rotation d activite et retire lactivite courante du bot.",
             examples: &["+remove activity", "+ry", "+help remove activity"],
             default_aliases: &["rma"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

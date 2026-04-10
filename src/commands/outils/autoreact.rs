@@ -150,6 +150,7 @@ impl crate::commands::command_contract::CommandSpec for AutoReactCommand {
             description: "Ajoute, retire et liste les reactions automatiquement appliquees aux messages d'un salon.",
             examples: &["+autoreact add #general 😀", "+autoreact list"],
             default_aliases: &["ar", "reactauto"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

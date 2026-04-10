@@ -80,6 +80,7 @@ impl crate::commands::command_contract::CommandSpec for TicketsCommand {
             description: "Affiche les tickets du serveur avec pagination.",
             examples: &["+tickets", "+tickets 2", "+help tickets"],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 2,
         }
     }

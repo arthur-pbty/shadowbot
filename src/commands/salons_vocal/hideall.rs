@@ -44,6 +44,7 @@ impl crate::commands::command_contract::CommandSpec for HideallCommand {
             description: "Retire la visibilite de tous les salons.",
             examples: &["+hideall"],
             default_aliases: &["hda"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

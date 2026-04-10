@@ -61,6 +61,7 @@ impl crate::commands::command_contract::CommandSpec for ClearMessagesCommand {
             description: "Supprime un nombre de messages, optionnellement filtres par membre.",
             examples: &["+clear 20", "+clear 20 @User"],
             default_aliases: &["purge"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

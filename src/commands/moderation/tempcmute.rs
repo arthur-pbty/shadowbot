@@ -73,6 +73,7 @@ impl crate::commands::command_contract::CommandSpec for TempcmuteCommand {
             description: "Mute temporaire sur le salon courant.",
             examples: &["+tempcmute @User 5m"],
             default_aliases: &["tcm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

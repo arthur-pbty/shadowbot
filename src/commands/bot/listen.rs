@@ -94,6 +94,7 @@ impl crate::commands::command_contract::CommandSpec for ListenCommand {
             description: "Configure la rotation des messages d activite en mode listening.",
             examples: &["+listen", "+ln", "+help listen"],
             default_aliases: &["lsn"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

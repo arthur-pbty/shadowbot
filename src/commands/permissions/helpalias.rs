@@ -74,6 +74,7 @@ impl crate::commands::command_contract::CommandSpec for HelpaliasCommand {
             description: "Active ou desactive laffichage des aliases dans laide.",
             examples: &["+helpalias", "+hs", "+help helpalias"],
             default_aliases: &["hal"],
+            allow_in_dm: true,
             default_permission: 0,
         }
     }

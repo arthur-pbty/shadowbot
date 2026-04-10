@@ -44,6 +44,7 @@ impl crate::commands::command_contract::CommandSpec for BanlistCommand {
             description: "Affiche la liste des bannissements en cours.",
             examples: &["+banlist"],
             default_aliases: &["bls"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

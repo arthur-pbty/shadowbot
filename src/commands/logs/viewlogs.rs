@@ -257,6 +257,7 @@ impl crate::commands::command_contract::CommandSpec for ViewLogsCommand {
             description: "Affiche les derniers logs d'audit du serveur avec pagination. Les logs incluent tous les événements (modération, messages, rôles, salons, etc.)",
             examples: &["+viewlogs", "+viewlogs 2"],
             default_aliases: &["vlogs", "audit"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

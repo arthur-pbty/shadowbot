@@ -85,6 +85,7 @@ impl crate::commands::command_contract::CommandSpec for BlCommand {
             description: "Affiche la blacklist ou ajoute un utilisateur a la blacklist globale du bot.",
             examples: &["+bl", "+help bl"],
             default_aliases: &["bls"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

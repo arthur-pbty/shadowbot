@@ -64,6 +64,7 @@ impl crate::commands::command_contract::CommandSpec for CmuteCommand {
             description: "Mute un membre sur le salon courant.",
             examples: &["+cmute @User"],
             default_aliases: &["cm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

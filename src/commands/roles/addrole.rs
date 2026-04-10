@@ -57,6 +57,7 @@ impl crate::commands::command_contract::CommandSpec for AddroleCommand {
             description: "Ajoute un role a un ou plusieurs membres.",
             examples: &["+addrole @User @Membre"],
             default_aliases: &["ar"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

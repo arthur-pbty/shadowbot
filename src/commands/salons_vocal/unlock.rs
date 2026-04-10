@@ -43,6 +43,7 @@ impl crate::commands::command_contract::CommandSpec for UnlockCommand {
             description: "Deverrouille un salon texte ou vocal.",
             examples: &["+unlock", "+unlock #general"],
             default_aliases: &["ulk"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

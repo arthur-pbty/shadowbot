@@ -53,6 +53,7 @@ impl crate::commands::command_contract::CommandSpec for ButtonCommand {
                 "+button del https://example.com",
             ],
             default_aliases: &["btn"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

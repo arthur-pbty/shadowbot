@@ -72,6 +72,7 @@ impl crate::commands::command_contract::CommandSpec for BringAllCommand {
             description: "Deplace tous les membres actuellement en vocal vers un salon cible.",
             examples: &["+bringall #Event", "+bringall"],
             default_aliases: &["ball", "vbring"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

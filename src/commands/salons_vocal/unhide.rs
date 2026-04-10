@@ -43,6 +43,7 @@ impl crate::commands::command_contract::CommandSpec for UnhideCommand {
             description: "Rend a nouveau visible un salon.",
             examples: &["+unhide", "+unhide #general"],
             default_aliases: &["uhd"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -38,6 +38,7 @@ impl crate::commands::command_contract::CommandSpec for InvisibleCommand {
             description: "Change le statut du bot en invisible et sauvegarde ce statut.",
             examples: &["+invisible", "+ie", "+help invisible"],
             default_aliases: &["ivs"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

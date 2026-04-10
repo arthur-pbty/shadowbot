@@ -80,6 +80,7 @@ impl crate::commands::command_contract::CommandSpec for ChooseCommand {
             description: "Lance un tirage au sort instantane parmi les options donnees.",
             examples: &["+choose rouge | bleu | vert"],
             default_aliases: &["pick", "random"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

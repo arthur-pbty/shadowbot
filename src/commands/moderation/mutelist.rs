@@ -69,6 +69,7 @@ impl crate::commands::command_contract::CommandSpec for MutelistCommand {
             description: "Affiche tous les mutes en cours.",
             examples: &["+mutelist"],
             default_aliases: &["ml"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

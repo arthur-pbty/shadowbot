@@ -455,6 +455,7 @@ impl crate::commands::command_contract::CommandSpec for TicketCommand {
             description: "Affiche le menu de configuration du systeme de tickets.",
             examples: &["+ticket", "+help ticket"],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

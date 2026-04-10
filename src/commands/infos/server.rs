@@ -164,6 +164,7 @@ impl crate::commands::command_contract::CommandSpec for ServerCommand {
             description: "Affiche licone ou la banniere du serveur, ou liste les serveurs du bot selon la sous commande.",
             examples: &["+server", "+sr", "+help server"],
             default_aliases: &["srv"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

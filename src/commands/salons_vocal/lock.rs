@@ -43,6 +43,7 @@ impl crate::commands::command_contract::CommandSpec for LockCommand {
             description: "Verrouille un salon texte ou vocal.",
             examples: &["+lock", "+lock #general"],
             default_aliases: &["lk"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

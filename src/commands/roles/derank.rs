@@ -58,6 +58,7 @@ impl crate::commands::command_contract::CommandSpec for DerankCommand {
             description: "Retire tous les roles gerables d un membre.",
             examples: &["+derank @User"],
             default_aliases: &["drk"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

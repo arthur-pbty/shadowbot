@@ -77,6 +77,7 @@ impl crate::commands::command_contract::CommandSpec for InviteCommand {
             description: "Cree une invitation temporaire sur un serveur cible accessible par le bot.",
             examples: &["+invite", "+ie", "+help invite"],
             default_aliases: &["ivt"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

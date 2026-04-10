@@ -106,6 +106,7 @@ impl crate::commands::command_contract::CommandSpec for LoadingCommand {
             description: "Anime une barre de progression avec la duree et le texte fournis.",
             examples: &["+loading 10s Traitement en cours"],
             default_aliases: &["loadbar", "bar"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

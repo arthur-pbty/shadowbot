@@ -42,6 +42,7 @@ impl crate::commands::command_contract::CommandSpec for LockallCommand {
             description: "Verrouille tous les salons du serveur.",
             examples: &["+lockall"],
             default_aliases: &["lka"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

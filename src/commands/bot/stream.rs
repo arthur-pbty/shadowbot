@@ -94,6 +94,7 @@ impl crate::commands::command_contract::CommandSpec for StreamCommand {
             description: "Configure la rotation des messages d activite en mode streaming.",
             examples: &["+stream", "+sm", "+help stream"],
             default_aliases: &["stm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

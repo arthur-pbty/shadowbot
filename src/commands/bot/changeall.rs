@@ -87,6 +87,7 @@ impl crate::commands::command_contract::CommandSpec for ChangeallCommand {
             description: "Remplace en masse un niveau ACL source par un niveau ACL cible.",
             examples: &["+changeall", "+cl", "+help changeall"],
             default_aliases: &["cga"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

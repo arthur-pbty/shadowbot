@@ -59,6 +59,7 @@ impl crate::commands::command_contract::CommandSpec for RaidlogCommand {
             description: "Active les logs antiraid dans un salon ou les desactive.",
             examples: &["+raidlog #logs", "+raidlog off"],
             default_aliases: &["rdlog"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

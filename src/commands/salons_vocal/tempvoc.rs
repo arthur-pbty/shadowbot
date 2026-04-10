@@ -454,6 +454,7 @@ impl crate::commands::command_contract::CommandSpec for TempvocCommand {
             description: "Affiche le menu de configuration du systeme de vocaux temporaires.",
             examples: &["+tempvoc", "+tempvoc cmd", "+help tempvoc"],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

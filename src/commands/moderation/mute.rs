@@ -64,6 +64,7 @@ impl crate::commands::command_contract::CommandSpec for MuteCommand {
             description: "Applique un mute a un ou plusieurs membres.",
             examples: &["+mute @User abus"],
             default_aliases: &["tmute"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

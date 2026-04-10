@@ -60,6 +60,7 @@ impl crate::commands::command_contract::CommandSpec for WarnCommand {
             description: "Ajoute un warn a un ou plusieurs membres.",
             examples: &["+warn @User spam"],
             default_aliases: &["avert"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

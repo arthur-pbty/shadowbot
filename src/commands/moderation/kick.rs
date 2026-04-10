@@ -68,6 +68,7 @@ impl crate::commands::command_contract::CommandSpec for KickCommand {
             description: "Kick un ou plusieurs membres.",
             examples: &["+kick @User"],
             default_aliases: &["k"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

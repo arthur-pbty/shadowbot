@@ -71,6 +71,7 @@ impl crate::commands::command_contract::CommandSpec for BannerCommand {
             description: "Affiche la banniere de profil dun utilisateur cible ou de lauteur.",
             examples: &["+banner", "+br", "+help banner"],
             default_aliases: &["bnr"],
+            allow_in_dm: true,
             default_permission: 0,
         }
     }

@@ -99,6 +99,7 @@ impl crate::commands::command_contract::CommandSpec for CreateCommand {
                 "+create https://... logo",
             ],
             default_aliases: &["mkemoji", "ce"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

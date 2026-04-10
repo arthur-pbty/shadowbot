@@ -138,6 +138,7 @@ impl crate::commands::command_contract::CommandSpec for BoostersCommand {
             description: "Affiche les membres qui boostent actuellement le serveur.",
             examples: &["+boosters", "+bs", "+help boosters"],
             default_aliases: &["bst"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

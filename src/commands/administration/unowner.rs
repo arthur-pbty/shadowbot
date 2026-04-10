@@ -81,6 +81,7 @@ impl crate::commands::command_contract::CommandSpec for UnownerCommand {
             description: "Retire un utilisateur de la liste des owners supplementaires du bot.",
             examples: &["+unowner", "+ur", "+help unowner"],
             default_aliases: &["uow"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

@@ -109,6 +109,7 @@ impl crate::commands::command_contract::CommandSpec for SetBoostembedCommand {
                 "+set boostembed color #FF66CC",
             ],
             default_aliases: &["sboostembed"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -406,6 +406,7 @@ impl crate::commands::command_contract::CommandSpec for HelpsettingCommand {
                 "+helpsetting perms off",
             ],
             default_aliases: &["hs", "helpetting"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

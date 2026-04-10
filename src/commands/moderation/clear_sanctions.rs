@@ -70,6 +70,7 @@ impl crate::commands::command_contract::CommandSpec for ClearSanctionsCommand {
             description: "Efface completement les sanctions d un membre cible.",
             examples: &["+clear sanctions @User"],
             default_aliases: &["csanctions"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

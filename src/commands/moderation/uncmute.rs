@@ -61,6 +61,7 @@ impl crate::commands::command_contract::CommandSpec for UncmuteCommand {
             description: "Met fin au mute salon.",
             examples: &["+uncmute @User"],
             default_aliases: &["ucm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

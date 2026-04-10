@@ -71,6 +71,7 @@ impl crate::commands::command_contract::CommandSpec for UserCommand {
             description: "Affiche les informations principales dun utilisateur cible.",
             examples: &["+user", "+ur", "+help user"],
             default_aliases: &["usr"],
+            allow_in_dm: true,
             default_permission: 0,
         }
     }

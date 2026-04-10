@@ -81,6 +81,7 @@ impl crate::commands::command_contract::CommandSpec for ClaimCommand {
             description: "Assigne le ticket courant au moderateur qui execute la commande.",
             examples: &["+claim", "+help claim"],
             default_aliases: &[],
+            allow_in_dm: false,
             default_permission: 2,
         }
     }

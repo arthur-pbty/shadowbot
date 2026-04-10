@@ -43,6 +43,7 @@ impl crate::commands::command_contract::CommandSpec for HideCommand {
             description: "Retire la visibilite d un salon.",
             examples: &["+hide", "+hide #general"],
             default_aliases: &["hd"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

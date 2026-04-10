@@ -90,6 +90,7 @@ impl crate::commands::command_contract::CommandSpec for BlinfoCommand {
             description: "Affiche les details de blacklist pour un utilisateur donne.",
             examples: &["+blinfo", "+bo", "+help blinfo"],
             default_aliases: &["bli"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

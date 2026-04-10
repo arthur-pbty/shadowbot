@@ -60,6 +60,7 @@ impl crate::commands::command_contract::CommandSpec for UnmuteCommand {
             description: "Met fin au mute d un ou plusieurs membres.",
             examples: &["+unmute @User"],
             default_aliases: &["um"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

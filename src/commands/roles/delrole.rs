@@ -57,6 +57,7 @@ impl crate::commands::command_contract::CommandSpec for DelroleCommand {
             description: "Retire un role a un ou plusieurs membres.",
             examples: &["+delrole @User @Membre"],
             default_aliases: &["dr"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

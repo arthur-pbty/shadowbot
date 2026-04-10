@@ -92,6 +92,7 @@ impl crate::commands::command_contract::CommandSpec for DelSanctionCommand {
             description: "Supprime une sanction specifique dans l historique d un membre.",
             examples: &["+del sanction @User 1"],
             default_aliases: &["delsanction"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

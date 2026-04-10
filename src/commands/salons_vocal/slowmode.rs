@@ -120,6 +120,7 @@ impl crate::commands::command_contract::CommandSpec for SlowmodeCommand {
                 "+slowmode off",
             ],
             default_aliases: &["sm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

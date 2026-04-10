@@ -90,6 +90,7 @@ impl crate::commands::command_contract::CommandSpec for EmojiCommand {
             description: "Affiche les details dun emoji fourni.",
             examples: &["+emoji", "+ei", "+help emoji"],
             default_aliases: &["emj"],
+            allow_in_dm: true,
             default_permission: 0,
         }
     }

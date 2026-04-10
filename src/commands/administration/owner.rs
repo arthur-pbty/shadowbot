@@ -52,6 +52,7 @@ impl crate::commands::command_contract::CommandSpec for OwnerCommand {
             description: "Affiche l owner application et les owners ajoutes en base.",
             examples: &["+owner", "+or", "+help owner"],
             default_aliases: &["own"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

@@ -57,6 +57,7 @@ impl crate::commands::command_contract::CommandSpec for ThemeCommand {
             description: "Met a jour la couleur principale des embeds du bot.",
             examples: &["+theme", "+te", "+help theme"],
             default_aliases: &["thm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

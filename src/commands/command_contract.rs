@@ -2,6 +2,7 @@
 pub struct CommandMetadata {
     pub name: &'static str,
     pub category: &'static str,
+    pub allow_in_dm: bool,
     pub default_permission: u8,
     pub params: &'static str,
     pub summary: &'static str,

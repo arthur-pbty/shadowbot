@@ -75,6 +75,7 @@ impl crate::commands::command_contract::CommandSpec for VocinfoCommand {
             description: "Affiche les informations dun salon vocal cible ou du salon vocal courant.",
             examples: &["+vocinfo", "+vo", "+help vocinfo"],
             default_aliases: &["vci"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }

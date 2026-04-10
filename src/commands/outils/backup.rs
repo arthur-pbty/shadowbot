@@ -174,6 +174,7 @@ impl crate::commands::command_contract::CommandSpec for BackupCommand {
                 "+backup load emoji nightly",
             ],
             default_aliases: &["bkp"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

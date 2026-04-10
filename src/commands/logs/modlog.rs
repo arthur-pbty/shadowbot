@@ -65,6 +65,7 @@ impl crate::commands::command_contract::CommandSpec for ModlogCommand {
             description: "Active ou desactive les logs de moderation dans un salon cible.",
             examples: &["+modlog on #logs", "+modlog off"],
             default_aliases: &["mlog"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

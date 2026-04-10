@@ -42,6 +42,7 @@ impl crate::commands::command_contract::CommandSpec for UnlockallCommand {
             description: "Deverrouille tous les salons du serveur.",
             examples: &["+unlockall"],
             default_aliases: &["ulka"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

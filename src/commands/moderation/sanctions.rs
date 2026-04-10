@@ -108,6 +108,7 @@ impl crate::commands::command_contract::CommandSpec for SanctionsCommand {
             description: "Liste l historique des sanctions d un membre.",
             examples: &["+sanctions @User"],
             default_aliases: &["sanct"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

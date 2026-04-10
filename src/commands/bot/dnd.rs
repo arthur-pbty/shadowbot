@@ -38,6 +38,7 @@ impl crate::commands::command_contract::CommandSpec for DndCommand {
             description: "Change le statut du bot en do not disturb et sauvegarde ce statut.",
             examples: &["+dnd", "+dd", "+help dnd"],
             default_aliases: &["dnm"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

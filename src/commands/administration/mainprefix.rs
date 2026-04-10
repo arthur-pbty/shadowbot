@@ -55,6 +55,7 @@ impl crate::commands::command_contract::CommandSpec for MainprefixCommand {
             description: "Definit le prefixe principal utilise par le bot sur tous les serveurs.",
             examples: &["+mainprefix", "+mx", "+help mainprefix"],
             default_aliases: &["mpx"],
+            allow_in_dm: false,
             default_permission: 9,
         }
     }

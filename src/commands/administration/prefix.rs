@@ -64,6 +64,7 @@ impl crate::commands::command_contract::CommandSpec for PrefixCommand {
             description: "Definit le prefixe du serveur courant.",
             examples: &["+prefix", "+px", "+help prefix"],
             default_aliases: &["pfx"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

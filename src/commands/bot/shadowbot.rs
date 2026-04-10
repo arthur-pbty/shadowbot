@@ -29,6 +29,7 @@ impl crate::commands::command_contract::CommandSpec for ShadowbotCommand {
             description: "Affiche les informations globales et letat du bot.",
             examples: &["+shadowbot", "+st", "+help shadowbot"],
             default_aliases: &["sbt"],
+            allow_in_dm: true,
             default_permission: 0,
         }
     }

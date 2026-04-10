@@ -44,6 +44,7 @@ impl crate::commands::command_contract::CommandSpec for UnhideallCommand {
             description: "Rend visibles tous les salons du serveur.",
             examples: &["+unhideall"],
             default_aliases: &["uhda"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -52,6 +52,7 @@ impl crate::commands::command_contract::CommandSpec for GiveawayCommand {
             description: "Affiche une interface rapide pour initier un giveaway depuis le salon courant.",
             examples: &["+giveaway"],
             default_aliases: &["gstart", "gw"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

@@ -94,6 +94,7 @@ impl crate::commands::command_contract::CommandSpec for WatchCommand {
             description: "Configure la rotation des messages d activite en mode watching.",
             examples: &["+watch", "+wh", "+help watch"],
             default_aliases: &["wtc"],
+            allow_in_dm: false,
             default_permission: 8,
         }
     }

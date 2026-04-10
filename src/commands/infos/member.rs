@@ -84,6 +84,7 @@ impl crate::commands::command_contract::CommandSpec for MemberCommand {
             description: "Affiche les informations dun membre dans le serveur courant.",
             examples: &["+member", "+mr", "+help member"],
             default_aliases: &["mbr"],
+            allow_in_dm: false,
             default_permission: 0,
         }
     }
