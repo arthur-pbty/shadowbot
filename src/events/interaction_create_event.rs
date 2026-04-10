@@ -1,7 +1,9 @@
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
-use crate::commands::{advanced_tools, help, mp, perms_service, suggestion, tempvoc, ticket};
+use crate::commands::{
+    advanced_tools, help, helpsetting, mp, perms_service, suggestion, tempvoc, ticket,
+};
 
 pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction) {
     if let Interaction::Command(_) = interaction {
@@ -24,6 +26,10 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
         }
 
         if help::handle_help_component(ctx, component).await {
+            return;
+        }
+
+        if helpsetting::handle_component_interaction(ctx, component).await {
             return;
         }
 

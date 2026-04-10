@@ -194,8 +194,8 @@ pub fn command_key(command: &str, args: &[&str]) -> String {
             }
         }
         "help" => "help".to_string(),
-        "helptype" => "helptype".to_string(),
-        "helpalias" => "helpalias".to_string(),
+        "helpsetting" => "helpsetting".to_string(),
+        "helpetting" => "helpsetting".to_string(),
         "alias" => "alias".to_string(),
         "modlog" => "modlog".to_string(),
         "messagelog" => "messagelog".to_string(),
@@ -345,8 +345,7 @@ pub fn all_command_keys() -> Vec<String> {
         "clear_perms",
         "allperms",
         "help",
-        "helptype",
-        "helpalias",
+        "helpsetting",
         "alias",
         "modlog",
         "messagelog",
@@ -383,7 +382,7 @@ pub fn default_permission(command_key: &str) -> u8 {
         "set_modlogs" | "set_boostembed" => 8,
         "prefix" | "perms" | "allperms" => 8,
         "help" | "server_list" => 0,
-        "helptype" | "helpalias" | "alias" | "leave" => 9,
+        "helpsetting" | "alias" | "leave" => 9,
         "mp_settings" => 9,
         "mp" | "mp_sent" | "mp_delete" | "invite" | "discussion" => 8,
         "set"
