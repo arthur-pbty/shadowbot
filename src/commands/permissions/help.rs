@@ -525,13 +525,17 @@ fn help_page_content(
         } else {
             meta.params
         };
-        let permission = if perms_enabled {
-            format_permission_level(meta.default_permission)
-        } else {
-            "désactivée".to_string()
-        };
-        let aliases_text = if aliases_enabled {
-            alias_map
+        let mut details = vec![format!("args: `{}`", params)];
+
+        if perms_enabled {
+            details.push(format!(
+                "perm: `{}`",
+                format_permission_level(meta.default_permission)
+            ));
+        }
+
+        if aliases_enabled {
+            let aliases_text = alias_map
                 .get(alias_key)
                 .filter(|aliases| !aliases.is_empty())
                 .map(|aliases| {
@@ -541,15 +545,11 @@ fn help_page_content(
                         .collect::<Vec<_>>()
                         .join(", ")
                 })
-                .unwrap_or_else(|| "aucun".to_string())
-        } else {
-            "désactivés".to_string()
-        };
+                .unwrap_or_else(|| "aucun".to_string());
+            details.push(format!("aliases: {}", aliases_text));
+        }
 
-        let first_line = format!(
-            "`+{}` · args: `{}` · perm: `{}` · aliases: {}",
-            label, params, permission, aliases_text
-        );
+        let first_line = format!("`+{}` · {}", label, details.join(" · "));
         let second_line = meta.description;
 
         lines.push(format!("{}\n{}", first_line, second_line));
