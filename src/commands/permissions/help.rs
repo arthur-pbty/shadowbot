@@ -64,7 +64,7 @@ struct CommandDoc {
 
 #[derive(Clone)]
 struct HelpViewPage {
-    category_index: usize,
+    category_index: Option<usize>,
     category_title: &'static str,
     category_description: &'static str,
     section_index: usize,
@@ -580,6 +580,19 @@ fn paginate_blocks(blocks: &[String], max_chars: usize) -> Vec<String> {
     pages
 }
 
+fn help_commands_per_category() -> Vec<usize> {
+    let mut counts = vec![0usize; HELP_PAGES.len()];
+
+    for meta in crate::commands::all_command_metadata() {
+        let key = help_page_for_command(&meta);
+        if let Some(index) = HELP_PAGES.iter().position(|page| page.key == key) {
+            counts[index] += 1;
+        }
+    }
+
+    counts
+}
+
 fn build_help_view_pages(
     state: &HelpState,
     alias_map: &BTreeMap<String, Vec<String>>,
@@ -588,6 +601,26 @@ fn build_help_view_pages(
 
     let mut out = Vec::new();
 
+    let counts = help_commands_per_category();
+    let total_commands: usize = counts.iter().sum();
+    let mut intro_lines = Vec::with_capacity(4 + HELP_PAGES.len());
+    intro_lines.push("Shadow Bot est un bot de gestion de serveur.".to_string());
+    intro_lines.push(String::new());
+    intro_lines.push(format!("**Nombre total de commandes :** {}", total_commands));
+    intro_lines.push("**Nombre de commandes par catégorie :**".to_string());
+    for (index, page) in HELP_PAGES.iter().enumerate() {
+        intro_lines.push(format!("• {} : {}", page.title, counts[index]));
+    }
+
+    out.push(HelpViewPage {
+        category_index: None,
+        category_title: "Présentation",
+        category_description: "Présentation de Shadow Bot et statistiques globales.",
+        section_index: 0,
+        section_total: 1,
+        commands_block: intro_lines.join("\n"),
+    });
+
     for (category_index, page) in HELP_PAGES.iter().enumerate() {
         let blocks = help_page_content(page, alias_map, state.aliases_enabled, state.perms_enabled);
         let sections = paginate_blocks(&blocks, MAX_COMMANDS_BLOCK_CHARS);
@@ -595,7 +628,7 @@ fn build_help_view_pages(
 
         for (section_index, commands_block) in sections.into_iter().enumerate() {
             out.push(HelpViewPage {
-                category_index,
+                category_index: Some(category_index),
                 category_title: page.title,
                 category_description: page.description,
                 section_index,
@@ -611,17 +644,23 @@ fn build_help_view_pages(
 fn first_view_page_for_category(view_pages: &[HelpViewPage], category_index: usize) -> usize {
     view_pages
         .iter()
-        .position(|entry| entry.category_index == category_index)
+        .position(|entry| entry.category_index == Some(category_index))
         .unwrap_or(0)
+}
+
+fn bot_avatar_url(ctx: &Context) -> String {
+    ctx.cache.current_user().face()
 }
 
 fn build_help_embed(
     page_index: usize,
     state: &HelpState,
     view_pages: &[HelpViewPage],
+    avatar_url: &str,
 ) -> CreateEmbed {
     let safe_page_index = page_index.min(view_pages.len().saturating_sub(1));
     let view = &view_pages[safe_page_index];
+    let is_intro = view.category_index.is_none();
 
     let title = if view.section_total > 1 {
         format!(
@@ -651,6 +690,14 @@ fn build_help_embed(
         },
         view.category_description,
     );
+
+    if is_intro {
+        return CreateEmbed::new()
+            .title(title)
+            .description(format!("{}\n\n{}", header, view.commands_block))
+            .thumbnail(avatar_url)
+            .color(0x5865F2);
+    }
 
     let commands_intro = "\n\n**Commandes**\n";
     let available = 4096usize
@@ -696,25 +743,31 @@ fn help_components(
 
     match state.layout {
         HelpLayout::Select | HelpLayout::Hybrid => {
-            let options = HELP_PAGES
-                .iter()
-                .enumerate()
-                .map(|(index, page)| {
-                    let count = view_pages
-                        .iter()
-                        .filter(|entry| entry.category_index == index)
-                        .count()
-                        .max(1);
-                    let title = if count > 1 {
-                        format!("{} ({})", page.title, count)
-                    } else {
-                        page.title.to_string()
-                    };
+            let mut options = Vec::with_capacity(HELP_PAGES.len() + 1);
+            options.push(
+                CreateSelectMenuOption::new("Présentation", "0").description(
+                    "Shadow Bot, total des commandes et répartition par catégorie.",
+                ),
+            );
 
-                    CreateSelectMenuOption::new(title, index.to_string())
-                        .description(truncate_text(page.description, 100))
-                })
-                .collect::<Vec<_>>();
+            for (index, page) in HELP_PAGES.iter().enumerate() {
+                let count = view_pages
+                    .iter()
+                    .filter(|entry| entry.category_index == Some(index))
+                    .count()
+                    .max(1);
+                let first_page = first_view_page_for_category(view_pages, index);
+                let title = if count > 1 {
+                    format!("{} ({})", page.title, count)
+                } else {
+                    page.title.to_string()
+                };
+
+                options.push(
+                    CreateSelectMenuOption::new(title, first_page.to_string())
+                        .description(truncate_text(page.description, 100)),
+                );
+            }
 
             let menu = CreateSelectMenu::new(
                 format!("help:select:{}", owner_id.get()),
@@ -754,7 +807,8 @@ pub async fn handle_help_slash(ctx: &Context, command: &CommandInteraction) {
     let state = current_help_state(ctx).await;
     let alias_map = aliases_map(ctx).await;
     let view_pages = build_help_view_pages(&state, &alias_map);
-    let embed = build_help_embed(0, &state, &view_pages);
+    let avatar_url = bot_avatar_url(ctx);
+    let embed = build_help_embed(0, &state, &view_pages, &avatar_url);
     let components = help_components(command.user.id, 0, &state, &view_pages);
 
     let _ = command
@@ -804,13 +858,13 @@ pub async fn handle_help_component(ctx: &Context, component: &ComponentInteracti
     let state = current_help_state(ctx).await;
     let alias_map = aliases_map(ctx).await;
     let view_pages = build_help_view_pages(&state, &alias_map);
+    let avatar_url = bot_avatar_url(ctx);
     let page_index = match kind {
         "nav" => page.unwrap_or(0).min(view_pages.len().saturating_sub(1)),
         "select" => match &component.data.kind {
             ComponentInteractionDataKind::StringSelect { values } => values
                 .first()
                 .and_then(|value| value.parse::<usize>().ok())
-                .map(|category_index| first_view_page_for_category(&view_pages, category_index))
                 .unwrap_or(0)
                 .min(view_pages.len().saturating_sub(1)),
             _ => 0,
@@ -818,7 +872,7 @@ pub async fn handle_help_component(ctx: &Context, component: &ComponentInteracti
         _ => 0,
     };
 
-    let embed = build_help_embed(page_index, &state, &view_pages);
+    let embed = build_help_embed(page_index, &state, &view_pages, &avatar_url);
     let components = help_components(component.user.id, page_index, &state, &view_pages);
 
     let _ = component
@@ -934,9 +988,14 @@ pub async fn handle_help(ctx: &Context, msg: &Message, args: &[&str]) {
         .min(HELP_PAGES.len().saturating_sub(1));
 
     let view_pages = build_help_view_pages(&state, &alias_map);
-    let page_index = first_view_page_for_category(&view_pages, category_index);
+    let avatar_url = bot_avatar_url(ctx);
+    let page_index = if args.is_empty() {
+        0
+    } else {
+        first_view_page_for_category(&view_pages, category_index)
+    };
 
-    let embed = build_help_embed(page_index, &state, &view_pages);
+    let embed = build_help_embed(page_index, &state, &view_pages, &avatar_url);
     let components = help_components(msg.author.id, page_index, &state, &view_pages);
 
     let _ = msg
