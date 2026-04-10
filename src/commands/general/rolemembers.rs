@@ -86,14 +86,12 @@ pub static COMMAND_DESCRIPTOR: RolemembersCommand = RolemembersCommand;
 impl crate::commands::command_contract::CommandSpec for RolemembersCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "rolemembers",
-            command: "rolemembers",
+            name: "rolemembers",
             category: "general",
             params: "<@&rôle/ID>",
             summary: "Liste les membres dun role",
             description: "Affiche les membres associes a un role donne.",
             examples: &["+rolemembers", "+rs", "+help rolemembers"],
-            alias_source_key: "rolemembers",
             default_aliases: &["rmb"],
             default_permission: 0,
         }

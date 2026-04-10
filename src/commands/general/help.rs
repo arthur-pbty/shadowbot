@@ -121,7 +121,7 @@ const HELP_PAGES: &[HelpPage] = &[
 fn help_page_for_command(
     meta: &crate::commands::command_contract::CommandMetadata,
 ) -> &'static str {
-    match meta.key {
+    match meta.name {
         "modlog" | "messagelog" | "voicelog" | "boostlog" | "rolelog" | "raidlog"
         | "autoconfiglog" | "nolog" | "join" | "boostembed" | "set_modlogs" | "set_boostembed"
         | "leave_settings" | "viewlogs" => "logs",
@@ -195,11 +195,14 @@ fn help_metadata_lookup_key(input: &str) -> Option<&'static str> {
     crate::commands::all_command_metadata()
         .into_iter()
         .find(|meta| {
-            meta.key.eq_ignore_ascii_case(&normalized)
-                || meta.key.eq_ignore_ascii_case(&underscored)
-                || meta.command.eq_ignore_ascii_case(&normalized)
+            meta.name.eq_ignore_ascii_case(&normalized)
+                || meta.name.eq_ignore_ascii_case(&underscored)
+                || meta
+                    .name
+                    .replace('_', " ")
+                    .eq_ignore_ascii_case(&normalized)
         })
-        .map(|meta| meta.key)
+        .map(|meta| meta.name)
 }
 
 fn help_page_matches_input(page: &HelpPage, input: &str) -> bool {
@@ -277,7 +280,7 @@ async fn aliases_map(ctx: &Context) -> BTreeMap<String, Vec<String>> {
 
     for meta in crate::commands::all_command_metadata() {
         if !meta.default_aliases.is_empty() {
-            out.entry(meta.alias_source_key.to_string())
+            out.entry(meta.name.to_string())
                 .or_default()
                 .extend(meta.default_aliases.iter().map(|alias| alias.to_string()));
         }
@@ -310,8 +313,8 @@ fn command_doc(key: &str) -> Option<CommandDoc> {
     };
 
     Some(CommandDoc {
-        key: meta.key,
-        command: meta.command,
+        key: meta.name,
+        command: meta.name,
         default_permission: meta.default_permission,
         params: meta.params,
         summary: meta.summary,
@@ -321,7 +324,7 @@ fn command_doc(key: &str) -> Option<CommandDoc> {
         } else {
             meta.examples
         },
-        alias_source_key: Some(meta.alias_source_key),
+        alias_source_key: Some(meta.name),
     })
 }
 
@@ -467,14 +470,14 @@ fn help_page_content(
         .into_iter()
         .filter(|meta| help_page_for_command(meta).eq_ignore_ascii_case(page.key))
         .collect::<Vec<_>>();
-    commands.sort_by(|a, b| a.command.to_lowercase().cmp(&b.command.to_lowercase()));
+    commands.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
 
     let mut lines = Vec::with_capacity(commands.len());
 
     for meta in commands {
-        let label = meta.command;
+        let label = meta.name.replace('_', " ");
         let summary = meta.summary;
-        let alias_key = meta.alias_source_key;
+        let alias_key = meta.name;
         let permission = if perms_enabled {
             format!(" {}", format_permission_level(meta.default_permission))
         } else {
@@ -745,9 +748,16 @@ pub async fn handle_help(ctx: &Context, msg: &Message, args: &[&str]) {
                     .join("\n");
 
                 let mut embed = CreateEmbed::new()
-                    .title(format!("Aide commande · +{}", doc.command))
+                    .title(format!(
+                        "Aide commande · +{}",
+                        doc.command.replace('_', " ")
+                    ))
                     .description(doc.description)
-                    .field("Commande", format!("`+{}`", doc.command), false)
+                    .field(
+                        "Commande",
+                        format!("`+{}`", doc.command.replace('_', " ")),
+                        false,
+                    )
                     .field("Clé ACL", format!("`{}`", doc.key), false)
                     .field("Catégorie", help_page_title_for_command_key(doc.key), false)
                     .field("Alias", alias_text, false)
@@ -797,14 +807,12 @@ pub static COMMAND_DESCRIPTOR: HelpCommand = HelpCommand;
 impl crate::commands::command_contract::CommandSpec for HelpCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "help",
-            command: "help",
+            name: "help",
             category: "general",
             params: "[commande|page]",
             summary: "Affiche laide des commandes",
             description: "Affiche les pages daide du bot ou la fiche detaillee dune commande avec parametres, aliases et exemples.",
             examples: &["+help", "+hp", "+help help"],
-            alias_source_key: "help",
             default_aliases: &["hp"],
             default_permission: 0,
         }

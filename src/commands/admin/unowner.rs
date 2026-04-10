@@ -74,14 +74,12 @@ pub static COMMAND_DESCRIPTOR: UnownerCommand = UnownerCommand;
 impl crate::commands::command_contract::CommandSpec for UnownerCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "unowner",
-            command: "unowner",
+            name: "unowner",
             category: "admin",
             params: "<@membre/ID>",
             summary: "Retire un owner du bot",
             description: "Retire un utilisateur de la liste des owners supplementaires du bot.",
             examples: &["+unowner", "+ur", "+help unowner"],
-            alias_source_key: "unowner",
             default_aliases: &["uow"],
             default_permission: 9,
         }

@@ -77,14 +77,12 @@ pub static COMMAND_DESCRIPTOR: MemberCommand = MemberCommand;
 impl crate::commands::command_contract::CommandSpec for MemberCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "member",
-            command: "member",
+            name: "member",
             category: "general",
             params: "<@membre/ID>",
             summary: "Affiche le profil membre",
             description: "Affiche les informations dun membre dans le serveur courant.",
             examples: &["+member", "+mr", "+help member"],
-            alias_source_key: "member",
             default_aliases: &["mbr"],
             default_permission: 0,
         }

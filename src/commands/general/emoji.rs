@@ -83,14 +83,12 @@ pub static COMMAND_DESCRIPTOR: EmojiCommand = EmojiCommand;
 impl crate::commands::command_contract::CommandSpec for EmojiCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "emoji",
-            command: "emoji",
+            name: "emoji",
             category: "general",
             params: "<emoji>",
             summary: "Affiche les infos dun emoji",
             description: "Affiche les details dun emoji fourni.",
             examples: &["+emoji", "+ei", "+help emoji"],
-            alias_source_key: "emoji",
             default_aliases: &["emj"],
             default_permission: 0,
         }

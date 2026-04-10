@@ -150,3 +150,21 @@ pub async fn handle_ticket_add(ctx: &Context, msg: &Message, args: &[&str]) {
 pub async fn handle_ticket_remove(ctx: &Context, msg: &Message, args: &[&str]) {
     let _ = ticket_member_update(ctx, msg, args, false).await;
 }
+
+pub struct TicketMemberCommand;
+pub static COMMAND_DESCRIPTOR: TicketMemberCommand = TicketMemberCommand;
+
+impl crate::commands::command_contract::CommandSpec for TicketMemberCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "add",
+            category: "admin",
+            params: "<@membre/ID>",
+            summary: "Ajoute un membre au ticket",
+            description: "Ajoute un membre supplementaire au ticket courant via +add.",
+            examples: &["+add @User", "+help add"],
+            default_aliases: &[],
+            default_permission: 2,
+        }
+    }
+}

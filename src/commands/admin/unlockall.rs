@@ -1,22 +1,46 @@
-use crate::commands::moderation_tools;
+use serenity::builder::CreateEmbed;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
+
+use crate::commands::common::{send_embed, theme_color};
+use crate::commands::moderation_channel_helpers::edit_channel_visibility;
+
 pub async fn handle_unlockall(ctx: &Context, msg: &Message) {
-    moderation_tools::handle_lockall_unlockall(ctx, msg, false).await;
+    let Some(guild_id) = msg.guild_id else {
+        return;
+    };
+    let Ok(channels) = guild_id.channels(&ctx.http).await else {
+        return;
+    };
+
+    let mut changed = 0usize;
+    for channel_id in channels.keys() {
+        if edit_channel_visibility(ctx, guild_id, *channel_id, Some(false), None).await {
+            changed += 1;
+        }
+    }
+
+    send_embed(
+        ctx,
+        msg,
+        CreateEmbed::new()
+            .title("UnlockAll")
+            .description(format!("{} salon(s) mis a jour.", changed))
+            .color(theme_color(ctx).await),
+    )
+    .await;
 }
 pub struct UnlockallCommand;
 pub static COMMAND_DESCRIPTOR: UnlockallCommand = UnlockallCommand;
 impl crate::commands::command_contract::CommandSpec for UnlockallCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "unlockall",
-            command: "unlockall",
+            name: "unlockall",
             category: "admin",
             params: "aucun",
             summary: "Ouvre tous les salons",
             description: "Deverrouille tous les salons du serveur.",
             examples: &["+unlockall"],
-            alias_source_key: "unlockall",
             default_aliases: &["ulka"],
             default_permission: 8,
         }

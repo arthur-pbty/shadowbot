@@ -110,3 +110,25 @@ pub async fn handle_autopublish(ctx: &Context, msg: &Message, args: &[&str]) {
 
     send_embed(ctx, msg, embed).await;
 }
+
+pub struct AutopublishCommand;
+pub static COMMAND_DESCRIPTOR: AutopublishCommand = AutopublishCommand;
+
+impl crate::commands::command_contract::CommandSpec for AutopublishCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "autopublish",
+            category: "admin",
+            params: "on|off [#canal]",
+            summary: "Configure lautopublish",
+            description: "Affiche, active ou desactive la publication automatique des annonces.",
+            examples: &[
+                "+autopublish",
+                "+autopublish on #annonces",
+                "+help autopublish",
+            ],
+            default_aliases: &["apb"],
+            default_permission: 8,
+        }
+    }
+}

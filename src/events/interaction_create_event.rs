@@ -2,8 +2,7 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::{
-    advanced_tools, boostembed, help, helpsetting, mp, perms_service, suggestion, tempvoc,
-    ticket,
+    advanced_tools, boostembed, help, helpsetting, mp, perms_service, suggestion, tempvoc, ticket,
 };
 
 pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction) {

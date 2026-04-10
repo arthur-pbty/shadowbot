@@ -39,14 +39,12 @@ pub static COMMAND_DESCRIPTOR: ClearOwnersCommand = ClearOwnersCommand;
 impl crate::commands::command_contract::CommandSpec for ClearOwnersCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "clear_owners",
-            command: "clear owners",
+            name: "clear_owners",
             category: "admin",
             params: "aucun",
             summary: "Vide la liste des owners",
             description: "Supprime tous les owners supplementaires en base de donnees.",
             examples: &["+clear owners", "+cs", "+help clear owners"],
-            alias_source_key: "clear_owners",
             default_aliases: &["cro"],
             default_permission: 9,
         }

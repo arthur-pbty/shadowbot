@@ -45,14 +45,12 @@ pub static COMMAND_DESCRIPTOR: OwnerCommand = OwnerCommand;
 impl crate::commands::command_contract::CommandSpec for OwnerCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "owner",
-            command: "owner",
+            name: "owner",
             category: "admin",
             params: "aucun",
             summary: "Liste les owners du bot",
             description: "Affiche l owner application et les owners ajoutes en base.",
             examples: &["+owner", "+or", "+help owner"],
-            alias_source_key: "owner",
             default_aliases: &["own"],
             default_permission: 9,
         }

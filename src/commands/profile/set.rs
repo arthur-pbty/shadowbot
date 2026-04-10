@@ -3,7 +3,83 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::common::send_embed;
-use crate::commands::perms_service;
+use crate::commands::perms_helpers::{
+    ensure_owner, get_pool, normalize_command_name, parse_user_or_role,
+};
+use crate::db::{grant_command_access, grant_perm_level};
+
+async fn handle_set_perm(ctx: &Context, msg: &Message, args: &[&str]) {
+    if !ensure_owner(ctx, msg).await {
+        return;
+    }
+
+    if args.len() < 3 || !args[0].eq_ignore_ascii_case("perm") {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("Usage: `set perm <permission/commande> <role/membre>`")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    }
+
+    let Some((scope_type, scope_id)) = parse_user_or_role(args[2]) else {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("Role/membre invalide.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    let bot_id = ctx.cache.current_user().id;
+    let Some(pool) = get_pool(ctx).await else {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("DB indisponible.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    if let Ok(level) = args[1].parse::<u8>() {
+        if level > 9 {
+            let embed = CreateEmbed::new()
+                .title("Erreur")
+                .description("Permission invalide (0..9).")
+                .color(0xED4245);
+            send_embed(ctx, msg, embed).await;
+            return;
+        }
+
+        let _ = grant_perm_level(&pool, bot_id, scope_type, scope_id, level).await;
+        let who = if scope_type == "role" {
+            format!("<@&{}>", scope_id)
+        } else {
+            format!("<@{}>", scope_id)
+        };
+        let embed = CreateEmbed::new()
+            .title("Permission attribuee")
+            .description(format!("{} recoit la permission `{}`", who, level))
+            .color(0x57F287);
+        send_embed(ctx, msg, embed).await;
+        return;
+    }
+
+    let command = normalize_command_name(args[1]);
+    let _ = grant_command_access(&pool, bot_id, scope_type, scope_id, &command).await;
+
+    let who = if scope_type == "role" {
+        format!("<@&{}>", scope_id)
+    } else {
+        format!("<@{}>", scope_id)
+    };
+
+    let embed = CreateEmbed::new()
+        .title("Acces commande attribue")
+        .description(format!("{} recoit l'acces direct a `{}`", who, command))
+        .color(0x57F287);
+    send_embed(ctx, msg, embed).await;
+}
 
 pub async fn handle_set(ctx: &Context, msg: &Message, args: &[&str]) {
     if args
@@ -11,7 +87,7 @@ pub async fn handle_set(ctx: &Context, msg: &Message, args: &[&str]) {
         .map(|a| a.eq_ignore_ascii_case("perm"))
         .unwrap_or(false)
     {
-        perms_service::handle_set_perm(ctx, msg, args).await;
+        handle_set_perm(ctx, msg, args).await;
         return;
     }
 
@@ -245,14 +321,12 @@ pub static COMMAND_DESCRIPTOR: SetCommand = SetCommand;
 impl crate::commands::command_contract::CommandSpec for SetCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "set",
-            command: "set",
+            name: "set",
             category: "profile",
             params: "name <nom> | pic <url> | banner <url> | profil <nom> ;; <url_pic> ;; <url_banner> | perm ...",
             summary: "Configure le profil du bot",
             description: "Modifie le nom, lavatar, la banniere ou des options avancees via les sous commandes.",
             examples: &["+set", "+st", "+help set"],
-            alias_source_key: "set",
             default_aliases: &["cfg"],
             default_permission: 8,
         }

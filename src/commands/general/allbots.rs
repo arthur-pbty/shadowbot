@@ -119,14 +119,12 @@ pub static COMMAND_DESCRIPTOR: AllbotsCommand = AllbotsCommand;
 impl crate::commands::command_contract::CommandSpec for AllbotsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "allbots",
-            command: "allbots",
+            name: "allbots",
             category: "general",
             params: "aucun",
             summary: "Liste tous les bots du serveur",
             description: "Affiche la liste des membres bots presents sur le serveur courant.",
             examples: &["+allbots", "+as", "+help allbots"],
-            alias_source_key: "allbots",
             default_aliases: &["abt"],
             default_permission: 0,
         }

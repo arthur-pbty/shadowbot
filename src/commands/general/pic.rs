@@ -64,14 +64,12 @@ pub static COMMAND_DESCRIPTOR: PicCommand = PicCommand;
 impl crate::commands::command_contract::CommandSpec for PicCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "pic",
-            command: "pic",
+            name: "pic",
             category: "general",
             params: "<@membre/ID>",
             summary: "Affiche la photo de profil",
             description: "Affiche la photo de profil dun utilisateur cible ou de lauteur.",
             examples: &["+pic", "+pc", "+help pic"],
-            alias_source_key: "pic",
             default_aliases: &["pfp"],
             default_permission: 0,
         }

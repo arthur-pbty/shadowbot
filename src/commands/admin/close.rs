@@ -74,3 +74,21 @@ pub async fn handle_close(ctx: &Context, msg: &Message, args: &[&str]) {
 
     send_embed(ctx, msg, embed).await;
 }
+
+pub struct CloseCommand;
+pub static COMMAND_DESCRIPTOR: CloseCommand = CloseCommand;
+
+impl crate::commands::command_contract::CommandSpec for CloseCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "close",
+            category: "admin",
+            params: "[raison...]",
+            summary: "Ferme un ticket",
+            description: "Ferme le ticket courant et enregistre optionnellement une raison.",
+            examples: &["+close", "+close Raison", "+help close"],
+            default_aliases: &[],
+            default_permission: 2,
+        }
+    }
+}

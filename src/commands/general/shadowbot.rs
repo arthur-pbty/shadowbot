@@ -22,14 +22,12 @@ pub static COMMAND_DESCRIPTOR: ShadowbotCommand = ShadowbotCommand;
 impl crate::commands::command_contract::CommandSpec for ShadowbotCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "shadowbot",
-            command: "shadowbot",
+            name: "shadowbot",
             category: "general",
             params: "aucun",
             summary: "Affiche les infos du bot",
             description: "Affiche les informations globales et letat du bot.",
             examples: &["+shadowbot", "+st", "+help shadowbot"],
-            alias_source_key: "shadowbot",
             default_aliases: &["sbt"],
             default_permission: 0,
         }

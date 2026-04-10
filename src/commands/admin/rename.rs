@@ -122,3 +122,21 @@ pub async fn handle_rename(ctx: &Context, msg: &Message, args: &[&str]) {
     )
     .await;
 }
+
+pub struct RenameCommand;
+pub static COMMAND_DESCRIPTOR: RenameCommand = RenameCommand;
+
+impl crate::commands::command_contract::CommandSpec for RenameCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "rename",
+            category: "admin",
+            params: "<nom...>",
+            summary: "Renomme le ticket courant",
+            description: "Renomme le salon du ticket et met a jour son titre en base.",
+            examples: &["+rename support-client", "+help rename"],
+            default_aliases: &[],
+            default_permission: 2,
+        }
+    }
+}

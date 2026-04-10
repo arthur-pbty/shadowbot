@@ -94,14 +94,12 @@ pub static COMMAND_DESCRIPTOR: CalcCommand = CalcCommand;
 impl crate::commands::command_contract::CommandSpec for CalcCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "calc",
-            command: "calc",
+            name: "calc",
             category: "general",
             params: "<expression>",
             summary: "Calcule une expression",
             description: "Evalue une expression numerique simple et renvoie le resultat.",
             examples: &["+calc", "+cc", "+help calc"],
-            alias_source_key: "calc",
             default_aliases: &["clc"],
             default_permission: 0,
         }

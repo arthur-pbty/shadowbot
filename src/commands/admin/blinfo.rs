@@ -83,14 +83,12 @@ pub static COMMAND_DESCRIPTOR: BlinfoCommand = BlinfoCommand;
 impl crate::commands::command_contract::CommandSpec for BlinfoCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "blinfo",
-            command: "blinfo",
+            name: "blinfo",
             category: "admin",
             params: "<@membre/ID>",
             summary: "Affiche les details blacklist",
             description: "Affiche les details de blacklist pour un utilisateur donne.",
             examples: &["+blinfo", "+bo", "+help blinfo"],
-            alias_source_key: "blinfo",
             default_aliases: &["bli"],
             default_permission: 9,
         }

@@ -70,14 +70,12 @@ pub static COMMAND_DESCRIPTOR: InviteCommand = InviteCommand;
 impl crate::commands::command_contract::CommandSpec for InviteCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "invite",
-            command: "invite",
+            name: "invite",
             category: "admin",
             params: "<ID_serveur/index>",
             summary: "Cree une invitation serveur",
             description: "Cree une invitation temporaire sur un serveur cible accessible par le bot.",
             examples: &["+invite", "+ie", "+help invite"],
-            alias_source_key: "invite",
             default_aliases: &["ivt"],
             default_permission: 8,
         }

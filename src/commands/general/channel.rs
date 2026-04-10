@@ -98,14 +98,12 @@ pub static COMMAND_DESCRIPTOR: ChannelCommand = ChannelCommand;
 impl crate::commands::command_contract::CommandSpec for ChannelCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "channel",
-            command: "channel",
+            name: "channel",
             category: "general",
             params: "<#salon/ID>",
             summary: "Affiche les details dun salon",
             description: "Affiche les informations utiles dun salon texte ou vocal cible.",
             examples: &["+channel", "+cl", "+help channel"],
-            alias_source_key: "channel",
             default_aliases: &["chl"],
             default_permission: 0,
         }

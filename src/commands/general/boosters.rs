@@ -131,14 +131,12 @@ pub static COMMAND_DESCRIPTOR: BoostersCommand = BoostersCommand;
 impl crate::commands::command_contract::CommandSpec for BoostersCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "boosters",
-            command: "boosters",
+            name: "boosters",
             category: "general",
             params: "aucun",
             summary: "Liste les boosters du serveur",
             description: "Affiche les membres qui boostent actuellement le serveur.",
             examples: &["+boosters", "+bs", "+help boosters"],
-            alias_source_key: "boosters",
             default_aliases: &["bst"],
             default_permission: 0,
         }

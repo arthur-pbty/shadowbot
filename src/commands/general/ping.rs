@@ -50,14 +50,12 @@ pub static COMMAND_DESCRIPTOR: PingCommand = PingCommand;
 impl crate::commands::command_contract::CommandSpec for PingCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "ping",
-            command: "ping",
+            name: "ping",
             category: "general",
             params: "aucun",
             summary: "Mesure la latence du bot",
             description: "Affiche le temps de reponse du bot et met a jour un embed avec la latence calculee.",
             examples: &["+ping", "+pg", "+help ping"],
-            alias_source_key: "ping",
             default_aliases: &["pg"],
             default_permission: 0,
         }

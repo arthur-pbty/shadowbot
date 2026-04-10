@@ -119,7 +119,11 @@ async fn set_boost_log_channel(
     .await;
 }
 
-async fn read_settings(pool: &sqlx::PgPool, bot_id: UserId, guild_id: GuildId) -> BoostEmbedSettings {
+async fn read_settings(
+    pool: &sqlx::PgPool,
+    bot_id: UserId,
+    guild_id: GuildId,
+) -> BoostEmbedSettings {
     let row = sqlx::query_as::<_, (bool, Option<String>, Option<String>, Option<i32>)>(
         r#"
         SELECT enabled, title, description, color
@@ -235,20 +239,32 @@ fn settings_components(owner_id: UserId, settings: &BoostEmbedSettings) -> Vec<C
             CreateButton::new(format!("{}:set_here:{}", BOOSTEMBED_MENU, owner_id.get()))
                 .label("Salon = ici")
                 .style(ButtonStyle::Success),
-            CreateButton::new(format!("{}:edit_channel:{}", BOOSTEMBED_MENU, owner_id.get()))
-                .label("Définir salon")
-                .style(ButtonStyle::Secondary),
-            CreateButton::new(format!("{}:disable_channel:{}", BOOSTEMBED_MENU, owner_id.get()))
-                .label("Couper envoi")
-                .style(ButtonStyle::Danger),
+            CreateButton::new(format!(
+                "{}:edit_channel:{}",
+                BOOSTEMBED_MENU,
+                owner_id.get()
+            ))
+            .label("Définir salon")
+            .style(ButtonStyle::Secondary),
+            CreateButton::new(format!(
+                "{}:disable_channel:{}",
+                BOOSTEMBED_MENU,
+                owner_id.get()
+            ))
+            .label("Couper envoi")
+            .style(ButtonStyle::Danger),
         ]),
         CreateActionRow::Buttons(vec![
             CreateButton::new(format!("{}:edit_title:{}", BOOSTEMBED_MENU, owner_id.get()))
                 .label("Modifier titre")
                 .style(ButtonStyle::Secondary),
-            CreateButton::new(format!("{}:edit_description:{}", BOOSTEMBED_MENU, owner_id.get()))
-                .label("Modifier description")
-                .style(ButtonStyle::Secondary),
+            CreateButton::new(format!(
+                "{}:edit_description:{}",
+                BOOSTEMBED_MENU,
+                owner_id.get()
+            ))
+            .label("Modifier description")
+            .style(ButtonStyle::Secondary),
             CreateButton::new(format!("{}:edit_color:{}", BOOSTEMBED_MENU, owner_id.get()))
                 .label("Modifier couleur")
                 .style(ButtonStyle::Secondary),
@@ -305,7 +321,11 @@ pub async fn handle_boostembed(ctx: &Context, msg: &Message, args: &[&str]) {
                     msg,
                     CreateEmbed::new()
                         .title("BoostEmbed")
-                        .description(if action == "on" { "Activé." } else { "Désactivé." })
+                        .description(if action == "on" {
+                            "Activé."
+                        } else {
+                            "Désactivé."
+                        })
                         .color(theme_color(ctx).await),
                 )
                 .await;
@@ -392,7 +412,11 @@ pub async fn handle_component_interaction(ctx: &Context, component: &ComponentIn
 
     if action.ends_with(":edit_title") {
         let modal = CreateModal::new(
-            format!("{}:modal:title:{}", BOOSTEMBED_MENU, component.user.id.get()),
+            format!(
+                "{}:modal:title:{}",
+                BOOSTEMBED_MENU,
+                component.user.id.get()
+            ),
             "Modifier le titre du boost embed",
         )
         .components(vec![CreateActionRow::InputText(
@@ -432,7 +456,11 @@ pub async fn handle_component_interaction(ctx: &Context, component: &ComponentIn
 
     if action.ends_with(":edit_color") {
         let modal = CreateModal::new(
-            format!("{}:modal:color:{}", BOOSTEMBED_MENU, component.user.id.get()),
+            format!(
+                "{}:modal:color:{}",
+                BOOSTEMBED_MENU,
+                component.user.id.get()
+            ),
             "Modifier la couleur du boost embed",
         )
         .components(vec![CreateActionRow::InputText(
@@ -448,7 +476,11 @@ pub async fn handle_component_interaction(ctx: &Context, component: &ComponentIn
 
     if action.ends_with(":edit_channel") {
         let modal = CreateModal::new(
-            format!("{}:modal:channel:{}", BOOSTEMBED_MENU, component.user.id.get()),
+            format!(
+                "{}:modal:channel:{}",
+                BOOSTEMBED_MENU,
+                component.user.id.get()
+            ),
             "Définir le salon boost",
         )
         .components(vec![CreateActionRow::InputText(
@@ -493,7 +525,11 @@ pub async fn handle_component_interaction(ctx: &Context, component: &ComponentIn
 }
 
 pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -> bool {
-    if !modal.data.custom_id.starts_with(&format!("{}:modal:", BOOSTEMBED_MENU)) {
+    if !modal
+        .data
+        .custom_id
+        .starts_with(&format!("{}:modal:", BOOSTEMBED_MENU))
+    {
         return false;
     }
 
@@ -641,14 +677,12 @@ pub static COMMAND_DESCRIPTOR: BoostembedCommand = BoostembedCommand;
 impl crate::commands::command_contract::CommandSpec for BoostembedCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "boostembed",
-            command: "boostembed",
+            name: "boostembed",
             category: "admin",
             params: "[on|off|test|settings]",
             summary: "Configure l embed boost avec panneau interactif",
             description: "Ouvre un panneau avec composants pour paramétrer l'embed boost et le salon où il est envoyé.",
             examples: &["+boostembed", "+boostembed settings", "+boostembed test"],
-            alias_source_key: "boostembed",
             default_aliases: &["bembed"],
             default_permission: 8,
         }

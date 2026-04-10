@@ -67,3 +67,21 @@ pub async fn handle_claim(ctx: &Context, msg: &Message, _args: &[&str]) {
     )
     .await;
 }
+
+pub struct ClaimCommand;
+pub static COMMAND_DESCRIPTOR: ClaimCommand = ClaimCommand;
+
+impl crate::commands::command_contract::CommandSpec for ClaimCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "claim",
+            category: "admin",
+            params: "aucun",
+            summary: "Revendique un ticket",
+            description: "Assigne le ticket courant au moderateur qui execute la commande.",
+            examples: &["+claim", "+help claim"],
+            default_aliases: &[],
+            default_permission: 2,
+        }
+    }
+}

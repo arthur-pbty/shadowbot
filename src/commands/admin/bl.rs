@@ -78,14 +78,12 @@ pub static COMMAND_DESCRIPTOR: BlCommand = BlCommand;
 impl crate::commands::command_contract::CommandSpec for BlCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "bl",
-            command: "bl",
+            name: "bl",
             category: "admin",
             params: "[<@membre/ID> [raison...]]",
             summary: "Gere la blacklist globale",
             description: "Affiche la blacklist ou ajoute un utilisateur a la blacklist globale du bot.",
             examples: &["+bl", "+help bl"],
-            alias_source_key: "bl",
             default_aliases: &["bls"],
             default_permission: 9,
         }

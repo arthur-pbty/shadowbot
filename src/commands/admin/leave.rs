@@ -34,14 +34,12 @@ pub static COMMAND_DESCRIPTOR: LeaveCommand = LeaveCommand;
 impl crate::commands::command_contract::CommandSpec for LeaveCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "leave",
-            command: "leave",
+            name: "leave",
             category: "admin",
             params: "[ID_serveur/index]",
             summary: "Fait quitter un serveur",
             description: "Force le bot a quitter un serveur cible ou le serveur courant.",
             examples: &["+leave", "+le", "+help leave"],
-            alias_source_key: "leave",
             default_aliases: &["lvg"],
             default_permission: 9,
         }

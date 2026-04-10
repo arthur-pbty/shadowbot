@@ -54,3 +54,21 @@ pub async fn handle_show_pics(ctx: &Context, msg: &Message, args: &[&str]) {
         send_embed(ctx, msg, embed).await;
     }
 }
+
+pub struct ShowpicsCommand;
+pub static COMMAND_DESCRIPTOR: ShowpicsCommand = ShowpicsCommand;
+
+impl crate::commands::command_contract::CommandSpec for ShowpicsCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "showpics",
+            category: "general",
+            params: "[nombre 1-5]",
+            summary: "Affiche des photos de profil",
+            description: "Affiche jusqua 5 avatars de membres du serveur.",
+            examples: &["+show pics", "+help showpics"],
+            default_aliases: &[],
+            default_permission: 0,
+        }
+    }
+}

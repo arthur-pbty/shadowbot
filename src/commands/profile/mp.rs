@@ -460,14 +460,12 @@ pub static COMMAND_DESCRIPTOR: MpCommand = MpCommand;
 impl crate::commands::command_contract::CommandSpec for MpCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "mp",
-            command: "mp",
+            name: "mp",
             category: "profile",
             params: "settings [on|off] | sent [page] | delete <id> | <@membre/ID> <message...>",
             summary: "Gere lenvoi de messages prives",
             description: "Permet de configurer, envoyer, lister et supprimer des messages prives envoyes.",
             examples: &["+mp", "+help mp"],
-            alias_source_key: "mp",
             default_aliases: &["dmsg"],
             default_permission: 8,
         }

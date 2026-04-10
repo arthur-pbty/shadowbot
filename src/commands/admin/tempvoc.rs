@@ -440,3 +440,21 @@ pub async fn handle_voice_state_update(ctx: &Context, old: Option<&VoiceState>, 
         }
     }
 }
+
+pub struct TempvocCommand;
+pub static COMMAND_DESCRIPTOR: TempvocCommand = TempvocCommand;
+
+impl crate::commands::command_contract::CommandSpec for TempvocCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "tempvoc",
+            category: "admin",
+            params: "[cmd]",
+            summary: "Configure les vocaux temporaires",
+            description: "Affiche le menu de configuration du systeme de vocaux temporaires.",
+            examples: &["+tempvoc", "+tempvoc cmd", "+help tempvoc"],
+            default_aliases: &[],
+            default_permission: 8,
+        }
+    }
+}

@@ -68,14 +68,12 @@ pub static COMMAND_DESCRIPTOR: VocinfoCommand = VocinfoCommand;
 impl crate::commands::command_contract::CommandSpec for VocinfoCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "vocinfo",
-            command: "vocinfo",
+            name: "vocinfo",
             category: "general",
             params: "[ID_salon_vocal]",
             summary: "Affiche les infos vocales",
             description: "Affiche les informations dun salon vocal cible ou du salon vocal courant.",
             examples: &["+vocinfo", "+vo", "+help vocinfo"],
-            alias_source_key: "vocinfo",
             default_aliases: &["vci"],
             default_permission: 0,
         }

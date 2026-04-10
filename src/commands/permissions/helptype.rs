@@ -64,14 +64,12 @@ pub static COMMAND_DESCRIPTOR: HelptypeCommand = HelptypeCommand;
 impl crate::commands::command_contract::CommandSpec for HelptypeCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "helptype",
-            command: "helptype",
+            name: "helptype",
             category: "permissions",
             params: "<button|select|hybrid>",
             summary: "Change le mode daffichage help",
             description: "Definit le mode daffichage de laide entre button, select et hybrid.",
             examples: &["+helptype", "+he", "+help helptype"],
-            alias_source_key: "helptype",
             default_aliases: &["htp"],
             default_permission: 0,
         }

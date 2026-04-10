@@ -496,3 +496,25 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
 
     false
 }
+
+pub struct SuggestionCommand;
+pub static COMMAND_DESCRIPTOR: SuggestionCommand = SuggestionCommand;
+
+impl crate::commands::command_contract::CommandSpec for SuggestionCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "suggestion",
+            category: "admin",
+            params: "<contenu...> | settings",
+            summary: "Publie ou configure les suggestions",
+            description: "Publie une suggestion utilisateur ou ouvre le panneau de configuration.",
+            examples: &[
+                "+suggestion Ameliorer le salon",
+                "+suggestion settings",
+                "+help suggestion",
+            ],
+            default_aliases: &[],
+            default_permission: 0,
+        }
+    }
+}

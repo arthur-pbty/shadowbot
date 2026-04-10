@@ -123,14 +123,12 @@ pub static COMMAND_DESCRIPTOR: AliasCommand = AliasCommand;
 impl crate::commands::command_contract::CommandSpec for AliasCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "alias",
-            command: "alias",
+            name: "alias",
             category: "permissions",
             params: "<commande> <alias> | remove <alias> | list",
             summary: "Gere les aliases personnalises",
             description: "Liste, ajoute ou supprime des aliases de commandes stockes en base.",
             examples: &["+alias", "+as", "+help alias"],
-            alias_source_key: "alias",
             default_aliases: &["als"],
             default_permission: 9,
         }

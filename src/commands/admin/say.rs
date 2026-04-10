@@ -27,14 +27,12 @@ pub static COMMAND_DESCRIPTOR: SayCommand = SayCommand;
 impl crate::commands::command_contract::CommandSpec for SayCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "say",
-            command: "say",
+            name: "say",
             category: "admin",
             params: "<message...>",
             summary: "Fait parler le bot",
             description: "Envoie un message brut dans le salon courant via le bot.",
             examples: &["+say", "+sy", "+help say"],
-            alias_source_key: "say",
             default_aliases: &["sym"],
             default_permission: 8,
         }

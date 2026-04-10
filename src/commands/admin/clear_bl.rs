@@ -39,14 +39,12 @@ pub static COMMAND_DESCRIPTOR: ClearBlCommand = ClearBlCommand;
 impl crate::commands::command_contract::CommandSpec for ClearBlCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "clear_bl",
-            command: "clear bl",
+            name: "clear_bl",
             category: "admin",
             params: "aucun",
             summary: "Vide la blacklist globale",
             description: "Supprime toutes les entrees de la blacklist globale.",
             examples: &["+clear bl", "+cl", "+help clear bl"],
-            alias_source_key: "clear_bl",
             default_aliases: &["cbl"],
             default_permission: 9,
         }

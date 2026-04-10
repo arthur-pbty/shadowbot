@@ -395,8 +395,7 @@ pub static COMMAND_DESCRIPTOR: HelpsettingCommand = HelpsettingCommand;
 impl crate::commands::command_contract::CommandSpec for HelpsettingCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "helpsetting",
-            command: "helpsetting",
+            name: "helpsetting",
             category: "permissions",
             params: "[type|aliases|perms] [value]",
             summary: "Configure l'affichage du système d'aide",
@@ -406,7 +405,6 @@ impl crate::commands::command_contract::CommandSpec for HelpsettingCommand {
                 "+helpsetting type hybrid",
                 "+helpsetting perms off",
             ],
-            alias_source_key: "helpsetting",
             default_aliases: &["hs", "helpetting"],
             default_permission: 9,
         }

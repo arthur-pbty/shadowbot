@@ -136,14 +136,12 @@ pub static COMMAND_DESCRIPTOR: AlladminsCommand = AlladminsCommand;
 impl crate::commands::command_contract::CommandSpec for AlladminsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "alladmins",
-            command: "alladmins",
+            name: "alladmins",
             category: "general",
             params: "aucun",
             summary: "Liste les administrateurs du serveur",
             description: "Affiche les membres qui possedent des droits administrateur sur le serveur.",
             examples: &["+alladmins", "+as", "+help alladmins"],
-            alias_source_key: "alladmins",
             default_aliases: &["aad"],
             default_permission: 0,
         }

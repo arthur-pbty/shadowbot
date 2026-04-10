@@ -92,14 +92,12 @@ pub static COMMAND_DESCRIPTOR: RoleCommand = RoleCommand;
 impl crate::commands::command_contract::CommandSpec for RoleCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "role",
-            command: "role",
+            name: "role",
             category: "general",
             params: "<@&rôle/ID>",
             summary: "Affiche les details dun role",
             description: "Affiche les informations utiles dun role cible.",
             examples: &["+role", "+re", "+help role"],
-            alias_source_key: "role",
             default_aliases: &["rol"],
             default_permission: 0,
         }

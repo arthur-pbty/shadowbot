@@ -66,3 +66,21 @@ pub async fn handle_tickets(ctx: &Context, msg: &Message, args: &[&str]) {
     )
     .await;
 }
+
+pub struct TicketsCommand;
+pub static COMMAND_DESCRIPTOR: TicketsCommand = TicketsCommand;
+
+impl crate::commands::command_contract::CommandSpec for TicketsCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "tickets",
+            category: "admin",
+            params: "[page]",
+            summary: "Liste les tickets",
+            description: "Affiche les tickets du serveur avec pagination.",
+            examples: &["+tickets", "+tickets 2", "+help tickets"],
+            default_aliases: &[],
+            default_permission: 2,
+        }
+    }
+}

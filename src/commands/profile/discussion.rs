@@ -63,14 +63,12 @@ pub static COMMAND_DESCRIPTOR: DiscussionCommand = DiscussionCommand;
 impl crate::commands::command_contract::CommandSpec for DiscussionCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "discussion",
-            command: "discussion",
+            name: "discussion",
             category: "profile",
             params: "<ID_serveur/index> <message...>",
             summary: "Diffuse un message serveur",
             description: "Envoie un message de discussion sur un serveur cible.",
             examples: &["+discussion", "+dn", "+help discussion"],
-            alias_source_key: "discussion",
             default_aliases: &["dsc"],
             default_permission: 8,
         }

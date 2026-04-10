@@ -67,14 +67,12 @@ pub static COMMAND_DESCRIPTOR: HelpaliasCommand = HelpaliasCommand;
 impl crate::commands::command_contract::CommandSpec for HelpaliasCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "helpalias",
-            command: "helpalias",
+            name: "helpalias",
             category: "permissions",
             params: "<on|off>",
             summary: "Active ou coupe les aliases help",
             description: "Active ou desactive laffichage des aliases dans laide.",
             examples: &["+helpalias", "+hs", "+help helpalias"],
-            alias_source_key: "helpalias",
             default_aliases: &["hal"],
             default_permission: 0,
         }

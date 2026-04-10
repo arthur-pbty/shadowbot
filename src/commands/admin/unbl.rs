@@ -65,14 +65,12 @@ pub static COMMAND_DESCRIPTOR: UnblCommand = UnblCommand;
 impl crate::commands::command_contract::CommandSpec for UnblCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "unbl",
-            command: "unbl",
+            name: "unbl",
             category: "admin",
             params: "<@membre/ID>",
             summary: "Retire un utilisateur blacklist",
             description: "Retire un utilisateur de la blacklist globale du bot.",
             examples: &["+unbl", "+ul", "+help unbl"],
-            alias_source_key: "unbl",
             default_aliases: &["unb"],
             default_permission: 9,
         }

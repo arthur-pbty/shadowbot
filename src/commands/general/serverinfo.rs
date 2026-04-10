@@ -58,14 +58,12 @@ pub static COMMAND_DESCRIPTOR: ServerinfoCommand = ServerinfoCommand;
 impl crate::commands::command_contract::CommandSpec for ServerinfoCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "serverinfo",
-            command: "serverinfo",
+            name: "serverinfo",
             category: "general",
             params: "[ID_serveur]",
             summary: "Affiche les infos dun serveur",
             description: "Affiche les informations principales dun serveur comme nom, id et statistiques.",
             examples: &["+serverinfo", "+so", "+help serverinfo"],
-            alias_source_key: "serverinfo",
             default_aliases: &["svi"],
             default_permission: 0,
         }

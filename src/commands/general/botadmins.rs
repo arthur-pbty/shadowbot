@@ -135,14 +135,12 @@ pub static COMMAND_DESCRIPTOR: BotadminsCommand = BotadminsCommand;
 impl crate::commands::command_contract::CommandSpec for BotadminsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "botadmins",
-            command: "botadmins",
+            name: "botadmins",
             category: "general",
             params: "aucun",
             summary: "Liste les admins du bot",
             description: "Affiche les utilisateurs ayant des droits admin sur le bot.",
             examples: &["+botadmins", "+bs", "+help botadmins"],
-            alias_source_key: "botadmins",
             default_aliases: &["bad"],
             default_permission: 0,
         }

@@ -441,3 +441,21 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
 
     false
 }
+
+pub struct TicketCommand;
+pub static COMMAND_DESCRIPTOR: TicketCommand = TicketCommand;
+
+impl crate::commands::command_contract::CommandSpec for TicketCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "ticket",
+            category: "admin",
+            params: "settings",
+            summary: "Ouvre la gestion des tickets",
+            description: "Affiche le menu de configuration du systeme de tickets.",
+            examples: &["+ticket", "+help ticket"],
+            default_aliases: &[],
+            default_permission: 8,
+        }
+    }
+}

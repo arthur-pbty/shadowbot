@@ -69,14 +69,12 @@ pub static COMMAND_DESCRIPTOR: SnipeCommand = SnipeCommand;
 impl crate::commands::command_contract::CommandSpec for SnipeCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "snipe",
-            command: "snipe",
+            name: "snipe",
             category: "general",
             params: "[index]",
             summary: "Recupere un message supprime",
             description: "Affiche le dernier message supprime dans le salon ou un index de messages supprimes.",
             examples: &["+snipe", "+se", "+help snipe"],
-            alias_source_key: "snipe",
             default_aliases: &["snp"],
             default_permission: 0,
         }

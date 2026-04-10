@@ -133,6 +133,7 @@ pub mod loading;
 pub mod lock;
 #[path = "admin/lockall.rs"]
 pub mod lockall;
+pub mod logs_command_helpers;
 pub mod logs_service;
 #[path = "permissions/mainprefix.rs"]
 pub mod mainprefix;
@@ -142,6 +143,8 @@ pub mod massiverole;
 pub mod member;
 #[path = "admin/messagelog.rs"]
 pub mod messagelog;
+pub mod moderation_channel_helpers;
+pub mod moderation_sanction_helpers;
 pub mod moderation_tools;
 #[path = "admin/modlog.rs"]
 pub mod modlog;
@@ -161,6 +164,7 @@ pub mod online;
 pub mod owner;
 #[path = "permissions/perms.rs"]
 pub mod perms;
+pub mod perms_helpers;
 pub mod perms_service;
 #[path = "general/pic.rs"]
 pub mod pic;
@@ -314,6 +318,17 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         embed::COMMAND_DESCRIPTOR.metadata(),
         clear_messages::COMMAND_DESCRIPTOR.metadata(),
         backup::COMMAND_DESCRIPTOR.metadata(),
+        ticket::COMMAND_DESCRIPTOR.metadata(),
+        claim::COMMAND_DESCRIPTOR.metadata(),
+        rename::COMMAND_DESCRIPTOR.metadata(),
+        ticket_member::COMMAND_DESCRIPTOR.metadata(),
+        close::COMMAND_DESCRIPTOR.metadata(),
+        tickets::COMMAND_DESCRIPTOR.metadata(),
+        showpics::COMMAND_DESCRIPTOR.metadata(),
+        suggestion::COMMAND_DESCRIPTOR.metadata(),
+        autopublish::COMMAND_DESCRIPTOR.metadata(),
+        tempvoc::COMMAND_DESCRIPTOR.metadata(),
+        tempvoc_cmd::COMMAND_DESCRIPTOR.metadata(),
         autobackup::COMMAND_DESCRIPTOR.metadata(),
         loading::COMMAND_DESCRIPTOR.metadata(),
         create::COMMAND_DESCRIPTOR.metadata(),
@@ -404,7 +419,7 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
 pub fn command_metadata_by_key(key: &str) -> Option<CommandMetadata> {
     all_command_metadata()
         .into_iter()
-        .find(|meta| meta.key == key)
+        .find(|meta| meta.name == key)
 }
 
 pub fn resolve_default_alias(alias: &str) -> Option<&'static str> {
@@ -415,7 +430,7 @@ pub fn resolve_default_alias(alias: &str) -> Option<&'static str> {
             .iter()
             .any(|candidate| candidate.eq_ignore_ascii_case(&normalized))
         {
-            Some(meta.key)
+            Some(meta.name)
         } else {
             None
         }

@@ -15,3 +15,21 @@ pub async fn handle_tempvoc_cmd(ctx: &Context, msg: &Message, _args: &[&str]) {
 
     send_embed(ctx, msg, embed).await;
 }
+
+pub struct TempvocCmdCommand;
+pub static COMMAND_DESCRIPTOR: TempvocCmdCommand = TempvocCmdCommand;
+
+impl crate::commands::command_contract::CommandSpec for TempvocCmdCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "tempvoc_cmd",
+            category: "admin",
+            params: "aucun",
+            summary: "Affiche laide tempvoc",
+            description: "Affiche un rappel des commandes et du fonctionnement de tempvoc.",
+            examples: &["+tempvoc cmd", "+help tempvoc_cmd"],
+            default_aliases: &[],
+            default_permission: 0,
+        }
+    }
+}

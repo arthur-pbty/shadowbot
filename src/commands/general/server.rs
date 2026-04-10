@@ -157,14 +157,12 @@ pub static COMMAND_DESCRIPTOR: ServerCommand = ServerCommand;
 impl crate::commands::command_contract::CommandSpec for ServerCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "server",
-            command: "server",
+            name: "server",
             category: "general",
             params: "pic | banner | list",
             summary: "Affiche et gere le serveur",
             description: "Affiche licone ou la banniere du serveur, ou liste les serveurs du bot selon la sous commande.",
             examples: &["+server", "+sr", "+help server"],
-            alias_source_key: "server",
             default_aliases: &["srv"],
             default_permission: 0,
         }

@@ -250,14 +250,12 @@ pub static COMMAND_DESCRIPTOR: ViewLogsCommand = ViewLogsCommand;
 impl crate::commands::command_contract::CommandSpec for ViewLogsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "viewlogs",
-            command: "viewlogs",
+            name: "viewlogs",
             category: "logs",
             params: "[page]",
             summary: "Affiche les logs d'audit du serveur",
             description: "Affiche les derniers logs d'audit du serveur avec pagination. Les logs incluent tous les événements (modération, messages, rôles, salons, etc.)",
             examples: &["+viewlogs", "+viewlogs 2"],
-            alias_source_key: "viewlogs",
             default_aliases: &["vlogs", "audit"],
             default_permission: 0,
         }

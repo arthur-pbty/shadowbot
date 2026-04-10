@@ -64,14 +64,12 @@ pub static COMMAND_DESCRIPTOR: BannerCommand = BannerCommand;
 impl crate::commands::command_contract::CommandSpec for BannerCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "banner",
-            command: "banner",
+            name: "banner",
             category: "general",
             params: "<@membre/ID>",
             summary: "Affiche la banniere utilisateur",
             description: "Affiche la banniere de profil dun utilisateur cible ou de lauteur.",
             examples: &["+banner", "+br", "+help banner"],
-            alias_source_key: "banner",
             default_aliases: &["bnr"],
             default_permission: 0,
         }

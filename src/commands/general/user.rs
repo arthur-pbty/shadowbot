@@ -64,14 +64,12 @@ pub static COMMAND_DESCRIPTOR: UserCommand = UserCommand;
 impl crate::commands::command_contract::CommandSpec for UserCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "user",
-            command: "user",
+            name: "user",
             category: "general",
             params: "<@membre/ID>",
             summary: "Affiche le profil utilisateur",
             description: "Affiche les informations principales dun utilisateur cible.",
             examples: &["+user", "+ur", "+help user"],
-            alias_source_key: "user",
             default_aliases: &["usr"],
             default_permission: 0,
         }

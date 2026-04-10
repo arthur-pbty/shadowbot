@@ -50,14 +50,12 @@ pub static COMMAND_DESCRIPTOR: ThemeCommand = ThemeCommand;
 impl crate::commands::command_contract::CommandSpec for ThemeCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            key: "theme",
-            command: "theme",
+            name: "theme",
             category: "profile",
             params: "<couleur|#hex|0xhex>",
             summary: "Definit la couleur du theme",
             description: "Met a jour la couleur principale des embeds du bot.",
             examples: &["+theme", "+te", "+help theme"],
-            alias_source_key: "theme",
             default_aliases: &["thm"],
             default_permission: 8,
         }
