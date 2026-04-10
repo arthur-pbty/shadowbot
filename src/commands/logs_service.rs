@@ -78,7 +78,29 @@ async fn is_nolog_channel(
     }
 }
 
+async fn record_audit_log(
+    ctx: &Context,
+    guild_id: GuildId,
+    log_type: &str,
+    user_id: Option<UserId>,
+    channel_id: Option<ChannelId>,
+    role_id: Option<RoleId>,
+    action: &str,
+) {
+    let Some(pool) = pool(ctx).await else {
+        return;
+    };
+
+    let bot_id = ctx.cache.current_user().id;
+    let _ = crate::db::insert_audit_log(
+        &pool, bot_id, guild_id, log_type, user_id, channel_id, role_id, None, action, None,
+    )
+    .await;
+}
+
 pub async fn send_log_embed(ctx: &Context, guild_id: GuildId, log_type: &str, embed: CreateEmbed) {
+    record_audit_log(ctx, guild_id, log_type, None, None, None, log_type).await;
+
     if let Some(channel_id) = get_log_channel(ctx, guild_id, log_type).await {
         let _ = channel_id
             .send_message(
@@ -99,36 +121,38 @@ pub async fn emit_log(
     action: &str,
     mut embed: CreateEmbed,
 ) {
-    let bot_id = ctx.cache.current_user().id;
     let timestamp = Utc::now();
 
     embed = embed.timestamp(timestamp);
 
-    if let Some(pool) = pool(ctx).await {
-        let _ = crate::db::insert_audit_log(
-            &pool, bot_id, guild_id, log_type, user_id, channel_id, role_id, None, action, None,
-        )
-        .await;
-    }
+    record_audit_log(ctx, guild_id, log_type, user_id, channel_id, role_id, action).await;
 
-    send_log_embed(ctx, guild_id, log_type, embed).await;
-}
-
-pub async fn on_member_join(ctx: &Context, guild_id: GuildId, user: &User) {
-    if let Some(channel_id) = get_log_channel(ctx, guild_id, "raid").await {
-        let _ = channel_id
+    if let Some(log_channel_id) = get_log_channel(ctx, guild_id, log_type).await {
+        let _ = log_channel_id
             .send_message(
                 &ctx.http,
-                serenity::builder::CreateMessage::new().embed(
-                    CreateEmbed::new().title("RaidLog").description(format!(
-                        "Nouveau membre: <@{}> (`{}`)",
-                        user.id.get(),
-                        user.tag()
-                    )),
-                ),
+                serenity::builder::CreateMessage::new().embed(embed),
             )
             .await;
     }
+}
+
+pub async fn on_member_join(ctx: &Context, guild_id: GuildId, user: &User) {
+    emit_log(
+        ctx,
+        guild_id,
+        "raid",
+        Some(user.id),
+        None,
+        None,
+        "join",
+        CreateEmbed::new().title("RaidLog").description(format!(
+            "Nouveau membre: <@{}> (`{}`)",
+            user.id.get(),
+            user.tag()
+        )),
+    )
+    .await;
 
     run_join_leave_action(ctx, guild_id, "join", user).await;
 }
@@ -226,7 +250,14 @@ pub async fn send_boost_embed(ctx: &Context, guild_id: GuildId, user: &User) {
         .description(description)
         .color(color);
 
-    send_log_embed(ctx, guild_id, "boost", embed).await;
+    if let Some(channel_id) = get_log_channel(ctx, guild_id, "boost").await {
+        let _ = channel_id
+            .send_message(
+                &ctx.http,
+                serenity::builder::CreateMessage::new().embed(embed),
+            )
+            .await;
+    }
 }
 
 pub async fn on_message_deleted(
@@ -481,10 +512,14 @@ pub async fn log_moderation_command(ctx: &Context, msg: &Message, command: &str,
         format!("{} {}", command, args.join(" "))
     };
 
-    send_log_embed(
+    emit_log(
         ctx,
         guild_id,
         "moderation",
+        Some(msg.author.id),
+        Some(msg.channel_id),
+        None,
+        command,
         CreateEmbed::new().title("ModLog").description(format!(
             "Modérateur: <@{}>\nCommande: `+{}`",
             msg.author.id.get(),

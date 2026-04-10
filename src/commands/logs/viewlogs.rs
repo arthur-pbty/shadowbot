@@ -8,6 +8,10 @@ use crate::db::DbPoolKey;
 
 const LOGS_PER_PAGE: i64 = 10;
 
+fn total_pages(total: i64) -> i64 {
+    ((total + LOGS_PER_PAGE - 1) / LOGS_PER_PAGE).max(1)
+}
+
 pub async fn pool(ctx: &Context) -> Option<sqlx::PgPool> {
     let data = ctx.data.read().await;
     data.get::<DbPoolKey>().cloned()
@@ -51,7 +55,9 @@ pub async fn handle_viewlogs(ctx: &Context, msg: &Message, args: &[&str]) {
         .await
         .unwrap_or(0);
 
-    if page > (total / LOGS_PER_PAGE) + 1 && total > 0 {
+    let total_pages = total_pages(total);
+
+    if page > total_pages {
         send_embed(
             ctx,
             msg,
@@ -73,9 +79,7 @@ pub async fn handle_viewlogs(ctx: &Context, msg: &Message, args: &[&str]) {
         .title("Logs d'audit")
         .description(format!(
             "Page {}/{} ({} logs total)",
-            page,
-            (total / LOGS_PER_PAGE) + if total % LOGS_PER_PAGE > 0 { 1 } else { 0 },
-            total
+            page, total_pages, total
         ))
         .color(theme_color(ctx).await);
 
@@ -98,7 +102,6 @@ pub async fn handle_viewlogs(ctx: &Context, msg: &Message, args: &[&str]) {
         );
     }
 
-    let total_pages = (total / LOGS_PER_PAGE) + if total % LOGS_PER_PAGE > 0 { 1 } else { 0 };
     let mut components = Vec::new();
 
     if total_pages > 1 {
@@ -139,10 +142,12 @@ pub async fn handle_viewlogs_button(ctx: &Context, component: &ComponentInteract
     }
 
     let direction = parts[1];
-    let user_id_str = parts[2];
-    let current_page = parts[3].parse::<i64>().unwrap_or(1);
+    let Ok(expected_user_id) = parts[2].parse::<u64>() else {
+        return false;
+    };
+    let current_page = parts[3].parse::<i64>().unwrap_or(1).max(1);
 
-    if component.user.id.get().to_string() != user_id_str {
+    if component.user.id.get() != expected_user_id {
         let _ = component
             .create_response(
                 &ctx.http,
@@ -162,7 +167,9 @@ pub async fn handle_viewlogs_button(ctx: &Context, component: &ComponentInteract
         _ => current_page,
     };
 
-    let guild_id = component.guild_id.unwrap_or_else(|| GuildId::new(0));
+    let Some(guild_id) = component.guild_id else {
+        return true;
+    };
     let Some(pool) = pool(ctx).await else {
         return true;
     };
@@ -172,8 +179,8 @@ pub async fn handle_viewlogs_button(ctx: &Context, component: &ComponentInteract
         .await
         .unwrap_or(0);
 
-    let total_pages = (total / LOGS_PER_PAGE) + if total % LOGS_PER_PAGE > 0 { 1 } else { 0 };
-    let new_page = new_page.min(total_pages);
+    let total_pages = total_pages(total);
+    let new_page = new_page.clamp(1, total_pages);
 
     let offset = (new_page - 1) * LOGS_PER_PAGE;
     let logs = crate::db::get_audit_logs(&pool, bot_id, guild_id, LOGS_PER_PAGE, offset)

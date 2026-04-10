@@ -36,6 +36,9 @@ fn parse_owner_component_id(custom_id: &str) -> Option<(&str, u64)> {
     let mut parts = custom_id.rsplitn(2, ':');
     let owner = parts.next()?.parse::<u64>().ok()?;
     let action = parts.next()?;
+    if !action.starts_with("adv:") {
+        return None;
+    }
     Some((action, owner))
 }
 

@@ -3,7 +3,7 @@ use serenity::prelude::*;
 
 use crate::commands::{
     advanced_tools, boostembed, help, helpsetting, mp, perms_service, rolemenu, suggestion,
-    tempvoc, ticket,
+    tempvoc, ticket, viewlogs,
 };
 
 pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction) {
@@ -47,6 +47,10 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
         }
 
         if perms_service::handle_allperms_component(ctx, component).await {
+            return;
+        }
+
+        if viewlogs::handle_viewlogs_button(ctx, component).await {
             return;
         }
 
