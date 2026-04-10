@@ -1,0 +1,74 @@
+use serenity::builder::CreateEmbed;
+use serenity::model::prelude::*;
+use serenity::prelude::*;
+
+use crate::commands::common::{parse_role, send_embed, theme_color};
+
+pub async fn handle_massiverole(ctx: &Context, msg: &Message, args: &[&str]) {
+    let Some(guild_id) = msg.guild_id else {
+        return;
+    };
+
+    if args.is_empty() {
+        return;
+    }
+
+    let Ok(guild) = guild_id.to_partial_guild(&ctx.http).await else {
+        return;
+    };
+
+    let Some(target_role) = parse_role(&guild, args[0]) else {
+        return;
+    };
+
+    let filter_role = args.get(1).and_then(|raw| parse_role(&guild, raw));
+
+    let Ok(members) = guild_id.members(&ctx.http, None, None).await else {
+        return;
+    };
+
+    let mut affected = 0usize;
+    for member in members {
+        if let Some(filter) = &filter_role {
+            if !member.roles.contains(&filter.id) {
+                continue;
+            }
+        }
+
+        if member.add_role(&ctx.http, target_role.id).await.is_ok() {
+            affected += 1;
+        }
+    }
+
+    send_embed(
+        ctx,
+        msg,
+        CreateEmbed::new()
+            .title("MassiveRole")
+            .description(format!(
+                "{} membres traités pour le rôle <@&{}>.",
+                affected,
+                target_role.id.get()
+            ))
+            .color(theme_color(ctx).await),
+    )
+    .await;
+}
+
+pub struct MassiveRoleCommand;
+pub static COMMAND_DESCRIPTOR: MassiveRoleCommand = MassiveRoleCommand;
+
+impl crate::commands::command_contract::CommandSpec for MassiveRoleCommand {
+    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
+        crate::commands::command_contract::CommandMetadata {
+            name: "massiverole",
+            category: "roles",
+            params: "<role_cible> [role_filtre]",
+            summary: "Ajoute un role en masse",
+            description: "Ajoute un role a tous les membres ou a ceux qui ont deja un role filtre.",
+            examples: &["+massiverole @VIP", "+massiverole @VIP @Membres"],
+            default_aliases: &["mrole", "mr"],
+            default_permission: 8,
+        }
+    }
+}
