@@ -3,7 +3,7 @@ use serenity::prelude::*;
 
 use crate::commands::{
     advanced_tools, ancien, autoconfiglog, boostembed, g2048, help, helpsetting, morpion, mp,
-    perms_service, puissance4, rolemenu, suggestion, tempvoc, ticket, viewlogs,
+    perms_service, permsmenu, puissance4, rolemenu, suggestion, tempvoc, ticket, viewlogs,
 };
 
 pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction) {
@@ -66,6 +66,10 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
             return;
         }
 
+        if permsmenu::handle_component_interaction(ctx, component).await {
+            return;
+        }
+
         if perms_service::handle_allperms_component(ctx, component).await {
             return;
         }
@@ -96,6 +100,10 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
         }
 
         if tempvoc::handle_modal_interaction(ctx, modal).await {
+            return;
+        }
+
+        if permsmenu::handle_modal_interaction(ctx, modal).await {
             return;
         }
 

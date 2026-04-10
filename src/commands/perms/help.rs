@@ -163,9 +163,8 @@ fn help_page_for_command(
         "owner" | "unowner" | "clearowners" | "bl" | "unbl" | "blinfo" | "clearbl" | "allbots"
         | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp" | "mpsettings" | "mpsent"
         | "mpdelete" | "leave" | "discussion" => "administration",
-        "perms" | "delperm" | "clearperms" | "allperms" | "alias" | "help" | "helpsetting" => {
-            "permissions"
-        }
+        "perms" | "permsmenu" | "delperm" | "clearperms" | "allperms" | "alias" | "help"
+        | "helpsetting" => "permissions",
         _ => match meta.category {
             "info" => "infos",
             "invitation" => "invitation",
@@ -467,6 +466,7 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "mainprefix" => Some("mainprefix"),
         "prefix" => Some("prefix"),
         "perms" => Some("perms"),
+        "permsmenu" | "perms menu" => Some("permsmenu"),
         "allperms" => Some("allperms"),
         "setperm" => Some("setperm"),
         "delperm" => Some("delperm"),

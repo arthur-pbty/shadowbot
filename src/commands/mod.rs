@@ -262,6 +262,8 @@ pub mod perms;
 pub mod perms_helpers;
 #[path = "../utils/perms_service.rs"]
 pub mod perms_service;
+#[path = "perms/permsmenu.rs"]
+pub mod permsmenu;
 #[path = "game/pfc.rs"]
 pub mod pfc;
 #[path = "info/pic.rs"]
@@ -630,6 +632,7 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         mainprefix::COMMAND_DESCRIPTOR.metadata(),
         prefix::COMMAND_DESCRIPTOR.metadata(),
         perms::COMMAND_DESCRIPTOR.metadata(),
+        permsmenu::COMMAND_DESCRIPTOR.metadata(),
         delperm::COMMAND_DESCRIPTOR.metadata(),
         clear_perms::COMMAND_DESCRIPTOR.metadata(),
         allperms::COMMAND_DESCRIPTOR.metadata(),
