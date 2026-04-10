@@ -90,7 +90,6 @@ impl crate::commands::command_contract::CommandSpec for CompetCommand {
             name: "compet",
             category: "bot",
             params: "<texte[, ,texte2,...]>",
-            summary: "Definit une activite competing",
             description: "Configure la rotation des messages d activite en mode competing.",
             examples: &["+compet", "+ct", "+help compet"],
             default_aliases: &["cpt"],

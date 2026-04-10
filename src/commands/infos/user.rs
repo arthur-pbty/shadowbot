@@ -67,7 +67,6 @@ impl crate::commands::command_contract::CommandSpec for UserCommand {
             name: "user",
             category: "infos",
             params: "<@membre/ID>",
-            summary: "Affiche le profil utilisateur",
             description: "Affiche les informations principales dun utilisateur cible.",
             examples: &["+user", "+ur", "+help user"],
             default_aliases: &["usr"],

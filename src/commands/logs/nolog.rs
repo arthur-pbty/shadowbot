@@ -112,7 +112,6 @@ impl crate::commands::command_contract::CommandSpec for NologCommand {
             name: "nolog",
             category: "logs",
             params: "<add/del> [salon] [message|voice|all]",
-            summary: "Exclut des salons des logs",
             description: "Desactive ou reactive les logs message/voice pour certains salons.",
             examples: &["+nolog add #secret all", "+nolog del #secret message"],
             default_aliases: &["nlg"],

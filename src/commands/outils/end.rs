@@ -105,7 +105,6 @@ impl crate::commands::command_contract::CommandSpec for EndCommand {
             name: "end",
             category: "outils",
             params: "giveaway <id_message>",
-            summary: "Termine un giveaway par ID",
             description: "Permet de stopper instantanement un giveaway avec l'identifiant du message.",
             examples: &["+end giveaway 123456789012345678"],
             default_aliases: &["gend"],

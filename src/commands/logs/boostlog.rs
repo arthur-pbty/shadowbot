@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for BoostlogCommand {
             name: "boostlog",
             category: "logs",
             params: "<on [salon]|off>",
-            summary: "Active les logs de boosts",
             description: "Active ou desactive les logs de boosts.",
             examples: &["+boostlog on #logs", "+boostlog off"],
             default_aliases: &["blog"],

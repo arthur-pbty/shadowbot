@@ -39,7 +39,6 @@ impl crate::commands::command_contract::CommandSpec for UnhideCommand {
             name: "unhide",
             category: "salons_vocal",
             params: "[salon]",
-            summary: "Affiche un salon",
             description: "Rend a nouveau visible un salon.",
             examples: &["+unhide", "+unhide #general"],
             default_aliases: &["uhd"],

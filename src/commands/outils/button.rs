@@ -46,7 +46,6 @@ impl crate::commands::command_contract::CommandSpec for ButtonCommand {
             name: "button",
             category: "outils",
             params: "<add/del> <lien>",
-            summary: "Gere des boutons decoratifs",
             description: "Ajoute ou supprime un bouton de decoration personnalise sur un message du bot.",
             examples: &[
                 "+button add https://example.com",

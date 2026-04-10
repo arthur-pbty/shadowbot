@@ -67,7 +67,6 @@ impl crate::commands::command_contract::CommandSpec for BannerCommand {
             name: "banner",
             category: "infos",
             params: "<@membre/ID>",
-            summary: "Affiche la banniere utilisateur",
             description: "Affiche la banniere de profil dun utilisateur cible ou de lauteur.",
             examples: &["+banner", "+br", "+help banner"],
             default_aliases: &["bnr"],

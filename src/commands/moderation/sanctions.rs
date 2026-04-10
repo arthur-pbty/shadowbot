@@ -104,7 +104,6 @@ impl crate::commands::command_contract::CommandSpec for SanctionsCommand {
             name: "sanctions",
             category: "moderation",
             params: "<@membre/ID>",
-            summary: "Affiche les sanctions d un membre",
             description: "Liste l historique des sanctions d un membre.",
             examples: &["+sanctions @User"],
             default_aliases: &["sanct"],

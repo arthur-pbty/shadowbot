@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for MessagelogCommand {
             name: "messagelog",
             category: "logs",
             params: "<on [salon]|off>",
-            summary: "Active les logs de messages",
             description: "Active ou desactive les logs des messages supprimes et edites.",
             examples: &["+messagelog on #logs", "+messagelog off"],
             default_aliases: &["msglog"],

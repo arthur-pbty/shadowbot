@@ -139,7 +139,6 @@ impl crate::commands::command_contract::CommandSpec for AlladminsCommand {
             name: "alladmins",
             category: "administration",
             params: "aucun",
-            summary: "Liste les administrateurs du serveur",
             description: "Affiche les membres qui possedent des droits administrateur sur le serveur.",
             examples: &["+alladmins", "+as", "+help alladmins"],
             default_aliases: &["aad"],

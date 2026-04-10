@@ -324,7 +324,6 @@ impl crate::commands::command_contract::CommandSpec for SetCommand {
             name: "set",
             category: "bot",
             params: "name <nom> | pic <url> | banner <url> | profil <nom> ;; <url_pic> ;; <url_banner> | perm ...",
-            summary: "Configure le profil du bot",
             description: "Modifie le nom, lavatar, la banniere ou des options avancees via les sous commandes.",
             examples: &["+set", "+st", "+help set"],
             default_aliases: &["cfg"],

@@ -120,7 +120,6 @@ impl crate::commands::command_contract::CommandSpec for AutopublishCommand {
             name: "autopublish",
             category: "outils",
             params: "on|off [#canal]",
-            summary: "Configure lautopublish",
             description: "Affiche, active ou desactive la publication automatique des annonces.",
             examples: &[
                 "+autopublish",

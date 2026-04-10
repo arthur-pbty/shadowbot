@@ -95,7 +95,6 @@ impl crate::commands::command_contract::CommandSpec for RoleCommand {
             name: "role",
             category: "infos",
             params: "<@&rôle/ID>",
-            summary: "Affiche les details dun role",
             description: "Affiche les informations utiles dun role cible.",
             examples: &["+role", "+re", "+help role"],
             default_aliases: &["rol"],

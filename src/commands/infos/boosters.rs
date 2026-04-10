@@ -134,7 +134,6 @@ impl crate::commands::command_contract::CommandSpec for BoostersCommand {
             name: "boosters",
             category: "infos",
             params: "aucun",
-            summary: "Liste les boosters du serveur",
             description: "Affiche les membres qui boostent actuellement le serveur.",
             examples: &["+boosters", "+bs", "+help boosters"],
             default_aliases: &["bst"],

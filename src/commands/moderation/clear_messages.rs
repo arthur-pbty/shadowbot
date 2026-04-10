@@ -57,7 +57,6 @@ impl crate::commands::command_contract::CommandSpec for ClearMessagesCommand {
             name: "clear_messages",
             category: "moderation",
             params: "<nombre> [@membre/ID]",
-            summary: "Supprime des messages dans le salon",
             description: "Supprime un nombre de messages, optionnellement filtres par membre.",
             examples: &["+clear 20", "+clear 20 @User"],
             default_aliases: &["purge"],

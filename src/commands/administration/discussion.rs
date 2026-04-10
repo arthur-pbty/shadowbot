@@ -66,7 +66,6 @@ impl crate::commands::command_contract::CommandSpec for DiscussionCommand {
             name: "discussion",
             category: "administration",
             params: "<ID_serveur/index> <message...>",
-            summary: "Diffuse un message serveur",
             description: "Envoie un message de discussion sur un serveur cible.",
             examples: &["+discussion", "+dn", "+help discussion"],
             default_aliases: &["dsc"],

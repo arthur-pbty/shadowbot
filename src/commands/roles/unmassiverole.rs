@@ -64,7 +64,6 @@ impl crate::commands::command_contract::CommandSpec for UnMassiveRoleCommand {
             name: "unmassiverole",
             category: "roles",
             params: "<role_cible> [role_filtre]",
-            summary: "Retire un role en masse",
             description: "Retire un role a tous les membres ou a ceux qui ont un role filtre.",
             examples: &["+unmassiverole @VIP", "+unmassiverole @VIP @Membres"],
             default_aliases: &["umrole", "umr"],

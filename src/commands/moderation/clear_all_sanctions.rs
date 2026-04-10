@@ -56,7 +56,6 @@ impl crate::commands::command_contract::CommandSpec for ClearAllSanctionsCommand
             name: "clear_all_sanctions",
             category: "moderation",
             params: "aucun",
-            summary: "Supprime toutes les sanctions du serveur",
             description: "Efface toutes les sanctions de tous les membres du serveur.",
             examples: &["+clear all sanctions"],
             default_aliases: &["casanctions"],

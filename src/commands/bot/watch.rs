@@ -90,7 +90,6 @@ impl crate::commands::command_contract::CommandSpec for WatchCommand {
             name: "watch",
             category: "bot",
             params: "<texte[, ,texte2,...]>",
-            summary: "Definit une activite watching",
             description: "Configure la rotation des messages d activite en mode watching.",
             examples: &["+watch", "+wh", "+help watch"],
             default_aliases: &["wtc"],

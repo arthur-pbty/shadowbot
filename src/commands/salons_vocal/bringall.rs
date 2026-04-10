@@ -68,7 +68,6 @@ impl crate::commands::command_contract::CommandSpec for BringAllCommand {
             name: "bringall",
             category: "salons_vocal",
             params: "[salon_vocal_destination]",
-            summary: "Rassemble tous les vocaux",
             description: "Deplace tous les membres actuellement en vocal vers un salon cible.",
             examples: &["+bringall #Event", "+bringall"],
             default_aliases: &["ball", "vbring"],

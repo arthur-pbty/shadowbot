@@ -506,7 +506,6 @@ impl crate::commands::command_contract::CommandSpec for SuggestionCommand {
             name: "suggestion",
             category: "outils",
             params: "<contenu...> | settings",
-            summary: "Publie ou configure les suggestions",
             description: "Publie une suggestion utilisateur ou ouvre le panneau de configuration.",
             examples: &[
                 "+suggestion Ameliorer le salon",

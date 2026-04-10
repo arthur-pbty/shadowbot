@@ -127,7 +127,6 @@ impl crate::commands::command_contract::CommandSpec for AllpermsCommand {
             name: "allperms",
             category: "permissions",
             params: "[page]",
-            summary: "Liste les ACL de toutes commandes",
             description: "Affiche le niveau ACL requis pour chaque commande avec pagination.",
             examples: &["+allperms", "+as", "+help allperms"],
             default_aliases: &["apm"],

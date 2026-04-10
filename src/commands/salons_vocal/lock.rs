@@ -39,7 +39,6 @@ impl crate::commands::command_contract::CommandSpec for LockCommand {
             name: "lock",
             category: "salons_vocal",
             params: "[salon]",
-            summary: "Ferme un salon",
             description: "Verrouille un salon texte ou vocal.",
             examples: &["+lock", "+lock #general"],
             default_aliases: &["lk"],

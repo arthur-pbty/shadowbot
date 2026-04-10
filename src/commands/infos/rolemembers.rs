@@ -89,7 +89,6 @@ impl crate::commands::command_contract::CommandSpec for RolemembersCommand {
             name: "rolemembers",
             category: "infos",
             params: "<@&rôle/ID>",
-            summary: "Liste les membres dun role",
             description: "Affiche les membres associes a un role donne.",
             examples: &["+rolemembers", "+rs", "+help rolemembers"],
             default_aliases: &["rmb"],

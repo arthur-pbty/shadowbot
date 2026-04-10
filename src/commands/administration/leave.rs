@@ -37,7 +37,6 @@ impl crate::commands::command_contract::CommandSpec for LeaveCommand {
             name: "leave",
             category: "administration",
             params: "[ID_serveur/index]",
-            summary: "Fait quitter un serveur",
             description: "Force le bot a quitter un serveur cible ou le serveur courant.",
             examples: &["+leave", "+le", "+help leave"],
             default_aliases: &["lvg"],

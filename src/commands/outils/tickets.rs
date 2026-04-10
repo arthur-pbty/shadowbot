@@ -76,7 +76,6 @@ impl crate::commands::command_contract::CommandSpec for TicketsCommand {
             name: "tickets",
             category: "outils",
             params: "[page]",
-            summary: "Liste les tickets",
             description: "Affiche les tickets du serveur avec pagination.",
             examples: &["+tickets", "+tickets 2", "+help tickets"],
             default_aliases: &[],

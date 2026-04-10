@@ -92,7 +92,6 @@ impl crate::commands::command_contract::CommandSpec for CreateCommand {
             name: "create",
             category: "outils",
             params: "[emoji/url] [nom]",
-            summary: "Cree un emoji custom",
             description: "Cree un emoji custom a partir d'une image, d'un lien ou d'un emoji nitro.",
             examples: &[
                 "+create <:blob:123456789012345678> blobcopy",

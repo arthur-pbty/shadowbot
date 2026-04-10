@@ -102,7 +102,6 @@ impl crate::commands::command_contract::CommandSpec for LoadingCommand {
             name: "loading",
             category: "outils",
             params: "<duree> <message>",
-            summary: "Affiche une barre de chargement",
             description: "Anime une barre de progression avec la duree et le texte fournis.",
             examples: &["+loading 10s Traitement en cours"],
             default_aliases: &["loadbar", "bar"],

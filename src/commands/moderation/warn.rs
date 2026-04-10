@@ -56,7 +56,6 @@ impl crate::commands::command_contract::CommandSpec for WarnCommand {
             name: "warn",
             category: "moderation",
             params: "<@membre/ID[,..]> [raison]",
-            summary: "Donne un warn",
             description: "Ajoute un warn a un ou plusieurs membres.",
             examples: &["+warn @User spam"],
             default_aliases: &["avert"],

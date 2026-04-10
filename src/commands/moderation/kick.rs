@@ -64,7 +64,6 @@ impl crate::commands::command_contract::CommandSpec for KickCommand {
             name: "kick",
             category: "moderation",
             params: "<@membre/ID[,..]> [raison]",
-            summary: "Expulse un membre",
             description: "Kick un ou plusieurs membres.",
             examples: &["+kick @User"],
             default_aliases: &["k"],

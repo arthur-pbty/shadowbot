@@ -39,7 +39,6 @@ impl crate::commands::command_contract::CommandSpec for UnlockCommand {
             name: "unlock",
             category: "salons_vocal",
             params: "[salon]",
-            summary: "Ouvre un salon",
             description: "Deverrouille un salon texte ou vocal.",
             examples: &["+unlock", "+unlock #general"],
             default_aliases: &["ulk"],

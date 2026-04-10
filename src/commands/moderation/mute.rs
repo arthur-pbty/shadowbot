@@ -60,7 +60,6 @@ impl crate::commands::command_contract::CommandSpec for MuteCommand {
             name: "mute",
             category: "moderation",
             params: "<@membre/ID[,..]> [raison]",
-            summary: "Mute un membre",
             description: "Applique un mute a un ou plusieurs membres.",
             examples: &["+mute @User abus"],
             default_aliases: &["tmute"],

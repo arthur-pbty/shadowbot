@@ -102,7 +102,6 @@ impl crate::commands::command_contract::CommandSpec for SetBoostembedCommand {
             name: "set_boostembed",
             category: "logs",
             params: "<title|description|color> <valeur>",
-            summary: "Parametre l embed de boost",
             description: "Configure le titre, la description et la couleur de l embed boost.",
             examples: &[
                 "+set boostembed title Merci",

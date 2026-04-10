@@ -90,7 +90,6 @@ impl crate::commands::command_contract::CommandSpec for PlaytoCommand {
             name: "playto",
             category: "bot",
             params: "<texte[, ,texte2,...]>",
-            summary: "Definit une activite playing",
             description: "Configure la rotation des messages d activite en mode playing.",
             examples: &["+playto", "+po", "+help playto"],
             default_aliases: &["ply"],

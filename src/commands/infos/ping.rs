@@ -53,7 +53,6 @@ impl crate::commands::command_contract::CommandSpec for PingCommand {
             name: "ping",
             category: "infos",
             params: "aucun",
-            summary: "Mesure la latence du bot",
             description: "Affiche le temps de reponse du bot et met a jour un embed avec la latence calculee.",
             examples: &["+ping", "+pg", "+help ping"],
             default_aliases: &["pg"],

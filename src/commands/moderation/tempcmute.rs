@@ -69,7 +69,6 @@ impl crate::commands::command_contract::CommandSpec for TempcmuteCommand {
             name: "tempcmute",
             category: "moderation",
             params: "<@membre/ID[,..]> <duree> [raison]",
-            summary: "Mute salon temporaire",
             description: "Mute temporaire sur le salon courant.",
             examples: &["+tempcmute @User 5m"],
             default_aliases: &["tcm"],

@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for ModlogCommand {
             name: "modlog",
             category: "logs",
             params: "<on [salon]|off>",
-            summary: "Active les logs de moderation",
             description: "Active ou desactive les logs de moderation dans un salon cible.",
             examples: &["+modlog on #logs", "+modlog off"],
             default_aliases: &["mlog"],

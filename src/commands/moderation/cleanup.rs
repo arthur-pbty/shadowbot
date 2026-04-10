@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for CleanupCommand {
             name: "cleanup",
             category: "moderation",
             params: "<salon_vocal>",
-            summary: "Vide un salon vocal",
             description: "Deconnecte tous les utilisateurs presents dans un salon vocal cible.",
             examples: &["+cleanup #General"],
             default_aliases: &["vclean", "vcleanup"],

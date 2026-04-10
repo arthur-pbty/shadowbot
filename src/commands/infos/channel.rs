@@ -101,7 +101,6 @@ impl crate::commands::command_contract::CommandSpec for ChannelCommand {
             name: "channel",
             category: "infos",
             params: "<#salon/ID>",
-            summary: "Affiche les details dun salon",
             description: "Affiche les informations utiles dun salon texte ou vocal cible.",
             examples: &["+channel", "+cl", "+help channel"],
             default_aliases: &["chl"],

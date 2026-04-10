@@ -463,7 +463,6 @@ impl crate::commands::command_contract::CommandSpec for MpCommand {
             name: "mp",
             category: "administration",
             params: "settings [on|off] | sent [page] | delete <id> | <@membre/ID> <message...>",
-            summary: "Gere lenvoi de messages prives",
             description: "Permet de configurer, envoyer, lister et supprimer des messages prives envoyes.",
             examples: &["+mp", "+help mp"],
             default_aliases: &["dmsg"],

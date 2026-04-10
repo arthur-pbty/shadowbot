@@ -128,7 +128,6 @@ impl crate::commands::command_contract::CommandSpec for JoinCommand {
             name: "join",
             category: "logs",
             params: "settings [on/off] [salon] [message]",
-            summary: "Parametre les actions de join",
             description: "Permet de configurer les actions quand un membre rejoint.",
             examples: &[
                 "+join settings",

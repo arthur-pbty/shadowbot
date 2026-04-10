@@ -67,7 +67,6 @@ impl crate::commands::command_contract::CommandSpec for PicCommand {
             name: "pic",
             category: "infos",
             params: "<@membre/ID>",
-            summary: "Affiche la photo de profil",
             description: "Affiche la photo de profil dun utilisateur cible ou de lauteur.",
             examples: &["+pic", "+pc", "+help pic"],
             default_aliases: &["pfp"],

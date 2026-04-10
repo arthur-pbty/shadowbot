@@ -166,7 +166,6 @@ impl crate::commands::command_contract::CommandSpec for BackupCommand {
             name: "backup",
             category: "outils",
             params: "<serveur/emoji> <nom> | list/delete/load",
-            summary: "Gere les backups serveur et emojis",
             description: "Cree, liste, supprime et recharge des backups serveur ou emojis.",
             examples: &[
                 "+backup serveur prod_1",

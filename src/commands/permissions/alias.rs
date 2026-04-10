@@ -126,7 +126,6 @@ impl crate::commands::command_contract::CommandSpec for AliasCommand {
             name: "alias",
             category: "permissions",
             params: "<commande> <alias> | remove <alias> | list",
-            summary: "Gere les aliases personnalises",
             description: "Liste, ajoute ou supprime des aliases de commandes stockes en base.",
             examples: &["+alias", "+as", "+help alias"],
             default_aliases: &["als"],

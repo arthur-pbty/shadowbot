@@ -80,7 +80,6 @@ impl crate::commands::command_contract::CommandSpec for ChangeCommand {
             name: "change",
             category: "bot",
             params: "<commande> <niveau 0-9> | reset",
-            summary: "Change un niveau de permission",
             description: "Definit le niveau ACL requis pour une commande ou reinitialise les overrides.",
             examples: &["+change", "+ce", "+help change"],
             default_aliases: &["chg"],

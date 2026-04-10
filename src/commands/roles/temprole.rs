@@ -119,7 +119,6 @@ impl crate::commands::command_contract::CommandSpec for TempRoleCommand {
             name: "temprole",
             category: "roles",
             params: "<membre> <role> <duree>",
-            summary: "Ajoute un role temporaire",
             description: "Attribue un role a un membre pour une duree donnee puis le retire automatiquement.",
             examples: &["+temprole @User @VIP 2h"],
             default_aliases: &["trole", "tmprole"],

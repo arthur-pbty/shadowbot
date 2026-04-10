@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for RolelogCommand {
             name: "rolelog",
             category: "logs",
             params: "<on [salon]|off>",
-            summary: "Active les logs de roles",
             description: "Active ou desactive les logs des roles.",
             examples: &["+rolelog on #logs", "+rolelog off"],
             default_aliases: &["rlog"],

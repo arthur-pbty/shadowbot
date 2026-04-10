@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for VoicelogCommand {
             name: "voicelog",
             category: "logs",
             params: "<on [salon]|off>",
-            summary: "Active les logs vocaux",
             description: "Active ou desactive les logs de l activite vocale.",
             examples: &["+voicelog on #logs", "+voicelog off"],
             default_aliases: &["vlog"],

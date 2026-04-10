@@ -26,7 +26,6 @@ impl crate::commands::command_contract::CommandSpec for NewStickerCommand {
             name: "newsticker",
             category: "outils",
             params: "[nom]",
-            summary: "Cree un sticker serveur",
             description: "Cree un nouveau sticker a partir d'un sticker ou fichier repondu.",
             examples: &["+newsticker cool_pack"],
             default_aliases: &["stcreate", "nst"],

@@ -60,7 +60,6 @@ impl crate::commands::command_contract::CommandSpec for CmuteCommand {
             name: "cmute",
             category: "moderation",
             params: "<@membre/ID[,..]> [raison]",
-            summary: "Mute salon",
             description: "Mute un membre sur le salon courant.",
             examples: &["+cmute @User"],
             default_aliases: &["cm"],

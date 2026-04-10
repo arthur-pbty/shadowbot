@@ -57,7 +57,6 @@ impl crate::commands::command_contract::CommandSpec for RenewCommand {
             name: "renew",
             category: "moderation",
             params: "[salon]",
-            summary: "Recree un salon textuel",
             description: "Supprime puis recree un salon textuel en conservant les options principales.",
             examples: &["+renew", "+renew #general"],
             default_aliases: &["nuke", "rebuildch"],

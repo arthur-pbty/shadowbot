@@ -53,7 +53,6 @@ impl crate::commands::command_contract::CommandSpec for ThemeCommand {
             name: "theme",
             category: "bot",
             params: "<couleur|#hex|0xhex>",
-            summary: "Definit la couleur du theme",
             description: "Met a jour la couleur principale des embeds du bot.",
             examples: &["+theme", "+te", "+help theme"],
             default_aliases: &["thm"],

@@ -90,7 +90,6 @@ impl crate::commands::command_contract::CommandSpec for StreamCommand {
             name: "stream",
             category: "bot",
             params: "<texte[, ,texte2,...]>",
-            summary: "Definit une activite streaming",
             description: "Configure la rotation des messages d activite en mode streaming.",
             examples: &["+stream", "+sm", "+help stream"],
             default_aliases: &["stm"],

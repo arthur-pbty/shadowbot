@@ -122,7 +122,6 @@ impl crate::commands::command_contract::CommandSpec for AllbotsCommand {
             name: "allbots",
             category: "administration",
             params: "aucun",
-            summary: "Liste tous les bots du serveur",
             description: "Affiche la liste des membres bots presents sur le serveur courant.",
             examples: &["+allbots", "+as", "+help allbots"],
             default_aliases: &["abt"],

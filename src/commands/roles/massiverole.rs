@@ -64,7 +64,6 @@ impl crate::commands::command_contract::CommandSpec for MassiveRoleCommand {
             name: "massiverole",
             category: "roles",
             params: "<role_cible> [role_filtre]",
-            summary: "Ajoute un role en masse",
             description: "Ajoute un role a tous les membres ou a ceux qui ont deja un role filtre.",
             examples: &["+massiverole @VIP", "+massiverole @VIP @Membres"],
             default_aliases: &["mrole", "mr"],

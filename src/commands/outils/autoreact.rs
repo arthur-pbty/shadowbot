@@ -146,7 +146,6 @@ impl crate::commands::command_contract::CommandSpec for AutoReactCommand {
             name: "autoreact",
             category: "outils",
             params: "<add/del> <salon> <emoji> | list",
-            summary: "Configure les reactions automatiques",
             description: "Ajoute, retire et liste les reactions automatiquement appliquees aux messages d'un salon.",
             examples: &["+autoreact add #general 😀", "+autoreact list"],
             default_aliases: &["ar", "reactauto"],

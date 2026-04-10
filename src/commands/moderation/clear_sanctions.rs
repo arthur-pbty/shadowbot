@@ -66,7 +66,6 @@ impl crate::commands::command_contract::CommandSpec for ClearSanctionsCommand {
             name: "clear_sanctions",
             category: "moderation",
             params: "<@membre/ID>",
-            summary: "Supprime toutes les sanctions d un membre",
             description: "Efface completement les sanctions d un membre cible.",
             examples: &["+clear sanctions @User"],
             default_aliases: &["csanctions"],

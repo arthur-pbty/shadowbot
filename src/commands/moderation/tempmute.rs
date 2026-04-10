@@ -69,7 +69,6 @@ impl crate::commands::command_contract::CommandSpec for TempmuteCommand {
             name: "tempmute",
             category: "moderation",
             params: "<@membre/ID[,..]> <duree> [raison]",
-            summary: "Mute temporaire",
             description: "Mute un ou plusieurs membres pour une duree donnee.",
             examples: &["+tempmute @User 10m"],
             default_aliases: &["tm"],

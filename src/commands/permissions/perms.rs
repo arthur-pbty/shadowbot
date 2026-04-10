@@ -70,7 +70,6 @@ impl crate::commands::command_contract::CommandSpec for PermsCommand {
             name: "perms",
             category: "permissions",
             params: "aucun",
-            summary: "Affiche les permissions ACL",
             description: "Affiche les permissions ACL configurees par role ou scope.",
             examples: &["+perms", "+ps", "+help perms"],
             default_aliases: &["prm"],

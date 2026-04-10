@@ -48,7 +48,6 @@ impl crate::commands::command_contract::CommandSpec for OwnerCommand {
             name: "owner",
             category: "administration",
             params: "aucun",
-            summary: "Liste les owners du bot",
             description: "Affiche l owner application et les owners ajoutes en base.",
             examples: &["+owner", "+or", "+help owner"],
             default_aliases: &["own"],

@@ -73,7 +73,6 @@ impl crate::commands::command_contract::CommandSpec for InviteCommand {
             name: "invite",
             category: "administration",
             params: "<ID_serveur/index>",
-            summary: "Cree une invitation serveur",
             description: "Cree une invitation temporaire sur un serveur cible accessible par le bot.",
             examples: &["+invite", "+ie", "+help invite"],
             default_aliases: &["ivt"],

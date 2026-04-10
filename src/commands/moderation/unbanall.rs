@@ -41,7 +41,6 @@ impl crate::commands::command_contract::CommandSpec for UnbanAllCommand {
             name: "unbanall",
             category: "moderation",
             params: "aucun",
-            summary: "Retire tous les bannissements",
             description: "Supprime tous les bans du serveur cible.",
             examples: &["+unbanall"],
             default_aliases: &["uball", "clearbans"],

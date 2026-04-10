@@ -38,7 +38,6 @@ impl crate::commands::command_contract::CommandSpec for UnlockallCommand {
             name: "unlockall",
             category: "salons_vocal",
             params: "aucun",
-            summary: "Ouvre tous les salons",
             description: "Deverrouille tous les salons du serveur.",
             examples: &["+unlockall"],
             default_aliases: &["ulka"],

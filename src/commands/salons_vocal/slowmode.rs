@@ -116,7 +116,6 @@ impl crate::commands::command_contract::CommandSpec for SlowmodeCommand {
             name: "slowmode",
             category: "salons_vocal",
             params: "<duree> [salon]",
-            summary: "Change le mode lent d'un salon",
             description: "Modifie la duree du mode lent sur un salon texte (maximum 6 heures).",
             examples: &["+slowmode 10s", "+slowmode 2m #general", "+slowmode off"],
             default_aliases: &["sm"],

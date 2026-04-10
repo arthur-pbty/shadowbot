@@ -56,7 +56,6 @@ impl crate::commands::command_contract::CommandSpec for UnmuteCommand {
             name: "unmute",
             category: "moderation",
             params: "<@membre/ID[,..]>",
-            summary: "Retire un mute",
             description: "Met fin au mute d un ou plusieurs membres.",
             examples: &["+unmute @User"],
             default_aliases: &["um"],

@@ -451,7 +451,6 @@ impl crate::commands::command_contract::CommandSpec for TicketCommand {
             name: "ticket",
             category: "outils",
             params: "settings",
-            summary: "Ouvre la gestion des tickets",
             description: "Affiche le menu de configuration du systeme de tickets.",
             examples: &["+ticket", "+help ticket"],
             default_aliases: &[],

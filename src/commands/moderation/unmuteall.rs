@@ -71,7 +71,6 @@ impl crate::commands::command_contract::CommandSpec for UnmuteallCommand {
             name: "unmuteall",
             category: "moderation",
             params: "aucun",
-            summary: "Retire tous les mutes",
             description: "Supprime tous les mutes en cours.",
             examples: &["+unmuteall"],
             default_aliases: &["uma"],

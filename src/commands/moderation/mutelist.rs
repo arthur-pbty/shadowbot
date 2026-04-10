@@ -65,7 +65,6 @@ impl crate::commands::command_contract::CommandSpec for MutelistCommand {
             name: "mutelist",
             category: "moderation",
             params: "aucun",
-            summary: "Liste les mutes",
             description: "Affiche tous les mutes en cours.",
             examples: &["+mutelist"],
             default_aliases: &["ml"],

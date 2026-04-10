@@ -54,7 +54,6 @@ impl crate::commands::command_contract::CommandSpec for DerankCommand {
             name: "derank",
             category: "roles",
             params: "<@membre/ID[,..]>",
-            summary: "Retire tous les roles",
             description: "Retire tous les roles gerables d un membre.",
             examples: &["+derank @User"],
             default_aliases: &["drk"],

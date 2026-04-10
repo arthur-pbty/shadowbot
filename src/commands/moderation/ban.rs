@@ -64,7 +64,6 @@ impl crate::commands::command_contract::CommandSpec for BanCommand {
             name: "ban",
             category: "moderation",
             params: "<@membre/ID[,..]> [raison]",
-            summary: "Bannit un membre",
             description: "Ban un ou plusieurs membres.",
             examples: &["+ban @User"],
             default_aliases: &["b"],

@@ -38,7 +38,6 @@ impl crate::commands::command_contract::CommandSpec for LockallCommand {
             name: "lockall",
             category: "salons_vocal",
             params: "aucun",
-            summary: "Ferme tous les salons",
             description: "Verrouille tous les salons du serveur.",
             examples: &["+lockall"],
             default_aliases: &["lka"],

@@ -71,7 +71,6 @@ impl crate::commands::command_contract::CommandSpec for EmbedCommand {
             name: "embed",
             category: "outils",
             params: "title | description (v1)",
-            summary: "Ouvre le generateur d'embed",
             description: "Affiche un generateur d'embed interactif version rapide.",
             examples: &["+embed"],
             default_aliases: &["emb"],

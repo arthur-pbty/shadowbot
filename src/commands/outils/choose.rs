@@ -76,7 +76,6 @@ impl crate::commands::command_contract::CommandSpec for ChooseCommand {
             name: "choose",
             category: "outils",
             params: "<option1 | option2 | ...>",
-            summary: "Tire une option au hasard",
             description: "Lance un tirage au sort instantane parmi les options donnees.",
             examples: &["+choose rouge | bleu | vert"],
             default_aliases: &["pick", "random"],

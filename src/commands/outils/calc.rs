@@ -97,7 +97,6 @@ impl crate::commands::command_contract::CommandSpec for CalcCommand {
             name: "calc",
             category: "outils",
             params: "<expression>",
-            summary: "Calcule une expression",
             description: "Evalue une expression numerique simple et renvoie le resultat.",
             examples: &["+calc", "+cc", "+help calc"],
             default_aliases: &["clc"],

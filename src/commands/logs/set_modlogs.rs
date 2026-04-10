@@ -115,7 +115,6 @@ impl crate::commands::command_contract::CommandSpec for SetModlogsCommand {
             name: "set_modlogs",
             category: "logs",
             params: "[event on/off]",
-            summary: "Parametre les evenements de modlogs",
             description: "Affiche ou modifie les evenements qui apparaissent dans les logs de moderation.",
             examples: &["+set modlogs", "+set modlogs warn off"],
             default_aliases: &["smodlog"],

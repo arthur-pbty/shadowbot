@@ -450,7 +450,6 @@ impl crate::commands::command_contract::CommandSpec for TempvocCommand {
             name: "tempvoc",
             category: "salons_vocal",
             params: "[cmd]",
-            summary: "Configure les vocaux temporaires",
             description: "Affiche le menu de configuration du systeme de vocaux temporaires.",
             examples: &["+tempvoc", "+tempvoc cmd", "+help tempvoc"],
             default_aliases: &[],

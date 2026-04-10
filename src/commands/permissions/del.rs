@@ -59,7 +59,6 @@ impl crate::commands::command_contract::CommandSpec for DelCommand {
             name: "del",
             category: "permissions",
             params: "perm <@&rôle/@membre/ID>",
-            summary: "Supprime des permissions scope",
             description: "Supprime les permissions ACL associees a un role ou utilisateur.",
             examples: &["+del", "+dl", "+help del"],
             default_aliases: &["dlp"],

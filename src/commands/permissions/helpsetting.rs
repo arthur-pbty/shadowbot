@@ -398,7 +398,6 @@ impl crate::commands::command_contract::CommandSpec for HelpsettingCommand {
             name: "helpsetting",
             category: "permissions",
             params: "[type|aliases|perms] [value]",
-            summary: "Configure l'affichage du système d'aide",
             description: "Permet de configurer le mode d'affichage, l'affichage des alias et l'affichage des permissions du système d'aide.",
             examples: &[
                 "+helpsetting",

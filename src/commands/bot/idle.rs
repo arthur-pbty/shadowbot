@@ -34,7 +34,6 @@ impl crate::commands::command_contract::CommandSpec for IdleCommand {
             name: "idle",
             category: "bot",
             params: "aucun",
-            summary: "Passe le bot en idle",
             description: "Change le statut du bot en idle et sauvegarde ce statut.",
             examples: &["+idle", "+ie", "+help idle"],
             default_aliases: &["idl"],

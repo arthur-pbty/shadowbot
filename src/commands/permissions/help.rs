@@ -57,10 +57,19 @@ struct CommandDoc {
     allow_in_dm: bool,
     default_permission: u8,
     params: &'static str,
-    summary: &'static str,
     description: &'static str,
     examples: &'static [&'static str],
     alias_source_key: Option<&'static str>,
+}
+
+#[derive(Clone)]
+struct HelpViewPage {
+    category_index: usize,
+    category_title: &'static str,
+    category_description: &'static str,
+    section_index: usize,
+    section_total: usize,
+    commands_block: String,
 }
 
 #[derive(Clone, Copy)]
@@ -327,7 +336,6 @@ fn command_doc(key: &str) -> Option<CommandDoc> {
         allow_in_dm: meta.allow_in_dm,
         default_permission: meta.default_permission,
         params: meta.params,
-        summary: meta.summary,
         description: meta.description,
         examples: if meta.examples.is_empty() {
             HELP_FALLBACK_EXAMPLES
@@ -486,32 +494,40 @@ fn help_page_content(
 
     for meta in commands {
         let label = meta.name.replace('_', " ");
-        let summary = meta.summary;
         let alias_key = meta.name;
-        let permission = if perms_enabled {
-            format!(" {}", format_permission_level(meta.default_permission))
+        let params = if meta.params.trim().is_empty() {
+            "aucun"
         } else {
-            String::new()
+            meta.params
+        };
+        let permission = if perms_enabled {
+            format_permission_level(meta.default_permission)
+        } else {
+            "désactivée".to_string()
+        };
+        let aliases_text = if aliases_enabled {
+            alias_map
+                .get(alias_key)
+                .filter(|aliases| !aliases.is_empty())
+                .map(|aliases| {
+                    aliases
+                        .iter()
+                        .map(|alias| format!("`{}`", alias))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                })
+                .unwrap_or_else(|| "aucun".to_string())
+        } else {
+            "désactivés".to_string()
         };
 
-        if aliases_enabled {
-            if let Some(aliases) = alias_map.get(alias_key) {
-                if aliases.is_empty() {
-                    lines.push(format!("`+{}`{} - {}", label, permission, summary));
-                } else {
-                    lines.push(format!(
-                        "`+{}`{} - {} · alias: `{}`",
-                        label,
-                        permission,
-                        summary,
-                        aliases.join("`, `")
-                    ));
-                }
-                continue;
-            }
-        }
+        let first_line = format!(
+            "`+{}` · args: `{}` · perm: `{}` · aliases: {}",
+            label, params, permission, aliases_text
+        );
+        let second_line = meta.description;
 
-        lines.push(format!("`+{}`{} - {}", label, permission, summary));
+        lines.push(format!("{}\n{}", first_line, second_line));
     }
 
     if lines.is_empty() {
@@ -521,18 +537,107 @@ fn help_page_content(
     lines
 }
 
+fn paginate_blocks(blocks: &[String], max_chars: usize) -> Vec<String> {
+    let mut pages = Vec::new();
+    let mut current = String::new();
+
+    for block in blocks {
+        let block_len = block.chars().count();
+
+        if current.is_empty() {
+            if block_len > max_chars {
+                pages.push(truncate_text(block, max_chars));
+            } else {
+                current = block.clone();
+            }
+            continue;
+        }
+
+        let separator = "\n\n";
+        let next_len = current.chars().count() + separator.chars().count() + block_len;
+        if next_len > max_chars {
+            pages.push(current);
+            if block_len > max_chars {
+                pages.push(truncate_text(block, max_chars));
+                current = String::new();
+            } else {
+                current = block.clone();
+            }
+        } else {
+            current.push_str(separator);
+            current.push_str(block);
+        }
+    }
+
+    if !current.is_empty() {
+        pages.push(current);
+    }
+
+    if pages.is_empty() {
+        pages.push("Aucune commande dans cette catégorie.".to_string());
+    }
+
+    pages
+}
+
+fn build_help_view_pages(
+    state: &HelpState,
+    alias_map: &BTreeMap<String, Vec<String>>,
+) -> Vec<HelpViewPage> {
+    const MAX_COMMANDS_BLOCK_CHARS: usize = 3600;
+
+    let mut out = Vec::new();
+
+    for (category_index, page) in HELP_PAGES.iter().enumerate() {
+        let blocks = help_page_content(page, alias_map, state.aliases_enabled, state.perms_enabled);
+        let sections = paginate_blocks(&blocks, MAX_COMMANDS_BLOCK_CHARS);
+        let section_total = sections.len();
+
+        for (section_index, commands_block) in sections.into_iter().enumerate() {
+            out.push(HelpViewPage {
+                category_index,
+                category_title: page.title,
+                category_description: page.description,
+                section_index,
+                section_total,
+                commands_block,
+            });
+        }
+    }
+
+    out
+}
+
+fn first_view_page_for_category(view_pages: &[HelpViewPage], category_index: usize) -> usize {
+    view_pages
+        .iter()
+        .position(|entry| entry.category_index == category_index)
+        .unwrap_or(0)
+}
+
 fn build_help_embed(
     page_index: usize,
     state: &HelpState,
-    alias_map: &BTreeMap<String, Vec<String>>,
+    view_pages: &[HelpViewPage],
 ) -> CreateEmbed {
-    let page = &HELP_PAGES[page_index];
-    let lines = help_page_content(page, alias_map, state.aliases_enabled, state.perms_enabled);
+    let safe_page_index = page_index.min(view_pages.len().saturating_sub(1));
+    let view = &view_pages[safe_page_index];
+
+    let title = if view.section_total > 1 {
+        format!(
+            "Aide · {} {}/{}",
+            view.category_title,
+            view.section_index + 1,
+            view.section_total
+        )
+    } else {
+        format!("Aide · {}", view.category_title)
+    };
 
     let header = format!(
         "Page {}/{} · mode `{}` · aliases {} · perms {}\n{}",
-        page_index + 1,
-        HELP_PAGES.len(),
+        safe_page_index + 1,
+        view_pages.len(),
         state.layout.as_str(),
         if state.aliases_enabled {
             "activés"
@@ -544,23 +649,28 @@ fn build_help_embed(
         } else {
             "désactivées"
         },
-        page.description,
+        view.category_description,
     );
 
     let commands_intro = "\n\n**Commandes**\n";
     let available = 4096usize
         .saturating_sub(header.chars().count())
         .saturating_sub(commands_intro.chars().count());
-    let commands_block = truncate_text(&lines.join("\n"), available);
+    let commands_block = truncate_text(&view.commands_block, available);
 
     CreateEmbed::new()
-        .title(format!("Aide · {}", page.title))
+        .title(title)
         .description(format!("{}{}{}", header, commands_intro, commands_block))
         .color(0x5865F2)
 }
 
-fn help_components(owner_id: UserId, page_index: usize, state: &HelpState) -> Vec<CreateActionRow> {
-    let total = HELP_PAGES.len().max(1);
+fn help_components(
+    owner_id: UserId,
+    page_index: usize,
+    state: &HelpState,
+    view_pages: &[HelpViewPage],
+) -> Vec<CreateActionRow> {
+    let total = view_pages.len().max(1);
     let prev_page = page_index.saturating_sub(1);
     let next_page = (page_index + 1).min(total - 1);
     let custom_prev = format!("help:nav:{}:{}", owner_id.get(), prev_page);
@@ -590,7 +700,18 @@ fn help_components(owner_id: UserId, page_index: usize, state: &HelpState) -> Ve
                 .iter()
                 .enumerate()
                 .map(|(index, page)| {
-                    CreateSelectMenuOption::new(page.title, index.to_string())
+                    let count = view_pages
+                        .iter()
+                        .filter(|entry| entry.category_index == index)
+                        .count()
+                        .max(1);
+                    let title = if count > 1 {
+                        format!("{} ({})", page.title, count)
+                    } else {
+                        page.title.to_string()
+                    };
+
+                    CreateSelectMenuOption::new(title, index.to_string())
                         .description(truncate_text(page.description, 100))
                 })
                 .collect::<Vec<_>>();
@@ -632,8 +753,9 @@ pub async fn register_slash_help(ctx: &Context) {
 pub async fn handle_help_slash(ctx: &Context, command: &CommandInteraction) {
     let state = current_help_state(ctx).await;
     let alias_map = aliases_map(ctx).await;
-    let embed = build_help_embed(0, &state, &alias_map);
-    let components = help_components(command.user.id, 0, &state);
+    let view_pages = build_help_view_pages(&state, &alias_map);
+    let embed = build_help_embed(0, &state, &view_pages);
+    let components = help_components(command.user.id, 0, &state, &view_pages);
 
     let _ = command
         .create_response(
@@ -681,21 +803,23 @@ pub async fn handle_help_component(ctx: &Context, component: &ComponentInteracti
 
     let state = current_help_state(ctx).await;
     let alias_map = aliases_map(ctx).await;
+    let view_pages = build_help_view_pages(&state, &alias_map);
     let page_index = match kind {
-        "nav" => page.unwrap_or(0).min(HELP_PAGES.len().saturating_sub(1)),
+        "nav" => page.unwrap_or(0).min(view_pages.len().saturating_sub(1)),
         "select" => match &component.data.kind {
             ComponentInteractionDataKind::StringSelect { values } => values
                 .first()
                 .and_then(|value| value.parse::<usize>().ok())
+                .map(|category_index| first_view_page_for_category(&view_pages, category_index))
                 .unwrap_or(0)
-                .min(HELP_PAGES.len().saturating_sub(1)),
+                .min(view_pages.len().saturating_sub(1)),
             _ => 0,
         },
         _ => 0,
     };
 
-    let embed = build_help_embed(page_index, &state, &alias_map);
-    let components = help_components(component.user.id, page_index, &state);
+    let embed = build_help_embed(page_index, &state, &view_pages);
+    let components = help_components(component.user.id, page_index, &state, &view_pages);
 
     let _ = component
         .create_response(
@@ -782,7 +906,6 @@ pub async fn handle_help(ctx: &Context, msg: &Message, args: &[&str]) {
                         if doc.allow_in_dm { "Oui" } else { "Non" },
                         true,
                     )
-                    .field("Résumé", doc.summary, false)
                     .field("Exemples", truncate_text(&examples, 1024), false);
 
                 if state.perms_enabled {
@@ -804,14 +927,17 @@ pub async fn handle_help(ctx: &Context, msg: &Message, args: &[&str]) {
         }
     }
 
-    let page_index = args
+    let category_index = args
         .first()
         .and_then(|input| help_page_from_input(input))
         .unwrap_or(0)
         .min(HELP_PAGES.len().saturating_sub(1));
 
-    let embed = build_help_embed(page_index, &state, &alias_map);
-    let components = help_components(msg.author.id, page_index, &state);
+    let view_pages = build_help_view_pages(&state, &alias_map);
+    let page_index = first_view_page_for_category(&view_pages, category_index);
+
+    let embed = build_help_embed(page_index, &state, &view_pages);
+    let components = help_components(msg.author.id, page_index, &state, &view_pages);
 
     let _ = msg
         .channel_id
@@ -830,7 +956,6 @@ impl crate::commands::command_contract::CommandSpec for HelpCommand {
             name: "help",
             category: "permissions",
             params: "[commande|page]",
-            summary: "Affiche laide des commandes",
             description: "Affiche les pages daide du bot ou la fiche detaillee dune commande avec parametres, aliases et exemples.",
             examples: &["+help", "+hp", "+help help"],
             default_aliases: &["hp"],

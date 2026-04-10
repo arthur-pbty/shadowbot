@@ -132,7 +132,6 @@ impl crate::commands::command_contract::CommandSpec for RenameCommand {
             name: "rename",
             category: "outils",
             params: "<nom...>",
-            summary: "Renomme le ticket courant",
             description: "Renomme le salon du ticket et met a jour son titre en base.",
             examples: &["+rename support-client", "+help rename"],
             default_aliases: &[],

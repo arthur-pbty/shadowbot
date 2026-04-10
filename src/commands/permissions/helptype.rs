@@ -67,7 +67,6 @@ impl crate::commands::command_contract::CommandSpec for HelptypeCommand {
             name: "helptype",
             category: "permissions",
             params: "<button|select|hybrid>",
-            summary: "Change le mode daffichage help",
             description: "Definit le mode daffichage de laide entre button, select et hybrid.",
             examples: &["+helptype", "+he", "+help helptype"],
             default_aliases: &["htp"],

@@ -39,7 +39,6 @@ impl crate::commands::command_contract::CommandSpec for HideCommand {
             name: "hide",
             category: "salons_vocal",
             params: "[salon]",
-            summary: "Cache un salon",
             description: "Retire la visibilite d un salon.",
             examples: &["+hide", "+hide #general"],
             default_aliases: &["hd"],

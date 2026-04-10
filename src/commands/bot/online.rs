@@ -34,7 +34,6 @@ impl crate::commands::command_contract::CommandSpec for OnlineCommand {
             name: "online",
             category: "bot",
             params: "aucun",
-            summary: "Passe le bot en online",
             description: "Change le statut du bot en online et sauvegarde ce statut.",
             examples: &["+online", "+oe", "+help online"],
             default_aliases: &["onl"],

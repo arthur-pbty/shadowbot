@@ -75,7 +75,6 @@ impl crate::commands::command_contract::CommandSpec for TempbanCommand {
             name: "tempban",
             category: "moderation",
             params: "<@membre/ID[,..]> <duree> [raison]",
-            summary: "Ban temporaire",
             description: "Ban temporairement un ou plusieurs membres.",
             examples: &["+tempban @User 1d"],
             default_aliases: &["tb"],

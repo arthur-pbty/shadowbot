@@ -86,7 +86,6 @@ impl crate::commands::command_contract::CommandSpec for EmojiCommand {
             name: "emoji",
             category: "outils",
             params: "<emoji>",
-            summary: "Affiche les infos dun emoji",
             description: "Affiche les details dun emoji fourni.",
             examples: &["+emoji", "+ei", "+help emoji"],
             default_aliases: &["emj"],

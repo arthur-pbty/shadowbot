@@ -81,7 +81,6 @@ impl crate::commands::command_contract::CommandSpec for SyncCommand {
             name: "sync",
             category: "roles",
             params: "<salon/categorie/all>",
-            summary: "Synchronise les permissions",
             description: "Synchronise les permissions d'un salon avec sa categorie, ou tous les salons avec all.",
             examples: &["+sync all", "+sync #general"],
             default_aliases: &["chsync"],

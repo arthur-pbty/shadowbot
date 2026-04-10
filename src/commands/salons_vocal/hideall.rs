@@ -40,7 +40,6 @@ impl crate::commands::command_contract::CommandSpec for HideallCommand {
             name: "hideall",
             category: "salons_vocal",
             params: "aucun",
-            summary: "Cache tous les salons",
             description: "Retire la visibilite de tous les salons.",
             examples: &["+hideall"],
             default_aliases: &["hda"],

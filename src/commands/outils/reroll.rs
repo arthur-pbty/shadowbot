@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for RerollCommand {
             name: "reroll",
             category: "outils",
             params: "aucun (en reponse a un message)",
-            summary: "Relance un tirage giveaway",
             description: "Choisit un nouveau gagnant depuis le message cible.",
             examples: &["+reroll"],
             default_aliases: &["rro", "greroll"],

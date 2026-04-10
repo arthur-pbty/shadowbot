@@ -40,7 +40,6 @@ impl crate::commands::command_contract::CommandSpec for BanlistCommand {
             name: "banlist",
             category: "moderation",
             params: "aucun",
-            summary: "Liste les bans",
             description: "Affiche la liste des bannissements en cours.",
             examples: &["+banlist"],
             default_aliases: &["bls"],

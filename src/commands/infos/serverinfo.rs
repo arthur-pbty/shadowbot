@@ -61,7 +61,6 @@ impl crate::commands::command_contract::CommandSpec for ServerinfoCommand {
             name: "serverinfo",
             category: "infos",
             params: "[ID_serveur]",
-            summary: "Affiche les infos dun serveur",
             description: "Affiche les informations principales dun serveur comme nom, id et statistiques.",
             examples: &["+serverinfo", "+so", "+help serverinfo"],
             default_aliases: &["svi"],

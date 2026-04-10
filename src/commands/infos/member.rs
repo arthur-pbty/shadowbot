@@ -80,7 +80,6 @@ impl crate::commands::command_contract::CommandSpec for MemberCommand {
             name: "member",
             category: "infos",
             params: "<@membre/ID>",
-            summary: "Affiche le profil membre",
             description: "Affiche les informations dun membre dans le serveur courant.",
             examples: &["+member", "+mr", "+help member"],
             default_aliases: &["mbr"],

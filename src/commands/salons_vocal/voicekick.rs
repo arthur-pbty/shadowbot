@@ -43,7 +43,6 @@ impl crate::commands::command_contract::CommandSpec for VoiceKickCommand {
             name: "voicekick",
             category: "salons_vocal",
             params: "<membre...>",
-            summary: "Deconnecte des membres du vocal",
             description: "Deconnecte un ou plusieurs membres de leur salon vocal actuel.",
             examples: &["+voicekick @User", "+voicekick @U1 @U2"],
             default_aliases: &["vk", "vdisconnect"],

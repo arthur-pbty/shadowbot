@@ -76,7 +76,6 @@ impl crate::commands::command_contract::CommandSpec for AutoBackupCommand {
             name: "autobackup",
             category: "outils",
             params: "<serveur/emoji> <jours>",
-            summary: "Configure les backups automatiques",
             description: "Definit l'intervalle en jours des backups automatiques.",
             examples: &["+autobackup serveur 3", "+autobackup emoji 7"],
             default_aliases: &["abkp"],

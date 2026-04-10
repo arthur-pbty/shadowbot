@@ -25,7 +25,6 @@ impl crate::commands::command_contract::CommandSpec for TempvocCmdCommand {
             name: "tempvoc_cmd",
             category: "salons_vocal",
             params: "aucun",
-            summary: "Affiche laide tempvoc",
             description: "Affiche un rappel des commandes et du fonctionnement de tempvoc.",
             examples: &["+tempvoc cmd", "+help tempvoc_cmd"],
             default_aliases: &[],

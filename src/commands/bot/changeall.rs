@@ -83,7 +83,6 @@ impl crate::commands::command_contract::CommandSpec for ChangeallCommand {
             name: "changeall",
             category: "bot",
             params: "<niveau_source 0-9> <niveau_cible 0-9>",
-            summary: "Change des permissions en masse",
             description: "Remplace en masse un niveau ACL source par un niveau ACL cible.",
             examples: &["+changeall", "+cl", "+help changeall"],
             default_aliases: &["cga"],

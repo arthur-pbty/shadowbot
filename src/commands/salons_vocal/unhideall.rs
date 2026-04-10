@@ -40,7 +40,6 @@ impl crate::commands::command_contract::CommandSpec for UnhideallCommand {
             name: "unhideall",
             category: "salons_vocal",
             params: "aucun",
-            summary: "Affiche tous les salons",
             description: "Rend visibles tous les salons du serveur.",
             examples: &["+unhideall"],
             default_aliases: &["uhda"],

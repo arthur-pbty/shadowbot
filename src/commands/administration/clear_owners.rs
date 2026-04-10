@@ -42,7 +42,6 @@ impl crate::commands::command_contract::CommandSpec for ClearOwnersCommand {
             name: "clear_owners",
             category: "administration",
             params: "aucun",
-            summary: "Vide la liste des owners",
             description: "Supprime tous les owners supplementaires en base de donnees.",
             examples: &["+clear owners", "+cs", "+help clear owners"],
             default_aliases: &["cro"],

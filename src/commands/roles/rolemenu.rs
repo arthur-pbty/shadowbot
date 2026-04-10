@@ -583,7 +583,6 @@ impl crate::commands::command_contract::CommandSpec for RolemenuCommand {
             name: "rolemenu",
             category: "roles",
             params: "[message_id]",
-            summary: "Cree ou modifie un menu de roles",
             description: "Ouvre un panneau interactif (boutons + modales) pour construire un embed de roles et des boutons auto-roles.",
             examples: &[
                 "+rolemenu",

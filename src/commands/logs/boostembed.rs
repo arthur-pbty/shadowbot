@@ -680,7 +680,6 @@ impl crate::commands::command_contract::CommandSpec for BoostembedCommand {
             name: "boostembed",
             category: "logs",
             params: "[on|off|test|settings]",
-            summary: "Configure l embed boost avec panneau interactif",
             description: "Ouvre un panneau avec composants pour paramétrer l'embed boost et le salon où il est envoyé.",
             examples: &["+boostembed", "+boostembed settings", "+boostembed test"],
             default_aliases: &["bembed"],

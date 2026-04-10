@@ -71,7 +71,6 @@ impl crate::commands::command_contract::CommandSpec for VocinfoCommand {
             name: "vocinfo",
             category: "infos",
             params: "[ID_salon_vocal]",
-            summary: "Affiche les infos vocales",
             description: "Affiche les informations dun salon vocal cible ou du salon vocal courant.",
             examples: &["+vocinfo", "+vo", "+help vocinfo"],
             default_aliases: &["vci"],

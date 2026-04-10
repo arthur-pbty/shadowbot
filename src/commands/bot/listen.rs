@@ -90,7 +90,6 @@ impl crate::commands::command_contract::CommandSpec for ListenCommand {
             name: "listen",
             category: "bot",
             params: "<texte[, ,texte2,...]>",
-            summary: "Definit une activite listening",
             description: "Configure la rotation des messages d activite en mode listening.",
             examples: &["+listen", "+ln", "+help listen"],
             default_aliases: &["lsn"],

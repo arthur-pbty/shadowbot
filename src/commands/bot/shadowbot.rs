@@ -25,7 +25,6 @@ impl crate::commands::command_contract::CommandSpec for ShadowbotCommand {
             name: "shadowbot",
             category: "bot",
             params: "aucun",
-            summary: "Affiche les infos du bot",
             description: "Affiche les informations globales et letat du bot.",
             examples: &["+shadowbot", "+st", "+help shadowbot"],
             default_aliases: &["sbt"],

@@ -56,7 +56,6 @@ impl crate::commands::command_contract::CommandSpec for AutoconfiglogCommand {
             name: "autoconfiglog",
             category: "logs",
             params: "aucun",
-            summary: "Cree tous les salons de logs",
             description: "Cree automatiquement les salons de logs et les configure.",
             examples: &["+autoconfiglog"],
             default_aliases: &["acl"],

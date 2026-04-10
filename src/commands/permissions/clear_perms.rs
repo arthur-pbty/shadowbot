@@ -38,7 +38,6 @@ impl crate::commands::command_contract::CommandSpec for ClearPermsCommand {
             name: "clear_perms",
             category: "permissions",
             params: "aucun",
-            summary: "Vide toutes les permissions scope",
             description: "Supprime toutes les permissions ACL configurees en base.",
             examples: &["+clear perms", "+cs", "+help clear perms"],
             default_aliases: &["cpm"],

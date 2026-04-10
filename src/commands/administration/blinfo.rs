@@ -86,7 +86,6 @@ impl crate::commands::command_contract::CommandSpec for BlinfoCommand {
             name: "blinfo",
             category: "administration",
             params: "<@membre/ID>",
-            summary: "Affiche les details blacklist",
             description: "Affiche les details de blacklist pour un utilisateur donne.",
             examples: &["+blinfo", "+bo", "+help blinfo"],
             default_aliases: &["bli"],

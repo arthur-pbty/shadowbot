@@ -77,7 +77,6 @@ impl crate::commands::command_contract::CommandSpec for ClaimCommand {
             name: "claim",
             category: "outils",
             params: "aucun",
-            summary: "Revendique un ticket",
             description: "Assigne le ticket courant au moderateur qui execute la commande.",
             examples: &["+claim", "+help claim"],
             default_aliases: &[],

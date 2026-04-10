@@ -34,7 +34,6 @@ impl crate::commands::command_contract::CommandSpec for InvisibleCommand {
             name: "invisible",
             category: "bot",
             params: "aucun",
-            summary: "Passe le bot en invisible",
             description: "Change le statut du bot en invisible et sauvegarde ce statut.",
             examples: &["+invisible", "+ie", "+help invisible"],
             default_aliases: &["ivs"],

@@ -43,7 +43,6 @@ impl crate::commands::command_contract::CommandSpec for UnbanCommand {
             name: "unban",
             category: "moderation",
             params: "<@membre/ID[,..]>",
-            summary: "Retire un ban",
             description: "Unban un ou plusieurs membres.",
             examples: &["+unban @User"],
             default_aliases: &["ub"],
