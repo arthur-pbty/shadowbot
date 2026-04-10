@@ -45,7 +45,9 @@ pub async fn handle_alias(ctx: &Context, msg: &Message, args: &[&str]) {
     }
 
     let command = args[0].trim_start_matches('+').to_lowercase();
-    let is_known = all_command_keys().iter().any(|candidate| candidate == &command)
+    let is_known = all_command_keys()
+        .iter()
+        .any(|candidate| candidate == &command)
         || crate::commands::command_metadata_by_key(&command).is_some();
     if !is_known {
         let embed = serenity::builder::CreateEmbed::new()

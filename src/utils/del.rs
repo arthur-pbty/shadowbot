@@ -49,4 +49,3 @@ pub async fn handle_del(ctx: &Context, msg: &Message, args: &[&str]) {
         .color(0x57F287);
     send_embed(ctx, msg, embed).await;
 }
-

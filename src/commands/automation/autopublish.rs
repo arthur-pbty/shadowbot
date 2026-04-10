@@ -78,7 +78,8 @@ pub async fn handle_autopublishon(ctx: &Context, msg: &Message, args: &[&str]) {
         .and_then(|value| parse_channel_id(value))
         .unwrap_or(msg.channel_id);
 
-    let result = db::add_autopublish_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
+    let result =
+        db::add_autopublish_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
 
     if result.is_err() {
         send_embed(

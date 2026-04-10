@@ -143,10 +143,7 @@ impl crate::commands::command_contract::CommandSpec for LeaveSettingsCommand {
             category: "config",
             params: "[on/off] [salon] [message]",
             description: "Configure les actions a executer quand un membre quitte le serveur.",
-            examples: &[
-                "+leavesettings",
-                "+leavesettings on #logs {user} a quitte",
-            ],
+            examples: &["+leavesettings", "+leavesettings on #logs {user} a quitte"],
             default_aliases: &["lset"],
             allow_in_dm: false,
             default_permission: 5,

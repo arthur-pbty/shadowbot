@@ -34,10 +34,7 @@ pub fn parse_user_or_role(input: &str) -> Option<(&'static str, u64)> {
 
 pub fn normalize_command_name(input: &str) -> String {
     let normalized = input.trim_start_matches('+').to_lowercase();
-    let underscored = normalized
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join("_");
+    let underscored = normalized.split_whitespace().collect::<Vec<_>>().join("_");
     let compact = underscored.replace('_', "");
 
     let known = crate::permissions::all_command_keys();

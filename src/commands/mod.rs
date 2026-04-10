@@ -2,13 +2,14 @@ use crate::commands::command_contract::{CommandMetadata, CommandSpec};
 
 #[path = "roles/addrole.rs"]
 pub mod addrole;
+#[path = "../utils/admin_common.rs"]
 pub mod admin_common;
+#[path = "../utils/admin_service.rs"]
 pub mod admin_service;
+#[path = "../utils/advanced_tools.rs"]
 pub mod advanced_tools;
 #[path = "perms/alias.rs"]
 pub mod alias;
-#[path = "perms/unalias.rs"]
-pub mod unalias;
 #[path = "info/alladmins.rs"]
 pub mod alladmins;
 #[path = "info/allbots.rs"]
@@ -29,6 +30,7 @@ pub mod antispam;
 pub mod autobackup;
 #[path = "config/autoconfiglog.rs"]
 pub mod autoconfiglog;
+#[path = "../utils/automod_service.rs"]
 pub mod automod_service;
 #[path = "automation/autopublish.rs"]
 pub mod autopublish;
@@ -60,7 +62,9 @@ pub mod boosters;
 pub mod boostlog;
 #[path = "owner/botadmins.rs"]
 pub mod botadmins;
+#[path = "../utils/botconfig_common.rs"]
 pub mod botconfig_common;
+#[path = "../utils/botconfig_service.rs"]
 pub mod botconfig_service;
 #[path = "channel/bringall.rs"]
 pub mod bringall;
@@ -70,10 +74,10 @@ pub mod button;
 pub mod calc;
 #[path = "botconfig/change.rs"]
 pub mod change;
-#[path = "botconfig/changereset.rs"]
-pub mod changereset;
 #[path = "botconfig/changeall.rs"]
 pub mod changeall;
+#[path = "botconfig/changereset.rs"]
+pub mod changereset;
 #[path = "info/channel.rs"]
 pub mod channel;
 #[path = "fun/choose.rs"]
@@ -102,18 +106,20 @@ pub mod clear_sanctions;
 pub mod close;
 #[path = "mod/cmute.rs"]
 pub mod cmute;
+#[path = "../utils/command_contract.rs"]
 pub mod command_contract;
+#[path = "../utils/common.rs"]
 pub mod common;
 #[path = "botconfig/compet.rs"]
 pub mod compet;
 #[path = "automation/create.rs"]
 pub mod create;
-#[path = "perms/del.rs"]
+#[path = "../utils/del.rs"]
 pub mod del;
-#[path = "perms/delperm.rs"]
-pub mod delperm;
 #[path = "mod/delsanction.rs"]
 pub mod del_sanction;
+#[path = "perms/delperm.rs"]
+pub mod delperm;
 #[path = "roles/delrole.rs"]
 pub mod delrole;
 #[path = "roles/derank.rs"]
@@ -164,7 +170,9 @@ pub mod loading;
 pub mod lock;
 #[path = "channel/lockall.rs"]
 pub mod lockall;
+#[path = "../utils/logs_command_helpers.rs"]
 pub mod logs_command_helpers;
+#[path = "../utils/logs_service.rs"]
 pub mod logs_service;
 #[path = "botconfig/mainprefix.rs"]
 pub mod mainprefix;
@@ -174,8 +182,11 @@ pub mod massiverole;
 pub mod member;
 #[path = "config/messagelog.rs"]
 pub mod messagelog;
+#[path = "../utils/moderation_channel_helpers.rs"]
 pub mod moderation_channel_helpers;
+#[path = "../utils/moderation_sanction_helpers.rs"]
 pub mod moderation_sanction_helpers;
+#[path = "../utils/moderation_tools.rs"]
 pub mod moderation_tools;
 #[path = "config/modlog.rs"]
 pub mod modlog;
@@ -209,7 +220,9 @@ pub mod online;
 pub mod owner;
 #[path = "perms/perms.rs"]
 pub mod perms;
+#[path = "../utils/perms_helpers.rs"]
 pub mod perms_helpers;
+#[path = "../utils/perms_service.rs"]
 pub mod perms_service;
 #[path = "info/pic.rs"]
 pub mod pic;
@@ -261,16 +274,22 @@ pub mod sanctions;
 pub mod say;
 #[path = "info/serverbanner.rs"]
 pub mod serverbanner;
+#[path = "info/serverinfo.rs"]
+pub mod serverinfo;
 #[path = "info/serverlist.rs"]
 pub mod serverlist;
 #[path = "info/serverpic.rs"]
 pub mod serverpic;
-#[path = "info/servertarget.rs"]
+#[path = "../utils/servertarget.rs"]
 pub mod servertarget;
-#[path = "info/serverinfo.rs"]
-pub mod serverinfo;
-#[path = "botconfig/set.rs"]
+#[path = "../utils/set.rs"]
 pub mod set;
+#[path = "config/setboostembed.rs"]
+pub mod set_boostembed;
+#[path = "config/setmodlogs.rs"]
+pub mod set_modlogs;
+#[path = "mod/setmuterole.rs"]
+pub mod set_muterole;
 #[path = "botconfig/setbanner.rs"]
 pub mod setbanner;
 #[path = "botconfig/setname.rs"]
@@ -281,12 +300,6 @@ pub mod setperm;
 pub mod setpic;
 #[path = "botconfig/setprofil.rs"]
 pub mod setprofil;
-#[path = "config/setboostembed.rs"]
-pub mod set_boostembed;
-#[path = "config/setmodlogs.rs"]
-pub mod set_modlogs;
-#[path = "mod/setmuterole.rs"]
-pub mod set_muterole;
 #[path = "botconfig/shadowbot.rs"]
 pub mod shadowbot;
 #[path = "info/showpics.rs"]
@@ -329,6 +342,8 @@ pub mod ticket_member;
 pub mod tickets;
 #[path = "mod/timeout.rs"]
 pub mod timeout;
+#[path = "perms/unalias.rs"]
+pub mod unalias;
 #[path = "mod/unban.rs"]
 pub mod unban;
 #[path = "mod/unbanall.rs"]
@@ -556,12 +571,10 @@ pub fn command_metadata_by_key(key: &str) -> Option<CommandMetadata> {
     let normalized = key.to_lowercase();
     let compact = normalized.replace('_', "");
 
-    all_command_metadata()
-        .into_iter()
-        .find(|meta| {
-            meta.name.eq_ignore_ascii_case(&normalized)
-                || meta.name.replace('_', "").eq_ignore_ascii_case(&compact)
-        })
+    all_command_metadata().into_iter().find(|meta| {
+        meta.name.eq_ignore_ascii_case(&normalized)
+            || meta.name.replace('_', "").eq_ignore_ascii_case(&compact)
+    })
 }
 
 pub fn resolve_default_alias(alias: &str) -> Option<&'static str> {

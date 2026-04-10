@@ -15,7 +15,11 @@ impl crate::commands::command_contract::CommandSpec for AutopublishoffCommand {
             category: "automation",
             params: "[#canal]",
             description: "Desactive la publication automatique des annonces sur un salon.",
-            examples: &["+autopublishoff", "+autopublishoff #annonces", "+help autopublishoff"],
+            examples: &[
+                "+autopublishoff",
+                "+autopublishoff #annonces",
+                "+help autopublishoff",
+            ],
             default_aliases: &["apboff"],
             allow_in_dm: false,
             default_permission: 5,

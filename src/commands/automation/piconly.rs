@@ -164,7 +164,8 @@ pub async fn handle_piconlyadd(ctx: &Context, msg: &Message, args: &[&str]) {
         .and_then(|raw| parse_channel_id(raw))
         .unwrap_or(msg.channel_id);
 
-    let result = db::add_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
+    let result =
+        db::add_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
 
     if result.is_err() {
         send_embed(
@@ -210,7 +211,8 @@ pub async fn handle_piconlydel(ctx: &Context, msg: &Message, args: &[&str]) {
         .and_then(|raw| parse_channel_id(raw))
         .unwrap_or(msg.channel_id);
 
-    let result = db::remove_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
+    let result =
+        db::remove_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
 
     if result.is_err() {
         send_embed(

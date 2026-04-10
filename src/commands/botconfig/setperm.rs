@@ -15,7 +15,11 @@ impl crate::commands::command_contract::CommandSpec for SetpermCommand {
             category: "botconfig",
             params: "<permission/commande> <role/membre>",
             description: "Attribue un niveau ACL ou un acces commande a un role ou membre.",
-            examples: &["+setperm 6 @Moderateur", "+setperm mute @Role", "+help setperm"],
+            examples: &[
+                "+setperm 6 @Moderateur",
+                "+setperm mute @Role",
+                "+help setperm",
+            ],
             default_aliases: &["stp"],
             allow_in_dm: false,
             default_permission: 9,

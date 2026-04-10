@@ -1,6 +1,7 @@
 pub mod channel_event;
 pub mod guild_create_event;
 pub mod guild_member_event;
+#[path = "../utils/events_handler.rs"]
 pub mod handler;
 pub mod interaction_create_event;
 pub mod message_delete_event;

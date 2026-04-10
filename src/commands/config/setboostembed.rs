@@ -103,10 +103,7 @@ impl crate::commands::command_contract::CommandSpec for SetBoostembedCommand {
             category: "config",
             params: "<title|description|color> <valeur>",
             description: "Configure le titre, la description et la couleur de l embed boost.",
-            examples: &[
-                "+setboostembed title Merci",
-                "+setboostembed color #FF66CC",
-            ],
+            examples: &["+setboostembed title Merci", "+setboostembed color #FF66CC"],
             default_aliases: &["sboostembed"],
             allow_in_dm: false,
             default_permission: 6,

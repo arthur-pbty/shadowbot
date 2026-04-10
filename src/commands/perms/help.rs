@@ -135,28 +135,10 @@ fn help_page_for_command(
         "modlog" | "messagelog" | "voicelog" | "boostlog" | "rolelog" | "raidlog"
         | "autoconfiglog" | "nolog" | "joinsettings" | "boostembed" | "setmodlogs"
         | "setboostembed" | "leavesettings" | "viewlogs" => "logs",
-        "warn"
-        | "mute"
-        | "tempmute"
-        | "unmute"
-        | "cmute"
-        | "tempcmute"
-        | "uncmute"
-        | "mutelist"
-        | "unmuteall"
-        | "kick"
-        | "ban"
-        | "tempban"
-        | "unban"
-        | "banlist"
-        | "unbanall"
-        | "sanctions"
-        | "delsanction"
-        | "clearsanctions"
-        | "clearallsanctions"
-        | "cleanup"
-        | "renew"
-        | "clearmessages" => "moderation",
+        "warn" | "mute" | "tempmute" | "unmute" | "cmute" | "tempcmute" | "uncmute"
+        | "mutelist" | "unmuteall" | "kick" | "ban" | "tempban" | "unban" | "banlist"
+        | "unbanall" | "sanctions" | "delsanction" | "clearsanctions" | "clearallsanctions"
+        | "cleanup" | "renew" | "clearmessages" => "moderation",
         "addrole" | "delrole" | "derank" | "massiverole" | "unmassiverole" | "temprole"
         | "untemprole" | "sync" => "roles",
         "lock" | "unlock" | "lockall" | "unlockall" | "hide" | "unhide" | "hideall"
@@ -164,19 +146,13 @@ fn help_page_for_command(
         "giveaway" | "end" | "reroll" | "choose" | "calc" | "emoji" | "embed" | "say"
         | "create" | "newsticker" | "button" | "autoreact" | "snipe" | "loading" | "backup"
         | "autobackup" => "outils",
-        "shadowbot" | "setname" | "setpic" | "setbanner" | "setprofil" | "setperm"
-        | "theme" | "playto" | "listen" | "watch" | "compet" | "stream"
-        | "removeactivity" | "online" | "idle" | "dnd" | "invisible" | "change"
-        | "changereset" | "changeall" => {
-            "bot"
-        }
-        "owner" | "unowner" | "clearowners" | "bl" | "unbl" | "blinfo" | "clearbl"
-        | "allbots" | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp"
-        | "mpsettings" | "mpsent" | "mpdelete" | "invite" | "leave" | "discussion" => {
-            "administration"
-        }
-        "perms" | "delperm" | "clearperms" | "allperms" | "alias" | "help"
-        | "helpsetting" => {
+        "shadowbot" | "setname" | "setpic" | "setbanner" | "setprofil" | "setperm" | "theme"
+        | "playto" | "listen" | "watch" | "compet" | "stream" | "removeactivity" | "online"
+        | "idle" | "dnd" | "invisible" | "change" | "changereset" | "changeall" => "bot",
+        "owner" | "unowner" | "clearowners" | "bl" | "unbl" | "blinfo" | "clearbl" | "allbots"
+        | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp" | "mpsettings" | "mpsent"
+        | "mpdelete" | "invite" | "leave" | "discussion" => "administration",
+        "perms" | "delperm" | "clearperms" | "allperms" | "alias" | "help" | "helpsetting" => {
             "permissions"
         }
         _ => match meta.category {
@@ -410,9 +386,7 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "newsticker" => Some("newsticker"),
         "piconly" => Some("piconly"),
         "piconly add" | "piconlyadd" => Some("piconlyadd"),
-        "piconly del" | "piconly remove" | "piconly delete" | "piconlydel" => {
-            Some("piconlydel")
-        }
+        "piconly del" | "piconly remove" | "piconly delete" | "piconlydel" => Some("piconlydel"),
         "massiverole" => Some("massiverole"),
         "unmassiverole" => Some("unmassiverole"),
         "noderank" => Some("noderank"),

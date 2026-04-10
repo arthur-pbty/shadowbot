@@ -15,7 +15,11 @@ impl crate::commands::command_contract::CommandSpec for AutopublishonCommand {
             category: "automation",
             params: "[#canal]",
             description: "Active la publication automatique des annonces sur un salon.",
-            examples: &["+autopublishon", "+autopublishon #annonces", "+help autopublishon"],
+            examples: &[
+                "+autopublishon",
+                "+autopublishon #annonces",
+                "+help autopublishon",
+            ],
             default_aliases: &["apbon"],
             allow_in_dm: false,
             default_permission: 5,

@@ -286,4 +286,3 @@ pub async fn handle_setprofil(ctx: &Context, msg: &Message, args: &[&str]) {
     };
     send_embed(ctx, msg, embed).await;
 }
-
