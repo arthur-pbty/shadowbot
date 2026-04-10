@@ -3,15 +3,6 @@ use serenity::prelude::*;
 
 use crate::commands::{ancien, logs_service};
 
-pub async fn handle_member_addition(ctx: &Context, new_member: &Member) {
-    logs_service::on_member_join(ctx, new_member.guild_id, &new_member.user).await;
-    ancien::maybe_assign_ancien_role(ctx, new_member.guild_id, new_member.user.id).await;
-}
-
-pub async fn handle_member_removal(ctx: &Context, guild_id: GuildId, user: &User) {
-    logs_service::on_member_leave(ctx, guild_id, user).await;
-}
-
 pub async fn handle_member_update(
     ctx: &Context,
     old_if_available: Option<Member>,

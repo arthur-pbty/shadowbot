@@ -3,9 +3,9 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::events::{
-    channel_event, guild_create_event, guild_member_event, interaction_create_event,
-    message_delete_event, message_event, message_update_event, ready_event, role_event,
-    voice_state_update_event,
+    channel_create, channel_delete, channel_update, guild_create, guild_member_addition,
+    guild_member_removal, guild_member_update, interaction_create, message, message_delete,
+    message_update, ready, role_create, role_delete, role_update, voice_state_update,
 };
 
 pub struct Handler;
@@ -13,19 +13,19 @@ pub struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
-        ready_event::handle_ready(&ctx, &ready).await;
+        ready::handle_ready(&ctx, &ready).await;
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
-        message_event::handle_message(&ctx, &msg).await;
+        message::handle_message(&ctx, &msg).await;
     }
 
     async fn guild_create(&self, ctx: Context, guild: Guild, _is_new: Option<bool>) {
-        guild_create_event::handle_guild_create(&ctx, &guild).await;
+        guild_create::handle_guild_create(&ctx, &guild).await;
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-        interaction_create_event::handle_interaction_create(&ctx, &interaction).await;
+        interaction_create::handle_interaction_create(&ctx, &interaction).await;
     }
 
     async fn message_delete(
@@ -35,8 +35,7 @@ impl EventHandler for Handler {
         deleted_message_id: MessageId,
         guild_id: Option<GuildId>,
     ) {
-        message_delete_event::handle_message_delete(&ctx, channel_id, deleted_message_id, guild_id)
-            .await;
+        message_delete::handle_message_delete(&ctx, channel_id, deleted_message_id, guild_id).await;
     }
 
     async fn message_update(
@@ -46,15 +45,15 @@ impl EventHandler for Handler {
         new: Option<Message>,
         event: MessageUpdateEvent,
     ) {
-        message_update_event::handle_message_update(&ctx, old_if_available, new, &event).await;
+        message_update::handle_message_update(&ctx, old_if_available, new, &event).await;
     }
 
     async fn voice_state_update(&self, ctx: Context, old: Option<VoiceState>, new: VoiceState) {
-        voice_state_update_event::handle_voice_state_update(&ctx, old, &new).await;
+        voice_state_update::handle_voice_state_update(&ctx, old, &new).await;
     }
 
     async fn guild_member_addition(&self, ctx: Context, new_member: Member) {
-        guild_member_event::handle_member_addition(&ctx, &new_member).await;
+        guild_member_addition::handle_member_addition(&ctx, &new_member).await;
     }
 
     async fn guild_member_removal(
@@ -64,7 +63,7 @@ impl EventHandler for Handler {
         user: User,
         _member_data_if_available: Option<Member>,
     ) {
-        guild_member_event::handle_member_removal(&ctx, guild_id, &user).await;
+        guild_member_removal::handle_member_removal(&ctx, guild_id, &user).await;
     }
 
     async fn guild_member_update(
@@ -74,11 +73,11 @@ impl EventHandler for Handler {
         new: Option<Member>,
         event: GuildMemberUpdateEvent,
     ) {
-        guild_member_event::handle_member_update(&ctx, old_if_available, new, &event).await;
+        guild_member_update::handle_member_update(&ctx, old_if_available, new, &event).await;
     }
 
     async fn guild_role_create(&self, ctx: Context, new: Role) {
-        role_event::handle_role_create(&ctx, &new).await;
+        role_create::handle_role_create(&ctx, &new).await;
     }
 
     async fn guild_role_update(
@@ -87,7 +86,7 @@ impl EventHandler for Handler {
         old_data_if_available: Option<Role>,
         new: Role,
     ) {
-        role_event::handle_role_update(&ctx, old_data_if_available, &new).await;
+        role_update::handle_role_update(&ctx, old_data_if_available, &new).await;
     }
 
     async fn guild_role_delete(
@@ -97,7 +96,7 @@ impl EventHandler for Handler {
         removed_role_id: RoleId,
         removed_role_data_if_available: Option<Role>,
     ) {
-        role_event::handle_role_delete(
+        role_delete::handle_role_delete(
             &ctx,
             guild_id,
             removed_role_id,
@@ -107,11 +106,11 @@ impl EventHandler for Handler {
     }
 
     async fn channel_create(&self, ctx: Context, guild_channel: GuildChannel) {
-        channel_event::handle_channel_create(&ctx, &guild_channel).await;
+        channel_create::handle_channel_create(&ctx, &guild_channel).await;
     }
 
     async fn channel_update(&self, ctx: Context, old: Option<GuildChannel>, new: GuildChannel) {
-        channel_event::handle_channel_update(&ctx, old, &new).await;
+        channel_update::handle_channel_update(&ctx, old, &new).await;
     }
 
     async fn channel_delete(
@@ -120,6 +119,6 @@ impl EventHandler for Handler {
         channel: GuildChannel,
         _messages: Option<Vec<Message>>,
     ) {
-        channel_event::handle_channel_delete(&ctx, &channel).await;
+        channel_delete::handle_channel_delete(&ctx, &channel).await;
     }
 }
