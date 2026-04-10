@@ -448,7 +448,10 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
     matched.or_else(|| help_metadata_lookup_key(input))
 }
 
-fn resolve_help_command_key(input: &str, alias_map: &BTreeMap<String, Vec<String>>) -> Option<String> {
+fn resolve_help_command_key(
+    input: &str,
+    alias_map: &BTreeMap<String, Vec<String>>,
+) -> Option<String> {
     if let Some(key) = help_lookup_to_key(input) {
         return Some(key.to_string());
     }
@@ -628,7 +631,10 @@ fn build_help_view_pages(
     let mut intro_lines = Vec::with_capacity(4 + HELP_PAGES.len());
     intro_lines.push("Shadow Bot est un bot de gestion de serveur.".to_string());
     intro_lines.push(String::new());
-    intro_lines.push(format!("**Nombre total de commandes :** {}", total_commands));
+    intro_lines.push(format!(
+        "**Nombre total de commandes :** {}",
+        total_commands
+    ));
     intro_lines.push("**Nombre de commandes par catégorie :**".to_string());
     for (index, page) in HELP_PAGES.iter().enumerate() {
         intro_lines.push(format!("• {} : {}", page.title, counts[index]));
@@ -767,9 +773,8 @@ fn help_components(
         HelpLayout::Select | HelpLayout::Hybrid => {
             let mut options = Vec::with_capacity(HELP_PAGES.len() + 1);
             options.push(
-                CreateSelectMenuOption::new("Présentation", "0").description(
-                    "Shadow Bot, total des commandes et répartition par catégorie.",
-                ),
+                CreateSelectMenuOption::new("Présentation", "0")
+                    .description("Shadow Bot, total des commandes et répartition par catégorie."),
             );
 
             for (index, page) in HELP_PAGES.iter().enumerate() {
@@ -849,7 +854,10 @@ async fn build_command_help_embed(
         .join("\n");
 
     let mut embed = CreateEmbed::new()
-        .title(format!("Aide commande · +{}", doc.command.replace('_', " ")))
+        .title(format!(
+            "Aide commande · +{}",
+            doc.command.replace('_', " ")
+        ))
         .description(doc.description)
         .field(
             "Commande",

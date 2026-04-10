@@ -2,10 +2,10 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 
 use chrono::Utc;
-use serenity::builder::EditMember;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
+use crate::commands::moderation_sanction_helpers::{channel_mute_users, handle_timeout};
 use crate::db::DbPoolKey;
 
 static MODERATION_TICK: OnceLock<Mutex<Instant>> = OnceLock::new();
@@ -13,66 +13,6 @@ static MODERATION_TICK: OnceLock<Mutex<Instant>> = OnceLock::new();
 async fn pool(ctx: &Context) -> Option<sqlx::PgPool> {
     let data = ctx.data.read().await;
     data.get::<DbPoolKey>().cloned()
-}
-
-async fn handle_timeout(
-    ctx: &Context,
-    guild_id: GuildId,
-    users: &[UserId],
-    expires: Option<chrono::DateTime<Utc>>,
-) -> usize {
-    let mut done = 0usize;
-    for user_id in users {
-        if let Ok(mut member) = guild_id.member(&ctx.http, *user_id).await {
-            let mut builder = EditMember::new();
-            if let Some(ts) = expires {
-                if let Ok(discord_ts) = Timestamp::from_unix_timestamp(ts.timestamp()) {
-                    builder = builder.disable_communication_until_datetime(discord_ts);
-                }
-            } else {
-                builder = builder.enable_communication();
-            }
-
-            if member.edit(&ctx.http, builder).await.is_ok() {
-                done += 1;
-            }
-        }
-    }
-    done
-}
-
-async fn channel_mute_users(
-    ctx: &Context,
-    channel_id: ChannelId,
-    users: &[UserId],
-    mute: bool,
-) -> usize {
-    let mut done = 0usize;
-    for user_id in users {
-        let result = if mute {
-            channel_id
-                .create_permission(
-                    &ctx.http,
-                    PermissionOverwrite {
-                        allow: Permissions::empty(),
-                        deny: Permissions::SEND_MESSAGES
-                            | Permissions::ADD_REACTIONS
-                            | Permissions::SPEAK,
-                        kind: PermissionOverwriteType::Member(*user_id),
-                    },
-                )
-                .await
-        } else {
-            channel_id
-                .delete_permission(&ctx.http, PermissionOverwriteType::Member(*user_id))
-                .await
-        };
-
-        if result.is_ok() {
-            done += 1;
-        }
-    }
-    done
 }
 
 pub async fn maybe_run_maintenance(ctx: &Context, guild_id: Option<GuildId>) {

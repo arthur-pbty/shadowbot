@@ -6,19 +6,22 @@ use std::sync::{Mutex, OnceLock};
 use crate::commands::moderation_tools;
 use crate::commands::remove_activity;
 use crate::commands::{
-    addrole, alias, autobackup, autoconfiglog, autopublish, autoreact, backup, ban, banlist,
-    banner, bl, blinfo, boostembed, boosters, boostlog, bringall, button, calc, change, changeall,
-    channel, choose, claim, cleanup, clear_all_sanctions, clear_bl, clear_messages, clear_owners,
-    clear_perms, clear_sanctions, close, cmute, compet, create, del, del_sanction, delrole, derank,
-    discussion, dnd, embed, emoji, end, giveaway, help, helpsetting, hide, hideall, idle,
-    invisible, invite, join, kick, leave, leave_settings, listen, loading, lock, lockall,
-    mainprefix, massiverole, member, messagelog, modlog, mp, mute, mutelist, newsticker, nolog,
-    online, owner, perms, pic, ping, playto, prefix, raidlog, rename, renew, reroll, role, rolelog,
+    addrole, alias, ancien, antilink, antimassmention, antiraideautoconfig, antispam, autobackup,
+    autoconfiglog, autopublish, autoreact, backup, badwords, ban, banlist, banner, bl, blinfo,
+    boostembed, boosters, boostlog, bringall, button, calc, change, changeall, channel, choose,
+    claim, cleanup, clear_all_sanctions, clear_badwords, clear_bl, clear_limit, clear_messages,
+    clear_owners, clear_perms, clear_sanctions, close, cmute, compet, create, del, del_sanction,
+    delrole, derank, discussion, dnd, embed, emoji, end, giveaway, help, helpsetting, hide,
+    hideall, idle, invisible, invite, join, kick, leave, leave_settings, link, listen, loading,
+    lock, lockall, mainprefix, massiverole, member, messagelog, modlog, mp, mute, mutelist,
+    muterole, newsticker, noderank, nolog, online, owner, perms, pic, piconly, ping, playto,
+    prefix, public, punish, raidlog, rename, renew, reroll, resetantiraide, role, rolelog,
     rolemembers, rolemenu, sanctions, say, server, serverinfo, set, set_boostembed, set_modlogs,
-    shadowbot, showpics, slowmode, snipe, stream, suggestion, sync, tempban, tempcmute, tempmute,
-    temprole, tempvoc, tempvoc_cmd, theme, ticket, ticket_member, tickets, unban, unbanall, unbl,
-    uncmute, unhide, unhideall, unlock, unlockall, unmassiverole, unmute, unmuteall, unowner,
-    untemprole, user, viewlogs, vocinfo, voicekick, voicelog, voicemove, warn, watch,
+    set_muterole, shadowbot, showpics, slowmode, snipe, spam, stream, strikes, suggestion, sync,
+    tempban, tempcmute, tempmute, temprole, tempvoc, tempvoc_cmd, theme, ticket, ticket_member,
+    tickets, timeout, unban, unbanall, unbl, uncmute, unhide, unhideall, unlock, unlockall,
+    unmassiverole, unmute, unmuteall, unowner, untemprole, user, viewlogs, vocinfo, voicekick,
+    voicelog, voicemove, warn, watch,
 };
 use crate::commands::{alladmins, allbots, allperms, botadmins};
 use crate::db::{DbPoolKey, upsert_message_observed};
@@ -83,12 +86,24 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         return;
     }
 
+    if let Some(guild_id) = msg.guild_id {
+        ancien::maybe_assign_ancien_role(ctx, guild_id, msg.author.id).await;
+    }
+
+    let content = msg.content.trim();
+    let prefix_value = permissions::resolve_prefix(ctx, msg.guild_id).await;
+    if piconly::enforce_piconly_message(ctx, msg, content, &prefix_value).await {
+        return;
+    }
+
     crate::commands::advanced_tools::apply_autoreacts(ctx, msg).await;
     crate::commands::advanced_tools::maybe_run_maintenance(ctx, msg.guild_id).await;
     moderation_tools::maybe_run_maintenance(ctx, msg.guild_id).await;
 
-    let content = msg.content.trim();
-    let prefix_value = permissions::resolve_prefix(ctx, msg.guild_id).await;
+    if crate::commands::automod_service::enforce_automod_message(ctx, msg).await {
+        return;
+    }
+
     if !content.starts_with(&prefix_value) {
         return;
     }
@@ -151,9 +166,15 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         }
     }
 
+    let required = permissions::command_required_permission(ctx, &command_key).await;
+    if !crate::commands::automod_service::public_command_allowed(ctx, msg, &command_key, required)
+        .await
+    {
+        return;
+    }
+
     let can_use = permissions::can_use_command(ctx, msg, &command_key).await;
     if !can_use {
-        let required = permissions::command_required_permission(ctx, &command_key).await;
         permissions::deny_permission(ctx, msg, &command_key, required).await;
         return;
     }
@@ -190,6 +211,7 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         {
             showpics::handle_show_pics(ctx, msg, &args[1..]).await
         }
+        "piconly" => piconly::handle_piconly(ctx, msg, &args).await,
         "suggestion" => suggestion::handle_suggestion(ctx, msg, &args).await,
         "autopublish" => autopublish::handle_autopublish(ctx, msg, &args).await,
         "tempvoc"
@@ -202,6 +224,21 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         }
         "tempvoc" => tempvoc::handle_tempvoc(ctx, msg, &args).await,
         "ping" => ping::handle_ping(ctx, msg, &args).await,
+        "timeout" => timeout::handle_timeout_toggle(ctx, msg, &args).await,
+        "muterole" => muterole::handle_muterole(ctx, msg, &args).await,
+        "antispam" => antispam::handle_antispam(ctx, msg, &args).await,
+        "antiraideautoconfig" => {
+            antiraideautoconfig::handle_antiraideautoconfig(ctx, msg, &args).await
+        }
+        "antilink" => antilink::handle_antilink(ctx, msg, &args).await,
+        "antimassmention" => antimassmention::handle_antimassmention(ctx, msg, &args).await,
+        "badwords" => badwords::handle_badwords(ctx, msg, &args).await,
+        "spam" => spam::handle_spam_override(ctx, msg, &args).await,
+        "link" => link::handle_link_override(ctx, msg, &args).await,
+        "strikes" => strikes::handle_strikes(ctx, msg, &args).await,
+        "punish" => punish::handle_punish(ctx, msg, &args).await,
+        "public" => public::handle_public(ctx, msg, &args).await,
+        "resetantiraide" => resetantiraide::handle_resetantiraide(ctx, msg, &args).await,
         "allbots" => allbots::handle_allbots(ctx, msg, &args).await,
         "alladmins" => alladmins::handle_alladmins(ctx, msg, &args).await,
         "botadmins" => botadmins::handle_botadmins(ctx, msg, &args).await,
@@ -211,6 +248,7 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "vocinfo" => vocinfo::handle_vocinfo(ctx, msg, &args).await,
         "role" => role::handle_role(ctx, msg, &args).await,
         "rolemenu" => rolemenu::handle_rolemenu(ctx, msg, &args).await,
+        "ancien" => ancien::handle_ancien(ctx, msg, &args).await,
         "channel" => channel::handle_channel(ctx, msg, &args).await,
         "user" => user::handle_user(ctx, msg, &args).await,
         "member" => member::handle_member(ctx, msg, &args).await,
@@ -359,6 +397,7 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
             derank::handle_derank(ctx, msg, &args).await;
             crate::commands::logs_service::log_moderation_command(ctx, msg, "derank", &args).await;
         }
+        "noderank" => noderank::handle_noderank(ctx, msg, &args).await,
         "temprole" => temprole::handle_temprole(ctx, msg, &args).await,
         "untemprole" => untemprole::handle_untemprole(ctx, msg, &args).await,
         "sync" => sync::handle_sync(ctx, msg, &args).await,
@@ -366,6 +405,14 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "autoreact" => autoreact::handle_autoreact(ctx, msg, &args).await,
         "calc" => calc::handle_calc(ctx, msg, &args).await,
         "shadowbot" => shadowbot::handle_shadowbot(ctx, msg, &args).await,
+        "set"
+            if args
+                .first()
+                .map(|s| s.eq_ignore_ascii_case("muterole"))
+                .unwrap_or(false) =>
+        {
+            set_muterole::handle_set_muterole(ctx, msg, &args).await
+        }
         "set"
             if args
                 .first()
@@ -452,6 +499,22 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
                 .unwrap_or(false) =>
         {
             clear_perms::handle_clear_perms(ctx, msg).await
+        }
+        "clear"
+            if args
+                .first()
+                .map(|s| s.eq_ignore_ascii_case("limit"))
+                .unwrap_or(false) =>
+        {
+            clear_limit::handle_clear_limit(ctx, msg, &args).await
+        }
+        "clear"
+            if args
+                .first()
+                .map(|s| s.eq_ignore_ascii_case("badwords"))
+                .unwrap_or(false) =>
+        {
+            clear_badwords::handle_clear_badwords(ctx, msg, &args).await
         }
         "clear"
             if args

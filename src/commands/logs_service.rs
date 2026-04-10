@@ -125,7 +125,10 @@ pub async fn emit_log(
 
     embed = embed.timestamp(timestamp);
 
-    record_audit_log(ctx, guild_id, log_type, user_id, channel_id, role_id, action).await;
+    record_audit_log(
+        ctx, guild_id, log_type, user_id, channel_id, role_id, action,
+    )
+    .await;
 
     if let Some(log_channel_id) = get_log_channel(ctx, guild_id, log_type).await {
         let _ = log_channel_id

@@ -6,7 +6,7 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::admin_common::parse_user_id;
-use crate::db::DbPoolKey;
+use crate::db::{self, DbPoolKey};
 
 pub fn duration_from_input(input: &str) -> Option<Duration> {
     let raw = input.trim().to_lowercase();
@@ -95,20 +95,56 @@ pub async fn handle_timeout(
     users: &[UserId],
     expires: Option<chrono::DateTime<Utc>>,
 ) -> usize {
+    let settings = if let Some(pool) = pool(ctx).await {
+        let bot_id = ctx.cache.current_user().id.get() as i64;
+        db::get_or_create_moderation_settings(&pool, bot_id, guild_id.get() as i64)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
+    let mute_role_id = settings
+        .as_ref()
+        .and_then(|s| s.mute_role_id)
+        .and_then(|raw| u64::try_from(raw).ok())
+        .map(RoleId::new);
+
+    let use_timeout = settings
+        .as_ref()
+        .map(|s| s.use_timeout || s.mute_role_id.is_none())
+        .unwrap_or(true);
+
     let mut done = 0usize;
     for user_id in users {
         if let Ok(mut member) = guild_id.member(&ctx.http, *user_id).await {
-            let mut builder = EditMember::new();
-            if let Some(ts) = expires {
-                if let Ok(discord_ts) = Timestamp::from_unix_timestamp(ts.timestamp()) {
-                    builder = builder.disable_communication_until_datetime(discord_ts);
+            if use_timeout {
+                let mut builder = EditMember::new();
+                if let Some(ts) = expires {
+                    if let Ok(discord_ts) = Timestamp::from_unix_timestamp(ts.timestamp()) {
+                        builder = builder.disable_communication_until_datetime(discord_ts);
+                    }
+                } else {
+                    builder = builder.enable_communication();
+                }
+
+                if member.edit(&ctx.http, builder).await.is_ok() {
+                    done += 1;
                 }
             } else {
-                builder = builder.enable_communication();
-            }
+                let Some(role_id) = mute_role_id else {
+                    continue;
+                };
 
-            if member.edit(&ctx.http, builder).await.is_ok() {
-                done += 1;
+                let result = if expires.is_some() {
+                    member.add_role(&ctx.http, role_id).await
+                } else {
+                    member.remove_role(&ctx.http, role_id).await
+                };
+
+                if result.is_ok() {
+                    done += 1;
+                }
             }
         }
     }

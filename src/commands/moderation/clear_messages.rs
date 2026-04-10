@@ -4,6 +4,7 @@ use serenity::prelude::*;
 
 use crate::commands::admin_common::parse_user_id;
 use crate::commands::common::{send_embed, theme_color};
+use crate::db::{self, DbPoolKey};
 
 pub async fn handle_clear_messages(ctx: &Context, msg: &Message, args: &[&str]) {
     let Ok(mut amount) = args.first().unwrap_or(&"0").parse::<u64>() else {
@@ -12,7 +13,28 @@ pub async fn handle_clear_messages(ctx: &Context, msg: &Message, args: &[&str]) 
     if amount == 0 {
         return;
     }
-    amount = amount.clamp(1, 100);
+
+    let max_limit = if let Some(guild_id) = msg.guild_id {
+        let pool = {
+            let data = ctx.data.read().await;
+            data.get::<DbPoolKey>().cloned()
+        };
+
+        if let Some(pool) = pool {
+            let bot_id = ctx.cache.current_user().id.get() as i64;
+            db::get_or_create_moderation_settings(&pool, bot_id, guild_id.get() as i64)
+                .await
+                .ok()
+                .map(|settings| settings.clear_limit.max(1) as u64)
+                .unwrap_or(100)
+        } else {
+            100
+        }
+    } else {
+        100
+    };
+
+    amount = amount.clamp(1, max_limit);
 
     let filter_user = args.get(1).and_then(|raw| parse_user_id(raw));
 

@@ -84,6 +84,18 @@ pub fn command_key(command: &str, args: &[&str]) -> String {
                 "clear_bl".to_string()
             } else if args
                 .first()
+                .map(|s| s.eq_ignore_ascii_case("limit"))
+                .unwrap_or(false)
+            {
+                "clear_limit".to_string()
+            } else if args
+                .first()
+                .map(|s| s.eq_ignore_ascii_case("badwords"))
+                .unwrap_or(false)
+            {
+                "clear_badwords".to_string()
+            } else if args
+                .first()
                 .map(|s| s.eq_ignore_ascii_case("perms"))
                 .unwrap_or(false)
             {
@@ -132,6 +144,12 @@ pub fn command_key(command: &str, args: &[&str]) -> String {
                 .unwrap_or(false)
             {
                 "set_perm".to_string()
+            } else if args
+                .first()
+                .map(|s| s.eq_ignore_ascii_case("muterole"))
+                .unwrap_or(false)
+            {
+                "set_muterole".to_string()
             } else if args
                 .first()
                 .map(|s| s.eq_ignore_ascii_case("modlogs"))
@@ -233,6 +251,7 @@ pub fn all_command_keys() -> Vec<String> {
         "boosters",
         "rolemembers",
         "rolemenu",
+        "ancien",
         "serverinfo",
         "vocinfo",
         "role",
@@ -252,6 +271,23 @@ pub fn all_command_keys() -> Vec<String> {
         "clear_sanctions",
         "clear_all_sanctions",
         "clear_messages",
+        "clear_limit",
+        "clear_badwords",
+        "timeout",
+        "muterole",
+        "set_muterole",
+        "antispam",
+        "antiraideautoconfig",
+        "antilink",
+        "antimassmention",
+        "badwords",
+        "spam",
+        "link",
+        "strikes",
+        "punish",
+        "noderank",
+        "public",
+        "resetantiraide",
         "warn",
         "mute",
         "tempmute",
@@ -290,6 +326,7 @@ pub fn all_command_keys() -> Vec<String> {
         "ticket_close",
         "tickets",
         "show_pics",
+        "piconly",
         "suggestion_create",
         "suggestion_settings",
         "autopublish",
@@ -374,14 +411,14 @@ pub fn all_command_keys() -> Vec<String> {
 
 pub fn default_permission(command_key: &str) -> u8 {
     match command_key {
-        "ticket_settings" | "suggestion_settings" | "autopublish" | "tempvoc" => 8,
+        "ticket_settings" | "suggestion_settings" | "autopublish" | "piconly" | "tempvoc" => 8,
         "claim" | "rename" | "ticket_add" | "ticket_remove" | "ticket_close" | "tickets" => 2,
         "show_pics" | "suggestion_create" | "tempvoc_cmd" => 0,
         "owner" | "unowner" | "clear_owners" => 9,
         "bl" | "unbl" | "blinfo" | "clear_bl" => 9,
         "change" | "changeall" | "change_reset" | "mainprefix" | "set_perm" | "del_perm"
         | "clear_perms" => 9,
-        "set_modlogs" | "set_boostembed" => 8,
+        "set_modlogs" | "set_boostembed" | "set_muterole" => 8,
         "prefix" | "perms" | "allperms" => 8,
         "help" | "server_list" => 0,
         "helpsetting" | "alias" | "leave" => 9,
@@ -428,6 +465,22 @@ pub fn default_permission(command_key: &str) -> u8 {
         | "clear_sanctions"
         | "clear_all_sanctions"
         | "clear_messages"
+        | "clear_limit"
+        | "clear_badwords"
+        | "timeout"
+        | "muterole"
+        | "antispam"
+        | "antiraideautoconfig"
+        | "antilink"
+        | "antimassmention"
+        | "badwords"
+        | "spam"
+        | "link"
+        | "strikes"
+        | "punish"
+        | "noderank"
+        | "public"
+        | "resetantiraide"
         | "warn"
         | "mute"
         | "tempmute"
@@ -455,6 +508,7 @@ pub fn default_permission(command_key: &str) -> u8 {
         | "delrole"
         | "derank"
         | "rolemenu"
+        | "ancien"
         | "modlog"
         | "messagelog"
         | "voicelog"

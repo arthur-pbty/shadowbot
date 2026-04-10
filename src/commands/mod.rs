@@ -13,16 +13,29 @@ pub mod alladmins;
 pub mod allbots;
 #[path = "permissions/allperms.rs"]
 pub mod allperms;
+#[path = "roles/ancien.rs"]
+pub mod ancien;
+#[path = "moderation/antilink.rs"]
+pub mod antilink;
+#[path = "moderation/antimassmention.rs"]
+pub mod antimassmention;
+#[path = "moderation/antiraideautoconfig.rs"]
+pub mod antiraideautoconfig;
+#[path = "moderation/antispam.rs"]
+pub mod antispam;
 #[path = "outils/autobackup.rs"]
 pub mod autobackup;
 #[path = "logs/autoconfiglog.rs"]
 pub mod autoconfiglog;
+pub mod automod_service;
 #[path = "outils/autopublish.rs"]
 pub mod autopublish;
 #[path = "outils/autoreact.rs"]
 pub mod autoreact;
 #[path = "outils/backup.rs"]
 pub mod backup;
+#[path = "moderation/badwords.rs"]
+pub mod badwords;
 #[path = "moderation/ban.rs"]
 pub mod ban;
 #[path = "moderation/banlist.rs"]
@@ -63,8 +76,12 @@ pub mod claim;
 pub mod cleanup;
 #[path = "moderation/clear_all_sanctions.rs"]
 pub mod clear_all_sanctions;
+#[path = "moderation/clear_badwords.rs"]
+pub mod clear_badwords;
 #[path = "administration/clear_bl.rs"]
 pub mod clear_bl;
+#[path = "moderation/clear_limit.rs"]
+pub mod clear_limit;
 #[path = "moderation/clear_messages.rs"]
 pub mod clear_messages;
 #[path = "administration/clear_owners.rs"]
@@ -125,6 +142,8 @@ pub mod kick;
 pub mod leave;
 #[path = "logs/leave_settings.rs"]
 pub mod leave_settings;
+#[path = "moderation/link.rs"]
+pub mod link;
 #[path = "bot/listen.rs"]
 pub mod listen;
 #[path = "outils/loading.rs"]
@@ -154,8 +173,12 @@ pub mod mp;
 pub mod mute;
 #[path = "moderation/mutelist.rs"]
 pub mod mutelist;
+#[path = "moderation/muterole.rs"]
+pub mod muterole;
 #[path = "outils/newsticker.rs"]
 pub mod newsticker;
+#[path = "roles/noderank.rs"]
+pub mod noderank;
 #[path = "logs/nolog.rs"]
 pub mod nolog;
 #[path = "bot/online.rs"]
@@ -168,12 +191,18 @@ pub mod perms_helpers;
 pub mod perms_service;
 #[path = "infos/pic.rs"]
 pub mod pic;
+#[path = "outils/piconly.rs"]
+pub mod piconly;
 #[path = "infos/ping.rs"]
 pub mod ping;
 #[path = "bot/playto.rs"]
 pub mod playto;
 #[path = "administration/prefix.rs"]
 pub mod prefix;
+#[path = "moderation/public.rs"]
+pub mod public;
+#[path = "moderation/punish.rs"]
+pub mod punish;
 #[path = "logs/raidlog.rs"]
 pub mod raidlog;
 #[path = "bot/remove_activity.rs"]
@@ -184,6 +213,8 @@ pub mod rename;
 pub mod renew;
 #[path = "outils/reroll.rs"]
 pub mod reroll;
+#[path = "moderation/resetantiraide.rs"]
+pub mod resetantiraide;
 #[path = "infos/role.rs"]
 pub mod role;
 #[path = "logs/rolelog.rs"]
@@ -206,6 +237,8 @@ pub mod set;
 pub mod set_boostembed;
 #[path = "logs/set_modlogs.rs"]
 pub mod set_modlogs;
+#[path = "moderation/set_muterole.rs"]
+pub mod set_muterole;
 #[path = "bot/shadowbot.rs"]
 pub mod shadowbot;
 #[path = "infos/showpics.rs"]
@@ -214,8 +247,12 @@ pub mod showpics;
 pub mod slowmode;
 #[path = "outils/snipe.rs"]
 pub mod snipe;
+#[path = "moderation/spam.rs"]
+pub mod spam;
 #[path = "bot/stream.rs"]
 pub mod stream;
+#[path = "moderation/strikes.rs"]
+pub mod strikes;
 #[path = "outils/suggestion.rs"]
 pub mod suggestion;
 #[path = "roles/sync.rs"]
@@ -240,6 +277,8 @@ pub mod ticket;
 pub mod ticket_member;
 #[path = "outils/tickets.rs"]
 pub mod tickets;
+#[path = "moderation/timeout.rs"]
+pub mod timeout;
 #[path = "moderation/unban.rs"]
 pub mod unban;
 #[path = "moderation/unbanall.rs"]
@@ -286,9 +325,12 @@ pub mod watch;
 pub fn all_command_metadata() -> Vec<CommandMetadata> {
     vec![
         ping::COMMAND_DESCRIPTOR.metadata(),
+        timeout::COMMAND_DESCRIPTOR.metadata(),
         allbots::COMMAND_DESCRIPTOR.metadata(),
         alladmins::COMMAND_DESCRIPTOR.metadata(),
         botadmins::COMMAND_DESCRIPTOR.metadata(),
+        ancien::COMMAND_DESCRIPTOR.metadata(),
+        antiraideautoconfig::COMMAND_DESCRIPTOR.metadata(),
         boosters::COMMAND_DESCRIPTOR.metadata(),
         rolemembers::COMMAND_DESCRIPTOR.metadata(),
         rolemenu::COMMAND_DESCRIPTOR.metadata(),
@@ -322,6 +364,20 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         choose::COMMAND_DESCRIPTOR.metadata(),
         embed::COMMAND_DESCRIPTOR.metadata(),
         clear_messages::COMMAND_DESCRIPTOR.metadata(),
+        clear_limit::COMMAND_DESCRIPTOR.metadata(),
+        clear_badwords::COMMAND_DESCRIPTOR.metadata(),
+        muterole::COMMAND_DESCRIPTOR.metadata(),
+        set_muterole::COMMAND_DESCRIPTOR.metadata(),
+        antispam::COMMAND_DESCRIPTOR.metadata(),
+        antilink::COMMAND_DESCRIPTOR.metadata(),
+        antimassmention::COMMAND_DESCRIPTOR.metadata(),
+        badwords::COMMAND_DESCRIPTOR.metadata(),
+        spam::COMMAND_DESCRIPTOR.metadata(),
+        link::COMMAND_DESCRIPTOR.metadata(),
+        strikes::COMMAND_DESCRIPTOR.metadata(),
+        punish::COMMAND_DESCRIPTOR.metadata(),
+        public::COMMAND_DESCRIPTOR.metadata(),
+        resetantiraide::COMMAND_DESCRIPTOR.metadata(),
         backup::COMMAND_DESCRIPTOR.metadata(),
         ticket::COMMAND_DESCRIPTOR.metadata(),
         claim::COMMAND_DESCRIPTOR.metadata(),
@@ -330,6 +386,7 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         close::COMMAND_DESCRIPTOR.metadata(),
         tickets::COMMAND_DESCRIPTOR.metadata(),
         showpics::COMMAND_DESCRIPTOR.metadata(),
+        piconly::COMMAND_DESCRIPTOR.metadata(),
         suggestion::COMMAND_DESCRIPTOR.metadata(),
         autopublish::COMMAND_DESCRIPTOR.metadata(),
         tempvoc::COMMAND_DESCRIPTOR.metadata(),
@@ -372,6 +429,7 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         addrole::COMMAND_DESCRIPTOR.metadata(),
         delrole::COMMAND_DESCRIPTOR.metadata(),
         derank::COMMAND_DESCRIPTOR.metadata(),
+        noderank::COMMAND_DESCRIPTOR.metadata(),
         del_sanction::COMMAND_DESCRIPTOR.metadata(),
         clear_sanctions::COMMAND_DESCRIPTOR.metadata(),
         clear_all_sanctions::COMMAND_DESCRIPTOR.metadata(),

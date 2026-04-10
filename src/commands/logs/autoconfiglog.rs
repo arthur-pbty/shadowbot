@@ -11,7 +11,15 @@ use serenity::prelude::*;
 use crate::commands::common::{send_embed, theme_color};
 use crate::commands::logs_command_helpers::{pool, set_log_channel};
 
-const LOG_TYPES: &[&str] = &["moderation", "message", "voice", "boost", "role", "raid", "channel"];
+const LOG_TYPES: &[&str] = &[
+    "moderation",
+    "message",
+    "voice",
+    "boost",
+    "role",
+    "raid",
+    "channel",
+];
 const LOG_CATEGORY_NAME: &str = "📁 ➜ Espace Logs";
 const LOG_CHANNEL_PREFIX: &str = "📁・";
 const AUTOCONFIGLOG_COMPONENT_PREFIX: &str = "autoconfiglog";

@@ -118,11 +118,31 @@ pub struct AutopublishChannel {
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 #[allow(dead_code)]
+pub struct PiconlyChannel {
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub channel_id: i64,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
 pub struct TempvocSettings {
     pub bot_id: i64,
     pub guild_id: i64,
     pub trigger_channel_id: Option<i64>,
     pub category_id: Option<i64>,
+    pub enabled: bool,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
+pub struct OldMemberSettings {
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub role_id: Option<i64>,
+    pub delay_seconds: i64,
     pub enabled: bool,
     pub updated_at: DateTime<Utc>,
 }
@@ -135,7 +155,89 @@ pub struct TempvocRoom {
     pub guild_id: i64,
     pub channel_id: i64,
     pub owner_id: i64,
+    pub voice_mode: String,
+    pub whitelist_json: String,
+    pub blacklist_json: String,
+    pub allow_micro: bool,
+    pub allow_camera: bool,
+    pub allow_soundboard: bool,
+    pub user_limit: i32,
+    pub room_name: Option<String>,
+    pub control_message_channel_id: Option<i64>,
+    pub control_message_id: Option<i64>,
+    pub updated_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
+pub struct TempvocProfile {
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub user_id: i64,
+    pub voice_mode: String,
+    pub allow_micro: bool,
+    pub allow_camera: bool,
+    pub allow_soundboard: bool,
+    pub user_limit: i32,
+    pub room_name: Option<String>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
+pub struct ModerationSettings {
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub use_timeout: bool,
+    pub clear_limit: i32,
+    pub mute_role_id: Option<i64>,
+    pub antispam_enabled: bool,
+    pub antispam_limit: i32,
+    pub antispam_window_seconds: i32,
+    pub antilink_enabled: bool,
+    pub antilink_mode: String,
+    pub antimassmention_enabled: bool,
+    pub antimassmention_limit: i32,
+    pub badwords_enabled: bool,
+    pub public_commands_enabled: bool,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
+pub struct ModerationChannelOverride {
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub channel_id: i64,
+    pub kind: String,
+    pub mode: String,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
+pub struct StrikeRule {
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub trigger: String,
+    pub profile: String,
+    pub strike_count: i32,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
+pub struct PunishRule {
+    pub id: i64,
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub threshold: i32,
+    pub window_seconds: i64,
+    pub sanction: String,
+    pub sanction_seconds: Option<i64>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 pub async fn create_pool(database_url: &str) -> Result<PgPool, sqlx::Error> {
@@ -465,6 +567,58 @@ pub async fn init_schema(pool: &PgPool) -> Result<(), sqlx::Error> {
 
     sqlx::query(
         r#"
+        CREATE TABLE IF NOT EXISTS bot_old_member_settings (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            role_id BIGINT NULL,
+            delay_seconds BIGINT NOT NULL DEFAULT 2592000,
+            enabled BOOLEAN NOT NULL DEFAULT FALSE,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_old_member_settings
+        ADD COLUMN IF NOT EXISTS role_id BIGINT NULL;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_old_member_settings
+        ADD COLUMN IF NOT EXISTS delay_seconds BIGINT NOT NULL DEFAULT 2592000;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_old_member_settings
+        ADD COLUMN IF NOT EXISTS enabled BOOLEAN NOT NULL DEFAULT FALSE;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_old_member_settings
+        ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
         CREATE TABLE IF NOT EXISTS bot_log_channels (
             bot_id BIGINT NOT NULL,
             guild_id BIGINT NOT NULL,
@@ -740,6 +894,20 @@ pub async fn init_schema(pool: &PgPool) -> Result<(), sqlx::Error> {
 
     sqlx::query(
         r#"
+        CREATE TABLE IF NOT EXISTS bot_piconly_channels (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            channel_id BIGINT NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, channel_id)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
         CREATE TABLE IF NOT EXISTS bot_tempvoc_settings (
             bot_id BIGINT NOT NULL,
             guild_id BIGINT NOT NULL,
@@ -762,7 +930,137 @@ pub async fn init_schema(pool: &PgPool) -> Result<(), sqlx::Error> {
             guild_id BIGINT NOT NULL,
             channel_id BIGINT NOT NULL,
             owner_id BIGINT NOT NULL,
+            voice_mode TEXT NOT NULL DEFAULT 'open',
+            whitelist_json TEXT NOT NULL DEFAULT '[]',
+            blacklist_json TEXT NOT NULL DEFAULT '[]',
+            allow_micro BOOLEAN NOT NULL DEFAULT TRUE,
+            allow_camera BOOLEAN NOT NULL DEFAULT TRUE,
+            allow_soundboard BOOLEAN NOT NULL DEFAULT TRUE,
+            user_limit INTEGER NOT NULL DEFAULT 0,
+            room_name TEXT NULL,
+            control_message_channel_id BIGINT NULL,
+            control_message_id BIGINT NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS voice_mode TEXT NOT NULL DEFAULT 'open';
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS whitelist_json TEXT NOT NULL DEFAULT '[]';
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS blacklist_json TEXT NOT NULL DEFAULT '[]';
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS allow_micro BOOLEAN NOT NULL DEFAULT TRUE;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS allow_camera BOOLEAN NOT NULL DEFAULT TRUE;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS allow_soundboard BOOLEAN NOT NULL DEFAULT TRUE;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS user_limit INTEGER NOT NULL DEFAULT 0;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS room_name TEXT NULL;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS control_message_channel_id BIGINT NULL;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS control_message_id BIGINT NULL;
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        ALTER TABLE bot_tempvoc_rooms
+        ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_tempvoc_profiles (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            voice_mode TEXT NOT NULL DEFAULT 'open',
+            allow_micro BOOLEAN NOT NULL DEFAULT TRUE,
+            allow_camera BOOLEAN NOT NULL DEFAULT TRUE,
+            allow_soundboard BOOLEAN NOT NULL DEFAULT TRUE,
+            user_limit INTEGER NOT NULL DEFAULT 0,
+            room_name TEXT NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, user_id)
         );
         "#,
     )
@@ -773,6 +1071,159 @@ pub async fn init_schema(pool: &PgPool) -> Result<(), sqlx::Error> {
         r#"
         CREATE INDEX IF NOT EXISTS idx_bot_tempvoc_rooms_lookup
         ON bot_tempvoc_rooms (bot_id, guild_id, created_at DESC);
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_bot_tempvoc_rooms_channel
+        ON bot_tempvoc_rooms (channel_id);
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_moderation_settings (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            use_timeout BOOLEAN NOT NULL DEFAULT TRUE,
+            clear_limit INTEGER NOT NULL DEFAULT 100,
+            mute_role_id BIGINT NULL,
+            antispam_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+            antispam_limit INTEGER NOT NULL DEFAULT 6,
+            antispam_window_seconds INTEGER NOT NULL DEFAULT 5,
+            antilink_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+            antilink_mode TEXT NOT NULL DEFAULT 'invite',
+            antimassmention_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+            antimassmention_limit INTEGER NOT NULL DEFAULT 5,
+            badwords_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+            public_commands_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_badwords (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            word TEXT NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, word)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_moderation_channel_overrides (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            channel_id BIGINT NOT NULL,
+            kind TEXT NOT NULL,
+            mode TEXT NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, channel_id, kind)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_noderank_roles (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            role_id BIGINT NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, role_id)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_strike_rules (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            trigger TEXT NOT NULL,
+            profile TEXT NOT NULL,
+            strike_count INTEGER NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, trigger, profile)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_punish_rules (
+            id BIGSERIAL PRIMARY KEY,
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            threshold INTEGER NOT NULL,
+            window_seconds BIGINT NOT NULL,
+            sanction TEXT NOT NULL,
+            sanction_seconds BIGINT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE (bot_id, guild_id, threshold)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_member_strike_events (
+            id BIGSERIAL PRIMARY KEY,
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            trigger TEXT NOT NULL,
+            strike_count INTEGER NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_bot_member_strike_events_lookup
+        ON bot_member_strike_events (bot_id, guild_id, user_id, created_at DESC);
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_member_punish_log (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            rule_id BIGINT NOT NULL,
+            last_triggered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, user_id, rule_id)
+        );
         "#,
     )
     .execute(pool)
@@ -2639,6 +3090,146 @@ pub async fn get_autopublish_channels(
     Ok(channels)
 }
 
+pub async fn add_piconly_channel(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    channel_id: i64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_piconly_channels (bot_id, guild_id, channel_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (bot_id, guild_id, channel_id) DO UPDATE SET updated_at = NOW();
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(channel_id)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn remove_piconly_channel(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    channel_id: i64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        DELETE FROM bot_piconly_channels
+        WHERE bot_id = $1 AND guild_id = $2 AND channel_id = $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(channel_id)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn get_piconly_channels(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<Vec<PiconlyChannel>, sqlx::Error> {
+    let channels = sqlx::query_as::<_, PiconlyChannel>(
+        r#"
+        SELECT * FROM bot_piconly_channels
+        WHERE bot_id = $1 AND guild_id = $2
+        ORDER BY channel_id ASC;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(channels)
+}
+
+pub async fn is_piconly_channel(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    channel_id: i64,
+) -> Result<bool, sqlx::Error> {
+    let row = sqlx::query_as::<_, (bool,)>(
+        r#"
+        SELECT EXISTS(
+            SELECT 1
+            FROM bot_piconly_channels
+            WHERE bot_id = $1 AND guild_id = $2 AND channel_id = $3
+        );
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(channel_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(row.0)
+}
+
+// ========== ANCIEN SETTINGS FUNCTIONS ==========
+
+pub async fn get_or_create_old_member_settings(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<OldMemberSettings, sqlx::Error> {
+    let settings = sqlx::query_as::<_, OldMemberSettings>(
+        r#"
+        INSERT INTO bot_old_member_settings (bot_id, guild_id)
+        VALUES ($1, $2)
+        ON CONFLICT (bot_id, guild_id) DO UPDATE SET updated_at = NOW()
+        RETURNING *;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn update_old_member_settings(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    role_id: Option<i64>,
+    delay_seconds: i64,
+    enabled: bool,
+) -> Result<OldMemberSettings, sqlx::Error> {
+    let settings = sqlx::query_as::<_, OldMemberSettings>(
+        r#"
+        UPDATE bot_old_member_settings
+        SET role_id = $1,
+            delay_seconds = $2,
+            enabled = $3,
+            updated_at = NOW()
+        WHERE bot_id = $4 AND guild_id = $5
+        RETURNING *;
+        "#,
+    )
+    .bind(role_id)
+    .bind(delay_seconds.max(1))
+    .bind(enabled)
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
 // ========== TEMPVOC FUNCTIONS ==========
 
 pub async fn get_or_create_tempvoc_settings(
@@ -2689,17 +3280,111 @@ pub async fn update_tempvoc_settings(
     Ok(settings)
 }
 
+pub async fn get_or_create_tempvoc_profile(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+) -> Result<TempvocProfile, sqlx::Error> {
+    let profile = sqlx::query_as::<_, TempvocProfile>(
+        r#"
+        INSERT INTO bot_tempvoc_profiles (bot_id, guild_id, user_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (bot_id, guild_id, user_id) DO UPDATE SET updated_at = NOW()
+        RETURNING *;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(profile)
+}
+
+pub async fn save_tempvoc_profile(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+    voice_mode: &str,
+    allow_micro: bool,
+    allow_camera: bool,
+    allow_soundboard: bool,
+    user_limit: i32,
+    room_name: Option<&str>,
+) -> Result<TempvocProfile, sqlx::Error> {
+    let profile = sqlx::query_as::<_, TempvocProfile>(
+        r#"
+        INSERT INTO bot_tempvoc_profiles (
+            bot_id,
+            guild_id,
+            user_id,
+            voice_mode,
+            allow_micro,
+            allow_camera,
+            allow_soundboard,
+            user_limit,
+            room_name
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        ON CONFLICT (bot_id, guild_id, user_id)
+        DO UPDATE SET
+            voice_mode = EXCLUDED.voice_mode,
+            allow_micro = EXCLUDED.allow_micro,
+            allow_camera = EXCLUDED.allow_camera,
+            allow_soundboard = EXCLUDED.allow_soundboard,
+            user_limit = EXCLUDED.user_limit,
+            room_name = EXCLUDED.room_name,
+            updated_at = NOW()
+        RETURNING *;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .bind(voice_mode)
+    .bind(allow_micro)
+    .bind(allow_camera)
+    .bind(allow_soundboard)
+    .bind(user_limit)
+    .bind(room_name)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(profile)
+}
+
 pub async fn create_tempvoc_room(
     pool: &PgPool,
     bot_id: i64,
     guild_id: i64,
     channel_id: i64,
     owner_id: i64,
+    voice_mode: &str,
+    allow_micro: bool,
+    allow_camera: bool,
+    allow_soundboard: bool,
+    user_limit: i32,
+    room_name: Option<&str>,
 ) -> Result<TempvocRoom, sqlx::Error> {
     let room = sqlx::query_as::<_, TempvocRoom>(
         r#"
-        INSERT INTO bot_tempvoc_rooms (bot_id, guild_id, channel_id, owner_id)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO bot_tempvoc_rooms (
+            bot_id,
+            guild_id,
+            channel_id,
+            owner_id,
+            voice_mode,
+            allow_micro,
+            allow_camera,
+            allow_soundboard,
+            user_limit,
+            room_name,
+            updated_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
         RETURNING *;
         "#,
     )
@@ -2707,10 +3392,82 @@ pub async fn create_tempvoc_room(
     .bind(guild_id)
     .bind(channel_id)
     .bind(owner_id)
+    .bind(voice_mode)
+    .bind(allow_micro)
+    .bind(allow_camera)
+    .bind(allow_soundboard)
+    .bind(user_limit)
+    .bind(room_name)
     .fetch_one(pool)
     .await?;
 
     Ok(room)
+}
+
+pub async fn set_tempvoc_room_control_message(
+    pool: &PgPool,
+    channel_id: i64,
+    control_message_channel_id: i64,
+    control_message_id: i64,
+) -> Result<TempvocRoom, sqlx::Error> {
+    let room = sqlx::query_as::<_, TempvocRoom>(
+        r#"
+        UPDATE bot_tempvoc_rooms
+        SET control_message_channel_id = $1,
+            control_message_id = $2,
+            updated_at = NOW()
+        WHERE channel_id = $3
+        RETURNING *;
+        "#,
+    )
+    .bind(control_message_channel_id)
+    .bind(control_message_id)
+    .bind(channel_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(room)
+}
+
+pub async fn save_tempvoc_room_state(
+    pool: &PgPool,
+    room: &TempvocRoom,
+) -> Result<TempvocRoom, sqlx::Error> {
+    let updated = sqlx::query_as::<_, TempvocRoom>(
+        r#"
+        UPDATE bot_tempvoc_rooms
+        SET owner_id = $1,
+            voice_mode = $2,
+            whitelist_json = $3,
+            blacklist_json = $4,
+            allow_micro = $5,
+            allow_camera = $6,
+            allow_soundboard = $7,
+            user_limit = $8,
+            room_name = $9,
+            control_message_channel_id = $10,
+            control_message_id = $11,
+            updated_at = NOW()
+        WHERE channel_id = $12
+        RETURNING *;
+        "#,
+    )
+    .bind(room.owner_id)
+    .bind(&room.voice_mode)
+    .bind(&room.whitelist_json)
+    .bind(&room.blacklist_json)
+    .bind(room.allow_micro)
+    .bind(room.allow_camera)
+    .bind(room.allow_soundboard)
+    .bind(room.user_limit)
+    .bind(room.room_name.as_deref())
+    .bind(room.control_message_channel_id)
+    .bind(room.control_message_id)
+    .bind(room.channel_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(updated)
 }
 
 pub async fn get_tempvoc_room_by_channel(
@@ -2729,6 +3486,22 @@ pub async fn get_tempvoc_room_by_channel(
     Ok(room)
 }
 
+pub async fn get_tempvoc_rooms_by_bot(
+    pool: &PgPool,
+    bot_id: i64,
+) -> Result<Vec<TempvocRoom>, sqlx::Error> {
+    let rooms = sqlx::query_as::<_, TempvocRoom>(
+        r#"
+        SELECT * FROM bot_tempvoc_rooms WHERE bot_id = $1;
+        "#,
+    )
+    .bind(bot_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rooms)
+}
+
 pub async fn delete_tempvoc_room(pool: &PgPool, channel_id: i64) -> Result<(), sqlx::Error> {
     sqlx::query(
         r#"
@@ -2736,6 +3509,884 @@ pub async fn delete_tempvoc_room(pool: &PgPool, channel_id: i64) -> Result<(), s
         "#,
     )
     .bind(channel_id)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+async fn ensure_moderation_settings_row(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_moderation_settings (bot_id, guild_id)
+        VALUES ($1, $2)
+        ON CONFLICT (bot_id, guild_id) DO NOTHING;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn get_or_create_moderation_settings(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        SELECT *
+        FROM bot_moderation_settings
+        WHERE bot_id = $1 AND guild_id = $2
+        LIMIT 1;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_use_timeout_for_mute(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    enabled: bool,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET use_timeout = $1, updated_at = NOW()
+        WHERE bot_id = $2 AND guild_id = $3
+        RETURNING *;
+        "#,
+    )
+    .bind(enabled)
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_clear_limit(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    clear_limit: i32,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET clear_limit = $1, updated_at = NOW()
+        WHERE bot_id = $2 AND guild_id = $3
+        RETURNING *;
+        "#,
+    )
+    .bind(clear_limit.max(1))
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_mute_role(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    mute_role_id: Option<i64>,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET mute_role_id = $1, updated_at = NOW()
+        WHERE bot_id = $2 AND guild_id = $3
+        RETURNING *;
+        "#,
+    )
+    .bind(mute_role_id)
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_antispam_settings(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    enabled: bool,
+    limit: i32,
+    window_seconds: i32,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET antispam_enabled = $1,
+            antispam_limit = $2,
+            antispam_window_seconds = $3,
+            updated_at = NOW()
+        WHERE bot_id = $4 AND guild_id = $5
+        RETURNING *;
+        "#,
+    )
+    .bind(enabled)
+    .bind(limit.max(1))
+    .bind(window_seconds.max(1))
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_antilink_settings(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    enabled: bool,
+    mode: &str,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET antilink_enabled = $1,
+            antilink_mode = $2,
+            updated_at = NOW()
+        WHERE bot_id = $3 AND guild_id = $4
+        RETURNING *;
+        "#,
+    )
+    .bind(enabled)
+    .bind(mode)
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_antimassmention_settings(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    enabled: bool,
+    limit: i32,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET antimassmention_enabled = $1,
+            antimassmention_limit = $2,
+            updated_at = NOW()
+        WHERE bot_id = $3 AND guild_id = $4
+        RETURNING *;
+        "#,
+    )
+    .bind(enabled)
+    .bind(limit.max(1))
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_badwords_enabled(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    enabled: bool,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET badwords_enabled = $1,
+            updated_at = NOW()
+        WHERE bot_id = $2 AND guild_id = $3
+        RETURNING *;
+        "#,
+    )
+    .bind(enabled)
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn set_public_commands_enabled(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    enabled: bool,
+) -> Result<ModerationSettings, sqlx::Error> {
+    ensure_moderation_settings_row(pool, bot_id, guild_id).await?;
+    let settings = sqlx::query_as::<_, ModerationSettings>(
+        r#"
+        UPDATE bot_moderation_settings
+        SET public_commands_enabled = $1,
+            updated_at = NOW()
+        WHERE bot_id = $2 AND guild_id = $3
+        RETURNING *;
+        "#,
+    )
+    .bind(enabled)
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(settings)
+}
+
+pub async fn add_badword(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    word: &str,
+) -> Result<(), sqlx::Error> {
+    let normalized = word.trim().to_lowercase();
+    if normalized.is_empty() {
+        return Ok(());
+    }
+
+    sqlx::query(
+        r#"
+        INSERT INTO bot_badwords (bot_id, guild_id, word)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (bot_id, guild_id, word) DO NOTHING;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(normalized)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn remove_badword(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    word: &str,
+) -> Result<u64, sqlx::Error> {
+    let normalized = word.trim().to_lowercase();
+    let res = sqlx::query(
+        r#"
+        DELETE FROM bot_badwords
+        WHERE bot_id = $1 AND guild_id = $2 AND word = $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(normalized)
+    .execute(pool)
+    .await?;
+
+    Ok(res.rows_affected())
+}
+
+pub async fn clear_badwords(pool: &PgPool, bot_id: i64, guild_id: i64) -> Result<u64, sqlx::Error> {
+    let res = sqlx::query(
+        r#"
+        DELETE FROM bot_badwords
+        WHERE bot_id = $1 AND guild_id = $2;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .execute(pool)
+    .await?;
+
+    Ok(res.rows_affected())
+}
+
+pub async fn list_badwords(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<Vec<String>, sqlx::Error> {
+    let rows = sqlx::query_as::<_, (String,)>(
+        r#"
+        SELECT word
+        FROM bot_badwords
+        WHERE bot_id = $1 AND guild_id = $2
+        ORDER BY word ASC;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows.into_iter().map(|(word,)| word).collect())
+}
+
+pub async fn set_moderation_channel_override(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    channel_id: i64,
+    kind: &str,
+    mode: &str,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_moderation_channel_overrides (bot_id, guild_id, channel_id, kind, mode)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (bot_id, guild_id, channel_id, kind)
+        DO UPDATE SET mode = EXCLUDED.mode, updated_at = NOW();
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(channel_id)
+    .bind(kind)
+    .bind(mode)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn remove_moderation_channel_override(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    channel_id: i64,
+    kind: &str,
+) -> Result<u64, sqlx::Error> {
+    let res = sqlx::query(
+        r#"
+        DELETE FROM bot_moderation_channel_overrides
+        WHERE bot_id = $1 AND guild_id = $2 AND channel_id = $3 AND kind = $4;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(channel_id)
+    .bind(kind)
+    .execute(pool)
+    .await?;
+
+    Ok(res.rows_affected())
+}
+
+pub async fn clear_moderation_channel_overrides_by_kind(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    kind: &str,
+) -> Result<u64, sqlx::Error> {
+    let res = sqlx::query(
+        r#"
+        DELETE FROM bot_moderation_channel_overrides
+        WHERE bot_id = $1 AND guild_id = $2 AND kind = $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(kind)
+    .execute(pool)
+    .await?;
+
+    Ok(res.rows_affected())
+}
+
+pub async fn get_moderation_channel_override(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    channel_id: i64,
+    kind: &str,
+) -> Result<Option<String>, sqlx::Error> {
+    let row = sqlx::query_as::<_, (String,)>(
+        r#"
+        SELECT mode
+        FROM bot_moderation_channel_overrides
+        WHERE bot_id = $1 AND guild_id = $2 AND channel_id = $3 AND kind = $4
+        LIMIT 1;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(channel_id)
+    .bind(kind)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(row.map(|(mode,)| mode))
+}
+
+pub async fn add_noderank_role(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    role_id: i64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_noderank_roles (bot_id, guild_id, role_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (bot_id, guild_id, role_id)
+        DO UPDATE SET updated_at = NOW();
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(role_id)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn remove_noderank_role(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    role_id: i64,
+) -> Result<u64, sqlx::Error> {
+    let res = sqlx::query(
+        r#"
+        DELETE FROM bot_noderank_roles
+        WHERE bot_id = $1 AND guild_id = $2 AND role_id = $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(role_id)
+    .execute(pool)
+    .await?;
+
+    Ok(res.rows_affected())
+}
+
+pub async fn list_noderank_roles(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<Vec<i64>, sqlx::Error> {
+    let rows = sqlx::query_as::<_, (i64,)>(
+        r#"
+        SELECT role_id
+        FROM bot_noderank_roles
+        WHERE bot_id = $1 AND guild_id = $2
+        ORDER BY role_id ASC;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows.into_iter().map(|(role_id,)| role_id).collect())
+}
+
+#[allow(dead_code)]
+pub async fn is_noderank_role(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    role_id: i64,
+) -> Result<bool, sqlx::Error> {
+    let row = sqlx::query_as::<_, (i64,)>(
+        r#"
+        SELECT 1
+        FROM bot_noderank_roles
+        WHERE bot_id = $1 AND guild_id = $2 AND role_id = $3
+        LIMIT 1;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(role_id)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(row.is_some())
+}
+
+pub async fn ensure_default_strike_rules(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<(), sqlx::Error> {
+    let defaults = [
+        ("spam", "new", 2_i32),
+        ("spam", "old", 1_i32),
+        ("link", "new", 2_i32),
+        ("link", "old", 1_i32),
+        ("massmention", "new", 3_i32),
+        ("massmention", "old", 2_i32),
+        ("badword", "new", 2_i32),
+        ("badword", "old", 1_i32),
+    ];
+
+    for (trigger, profile, strike_count) in defaults {
+        let _ = sqlx::query(
+            r#"
+            INSERT INTO bot_strike_rules (bot_id, guild_id, trigger, profile, strike_count)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (bot_id, guild_id, trigger, profile) DO NOTHING;
+            "#,
+        )
+        .bind(bot_id)
+        .bind(guild_id)
+        .bind(trigger)
+        .bind(profile)
+        .bind(strike_count)
+        .execute(pool)
+        .await;
+    }
+
+    Ok(())
+}
+
+pub async fn upsert_strike_rule(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    trigger: &str,
+    profile: &str,
+    strike_count: i32,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_strike_rules (bot_id, guild_id, trigger, profile, strike_count)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (bot_id, guild_id, trigger, profile)
+        DO UPDATE SET strike_count = EXCLUDED.strike_count, updated_at = NOW();
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(trigger)
+    .bind(profile)
+    .bind(strike_count.max(0))
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn list_strike_rules(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<Vec<StrikeRule>, sqlx::Error> {
+    ensure_default_strike_rules(pool, bot_id, guild_id).await?;
+    let rows = sqlx::query_as::<_, StrikeRule>(
+        r#"
+        SELECT *
+        FROM bot_strike_rules
+        WHERE bot_id = $1 AND guild_id = $2
+        ORDER BY trigger ASC, profile ASC;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows)
+}
+
+pub async fn get_strike_rule(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    trigger: &str,
+    profile: &str,
+) -> Result<Option<i32>, sqlx::Error> {
+    ensure_default_strike_rules(pool, bot_id, guild_id).await?;
+    let row = sqlx::query_as::<_, (i32,)>(
+        r#"
+        SELECT strike_count
+        FROM bot_strike_rules
+        WHERE bot_id = $1 AND guild_id = $2 AND trigger = $3 AND profile = $4
+        LIMIT 1;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(trigger)
+    .bind(profile)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(row.map(|(value,)| value))
+}
+
+pub async fn setup_default_punish_rules(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        DELETE FROM bot_punish_rules
+        WHERE bot_id = $1 AND guild_id = $2;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .execute(pool)
+    .await?;
+
+    let defaults = [
+        (5_i32, 3_600_i64, "warn", None),
+        (8_i32, 21_600_i64, "mute", Some(1_800_i64)),
+        (12_i32, 86_400_i64, "ban", None),
+    ];
+
+    for (threshold, window_seconds, sanction, sanction_seconds) in defaults {
+        sqlx::query(
+            r#"
+            INSERT INTO bot_punish_rules (bot_id, guild_id, threshold, window_seconds, sanction, sanction_seconds)
+            VALUES ($1, $2, $3, $4, $5, $6);
+            "#,
+        )
+        .bind(bot_id)
+        .bind(guild_id)
+        .bind(threshold)
+        .bind(window_seconds)
+        .bind(sanction)
+        .bind(sanction_seconds)
+        .execute(pool)
+        .await?;
+    }
+
+    Ok(())
+}
+
+pub async fn ensure_default_punish_rules(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<(), sqlx::Error> {
+    let count = sqlx::query_as::<_, (i64,)>(
+        r#"
+        SELECT COUNT(*)
+        FROM bot_punish_rules
+        WHERE bot_id = $1 AND guild_id = $2;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_one(pool)
+    .await?
+    .0;
+
+    if count == 0 {
+        setup_default_punish_rules(pool, bot_id, guild_id).await?;
+    }
+
+    Ok(())
+}
+
+pub async fn list_punish_rules(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<Vec<PunishRule>, sqlx::Error> {
+    ensure_default_punish_rules(pool, bot_id, guild_id).await?;
+    let rows = sqlx::query_as::<_, PunishRule>(
+        r#"
+        SELECT *
+        FROM bot_punish_rules
+        WHERE bot_id = $1 AND guild_id = $2
+        ORDER BY threshold ASC, id ASC;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows)
+}
+
+pub async fn upsert_punish_rule(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    threshold: i32,
+    window_seconds: i64,
+    sanction: &str,
+    sanction_seconds: Option<i64>,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_punish_rules (bot_id, guild_id, threshold, window_seconds, sanction, sanction_seconds)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (bot_id, guild_id, threshold)
+        DO UPDATE SET
+            window_seconds = EXCLUDED.window_seconds,
+            sanction = EXCLUDED.sanction,
+            sanction_seconds = EXCLUDED.sanction_seconds,
+            updated_at = NOW();
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(threshold.max(1))
+    .bind(window_seconds.max(1))
+    .bind(sanction)
+    .bind(sanction_seconds)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn delete_punish_rule_by_id(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    rule_id: i64,
+) -> Result<u64, sqlx::Error> {
+    let res = sqlx::query(
+        r#"
+        DELETE FROM bot_punish_rules
+        WHERE bot_id = $1 AND guild_id = $2 AND id = $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(rule_id)
+    .execute(pool)
+    .await?;
+
+    Ok(res.rows_affected())
+}
+
+pub async fn add_member_strike_event(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+    trigger: &str,
+    strike_count: i32,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_member_strike_events (bot_id, guild_id, user_id, trigger, strike_count)
+        VALUES ($1, $2, $3, $4, $5);
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .bind(trigger)
+    .bind(strike_count.max(0))
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn count_member_strikes_in_window(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+    window_seconds: i64,
+) -> Result<i64, sqlx::Error> {
+    let row = sqlx::query_as::<_, (i64,)>(
+        r#"
+        SELECT COALESCE(SUM(strike_count), 0)
+        FROM bot_member_strike_events
+        WHERE bot_id = $1
+          AND guild_id = $2
+          AND user_id = $3
+          AND created_at >= (NOW() - ($4::BIGINT * INTERVAL '1 second'));
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .bind(window_seconds.max(1))
+    .fetch_one(pool)
+    .await?;
+
+    Ok(row.0)
+}
+
+pub async fn get_last_punish_triggered_at(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+    rule_id: i64,
+) -> Result<Option<DateTime<Utc>>, sqlx::Error> {
+    let row = sqlx::query_as::<_, (DateTime<Utc>,)>(
+        r#"
+        SELECT last_triggered_at
+        FROM bot_member_punish_log
+        WHERE bot_id = $1 AND guild_id = $2 AND user_id = $3 AND rule_id = $4
+        LIMIT 1;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .bind(rule_id)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(row.map(|(at,)| at))
+}
+
+pub async fn upsert_last_punish_triggered_at(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+    rule_id: i64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO bot_member_punish_log (bot_id, guild_id, user_id, rule_id, last_triggered_at)
+        VALUES ($1, $2, $3, $4, NOW())
+        ON CONFLICT (bot_id, guild_id, user_id, rule_id)
+        DO UPDATE SET last_triggered_at = NOW();
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .bind(rule_id)
     .execute(pool)
     .await?;
 
