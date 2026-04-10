@@ -2439,6 +2439,69 @@ pub async fn upsert_message_observed(
     Ok(())
 }
 
+pub async fn get_observed_message(
+    pool: &PgPool,
+    bot_id: UserId,
+    message_id: MessageId,
+) -> Result<Option<(Option<UserId>, String)>, sqlx::Error> {
+    let row = sqlx::query_as::<_, (Option<i64>, String)>(
+        r#"
+        SELECT author_id, content
+        FROM message_log
+        WHERE bot_id = $1
+          AND message_id = $2
+        LIMIT 1;
+        "#,
+    )
+    .bind(bot_id.get() as i64)
+    .bind(message_id.get() as i64)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(row.map(|(author_id, content)| {
+        (
+            author_id
+                .and_then(|id| u64::try_from(id).ok())
+                .map(UserId::new),
+            content,
+        )
+    }))
+}
+
+pub async fn upsert_message_observed_partial(
+    pool: &PgPool,
+    bot_id: UserId,
+    message_id: MessageId,
+    guild_id: Option<GuildId>,
+    channel_id: ChannelId,
+    author_id: Option<UserId>,
+    content: &str,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO message_log (bot_id, message_id, guild_id, channel_id, author_id, content)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (bot_id, message_id)
+        DO UPDATE SET
+            guild_id = EXCLUDED.guild_id,
+            channel_id = EXCLUDED.channel_id,
+            author_id = EXCLUDED.author_id,
+            content = EXCLUDED.content,
+            observed_at = NOW();
+        "#,
+    )
+    .bind(bot_id.get() as i64)
+    .bind(message_id.get() as i64)
+    .bind(guild_id.map(|id| id.get() as i64))
+    .bind(channel_id.get() as i64)
+    .bind(author_id.map(|id| id.get() as i64))
+    .bind(content)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
 pub async fn mark_message_deleted(
     pool: &PgPool,
     bot_id: UserId,
