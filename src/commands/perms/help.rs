@@ -117,6 +117,11 @@ const HELP_PAGES: &[HelpPage] = &[
         description: "Giveaways, utilitaires, embeds et automatisations de contenu.",
     },
     HelpPage {
+        key: "game",
+        title: "Game",
+        description: "Jeux et commandes ludiques.",
+    },
+    HelpPage {
         key: "bot",
         title: "Bot & Présence",
         description: "Configuration du bot, thème, activité et présence.",
@@ -177,6 +182,7 @@ fn help_page_for_command(
             "roles" => "roles",
             "salons_vocal" => "salons_vocal",
             "outils" => "outils",
+            "game" => "game",
             "bot" => "bot",
             "administration" => "administration",
             "permissions" => "permissions",
@@ -238,6 +244,7 @@ fn help_page_matches_input(page: &HelpPage, input: &str) -> bool {
         "roles" => &["role", "roles"][..],
         "salons_vocal" => &["salon", "salons", "vocal", "voice", "channels"][..],
         "outils" => &["utilitaires", "tools", "giveaway"][..],
+        "game" => &["jeu", "jeux", "games", "fun"][..],
         "bot" => &["profil", "presence", "activite", "activity"][..],
         "administration" => &["admin", "admins"][..],
         "permissions" => &["permission", "perms", "aide", "help"][..],

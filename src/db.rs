@@ -250,6 +250,23 @@ pub struct PunishRule {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
+pub struct GameSession {
+    pub id: i64,
+    pub bot_id: i64,
+    pub guild_id: Option<i64>,
+    pub channel_id: i64,
+    pub message_id: Option<i64>,
+    pub game_type: String,
+    pub owner_id: i64,
+    pub participants_json: String,
+    pub state_json: String,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
 pub async fn create_pool(database_url: &str) -> Result<PgPool, sqlx::Error> {
     PgPoolOptions::new()
         .max_connections(10)
@@ -1258,6 +1275,36 @@ pub async fn init_schema(pool: &PgPool) -> Result<(), sqlx::Error> {
             last_triggered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             PRIMARY KEY (bot_id, guild_id, user_id, rule_id)
         );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_game_sessions (
+            id BIGSERIAL PRIMARY KEY,
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NULL,
+            channel_id BIGINT NOT NULL,
+            message_id BIGINT NULL,
+            game_type TEXT NOT NULL,
+            owner_id BIGINT NOT NULL,
+            participants_json TEXT NOT NULL DEFAULT '[]',
+            state_json TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active',
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_bot_game_sessions_lookup
+        ON bot_game_sessions (bot_id, game_type, status, updated_at DESC);
         "#,
     )
     .execute(pool)
@@ -4605,4 +4652,129 @@ pub async fn upsert_last_punish_triggered_at(
     .await?;
 
     Ok(())
+}
+
+// ========== GAME SESSIONS FUNCTIONS ==========
+
+pub async fn create_game_session(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: Option<i64>,
+    channel_id: i64,
+    owner_id: i64,
+    game_type: &str,
+    participants_json: &str,
+    state_json: &str,
+) -> Result<GameSession, sqlx::Error> {
+    let session = sqlx::query_as::<_, GameSession>(
+        r#"
+        INSERT INTO bot_game_sessions (
+            bot_id,
+            guild_id,
+            channel_id,
+            owner_id,
+            game_type,
+            participants_json,
+            state_json,
+            status
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'active')
+        RETURNING *;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(channel_id)
+    .bind(owner_id)
+    .bind(game_type)
+    .bind(participants_json)
+    .bind(state_json)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(session)
+}
+
+pub async fn set_game_session_message(
+    pool: &PgPool,
+    session_id: i64,
+    message_id: i64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        UPDATE bot_game_sessions
+        SET message_id = $1, updated_at = NOW()
+        WHERE id = $2;
+        "#,
+    )
+    .bind(message_id)
+    .bind(session_id)
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn get_game_session(
+    pool: &PgPool,
+    session_id: i64,
+) -> Result<Option<GameSession>, sqlx::Error> {
+    let session = sqlx::query_as::<_, GameSession>(
+        r#"
+        SELECT *
+        FROM bot_game_sessions
+        WHERE id = $1
+        LIMIT 1;
+        "#,
+    )
+    .bind(session_id)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(session)
+}
+
+pub async fn update_game_session_state(
+    pool: &PgPool,
+    session_id: i64,
+    state_json: &str,
+    status: &str,
+) -> Result<Option<GameSession>, sqlx::Error> {
+    let session = sqlx::query_as::<_, GameSession>(
+        r#"
+        UPDATE bot_game_sessions
+        SET state_json = $1, status = $2, updated_at = NOW()
+        WHERE id = $3
+        RETURNING *;
+        "#,
+    )
+    .bind(state_json)
+    .bind(status)
+    .bind(session_id)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(session)
+}
+
+#[allow(dead_code)]
+pub async fn update_game_session_participants(
+    pool: &PgPool,
+    session_id: i64,
+    participants_json: &str,
+) -> Result<Option<GameSession>, sqlx::Error> {
+    let session = sqlx::query_as::<_, GameSession>(
+        r#"
+        UPDATE bot_game_sessions
+        SET participants_json = $1, updated_at = NOW()
+        WHERE id = $2
+        RETURNING *;
+        "#,
+    )
+    .bind(participants_json)
+    .bind(session_id)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(session)
 }

@@ -2,8 +2,8 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::{
-    advanced_tools, ancien, autoconfiglog, boostembed, help, helpsetting, mp, perms_service,
-    rolemenu, suggestion, tempvoc, ticket, viewlogs,
+    advanced_tools, ancien, autoconfiglog, boostembed, g2048, help, helpsetting, morpion, mp,
+    perms_service, puissance4, rolemenu, suggestion, tempvoc, ticket, viewlogs,
 };
 
 pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction) {
@@ -39,6 +39,18 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
         }
 
         if rolemenu::handle_component_interaction(ctx, component).await {
+            return;
+        }
+
+        if morpion::handle_component_interaction(ctx, component).await {
+            return;
+        }
+
+        if puissance4::handle_component_interaction(ctx, component).await {
+            return;
+        }
+
+        if g2048::handle_component_interaction(ctx, component).await {
             return;
         }
 

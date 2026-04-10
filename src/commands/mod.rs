@@ -74,6 +74,8 @@ pub mod bringall;
 pub mod button;
 #[path = "fun/calc.rs"]
 pub mod calc;
+#[path = "game/catsay.rs"]
+pub mod catsay;
 #[path = "botconfig/change.rs"]
 pub mod change;
 #[path = "botconfig/changeall.rs"]
@@ -84,8 +86,12 @@ pub mod changereset;
 pub mod channel;
 #[path = "fun/choose.rs"]
 pub mod choose;
+#[path = "game/christmas.rs"]
+pub mod christmas;
 #[path = "ticket/claim.rs"]
 pub mod claim;
+#[path = "game/claque.rs"]
+pub mod claque;
 #[path = "mod/cleanup.rs"]
 pub mod cleanup;
 #[path = "mod/clearallsanctions.rs"]
@@ -124,12 +130,16 @@ pub mod del_sanction;
 pub mod delperm;
 #[path = "roles/delrole.rs"]
 pub mod delrole;
+#[path = "game/demineur.rs"]
+pub mod demineur;
 #[path = "roles/derank.rs"]
 pub mod derank;
 #[path = "owner/discussion.rs"]
 pub mod discussion;
 #[path = "botconfig/dnd.rs"]
 pub mod dnd;
+#[path = "game/eightball.rs"]
+pub mod eightball;
 #[path = "fun/embed.rs"]
 pub mod embed;
 #[path = "fun/emoji.rs"]
@@ -138,8 +148,22 @@ pub mod emoji;
 pub mod end;
 #[path = "event/endgiveaway.rs"]
 pub mod endgiveaway;
+#[path = "game/epicgamer.rs"]
+pub mod epicgamer;
+#[path = "game/fasttype.rs"]
+pub mod fasttype;
+#[path = "game/findemoji.rs"]
+pub mod findemoji;
+#[path = "game/flood.rs"]
+pub mod flood;
+#[path = "game/g2048.rs"]
+pub mod g2048;
 #[path = "event/giveaway.rs"]
 pub mod giveaway;
+#[path = "game/guesspokemon.rs"]
+pub mod guesspokemon;
+#[path = "game/halloween.rs"]
+pub mod halloween;
 #[path = "perms/help.rs"]
 pub mod help;
 #[path = "perms/helpsetting.rs"]
@@ -162,6 +186,8 @@ pub mod invitereset;
 pub mod join;
 #[path = "mod/kick.rs"]
 pub mod kick;
+#[path = "game/kiss.rs"]
+pub mod kiss;
 #[path = "owner/leave.rs"]
 pub mod leave;
 #[path = "config/leavesettings.rs"]
@@ -182,6 +208,8 @@ pub mod logs_command_helpers;
 pub mod logs_service;
 #[path = "botconfig/mainprefix.rs"]
 pub mod mainprefix;
+#[path = "game/marry.rs"]
+pub mod marry;
 #[path = "roles/massiverole.rs"]
 pub mod massiverole;
 #[path = "info/member.rs"]
@@ -196,6 +224,8 @@ pub mod moderation_sanction_helpers;
 pub mod moderation_tools;
 #[path = "config/modlog.rs"]
 pub mod modlog;
+#[path = "game/morpion.rs"]
+pub mod morpion;
 #[path = "owner/mp.rs"]
 pub mod mp;
 #[path = "owner/mpdelete.rs"]
@@ -224,12 +254,16 @@ pub mod nolog;
 pub mod online;
 #[path = "owner/owner.rs"]
 pub mod owner;
+#[path = "game/pendu.rs"]
+pub mod pendu;
 #[path = "perms/perms.rs"]
 pub mod perms;
 #[path = "../utils/perms_helpers.rs"]
 pub mod perms_helpers;
 #[path = "../utils/perms_service.rs"]
 pub mod perms_service;
+#[path = "game/pfc.rs"]
+pub mod pfc;
 #[path = "info/pic.rs"]
 pub mod pic;
 #[path = "automation/piconly.rs"]
@@ -246,6 +280,8 @@ pub mod playto;
 pub mod prefix;
 #[path = "channel/public.rs"]
 pub mod public;
+#[path = "game/puissance4.rs"]
+pub mod puissance4;
 #[path = "mod/punish.rs"]
 pub mod punish;
 #[path = "mod/punishadd.rs"]
@@ -268,6 +304,8 @@ pub mod renew;
 pub mod reroll;
 #[path = "security/resetantiraide.rs"]
 pub mod resetantiraide;
+#[path = "game/rickroll.rs"]
+pub mod rickroll;
 #[path = "info/role.rs"]
 pub mod role;
 #[path = "config/rolelog.rs"]
@@ -312,8 +350,12 @@ pub mod setprofil;
 pub mod shadowbot;
 #[path = "info/showpics.rs"]
 pub mod showpics;
+#[path = "game/slot.rs"]
+pub mod slot;
 #[path = "channel/slowmode.rs"]
 pub mod slowmode;
+#[path = "game/snake.rs"]
+pub mod snake;
 #[path = "fun/snipe.rs"]
 pub mod snipe;
 #[path = "security/spam.rs"]
@@ -368,6 +410,8 @@ pub mod unhideall;
 pub mod unlock;
 #[path = "channel/unlockall.rs"]
 pub mod unlockall;
+#[path = "game/unmarry.rs"]
+pub mod unmarry;
 #[path = "roles/unmassiverole.rs"]
 pub mod unmassiverole;
 #[path = "mod/unmute.rs"]
@@ -394,6 +438,8 @@ pub mod voicemove;
 pub mod warn;
 #[path = "botconfig/watch.rs"]
 pub mod watch;
+#[path = "game/wordle.rs"]
+pub mod wordle;
 
 pub fn all_command_metadata() -> Vec<CommandMetadata> {
     vec![
@@ -443,6 +489,29 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         end::COMMAND_DESCRIPTOR.metadata(),
         reroll::COMMAND_DESCRIPTOR.metadata(),
         choose::COMMAND_DESCRIPTOR.metadata(),
+        g2048::COMMAND_DESCRIPTOR.metadata(),
+        snake::COMMAND_DESCRIPTOR.metadata(),
+        unmarry::COMMAND_DESCRIPTOR.metadata(),
+        pendu::COMMAND_DESCRIPTOR.metadata(),
+        pfc::COMMAND_DESCRIPTOR.metadata(),
+        flood::COMMAND_DESCRIPTOR.metadata(),
+        puissance4::COMMAND_DESCRIPTOR.metadata(),
+        morpion::COMMAND_DESCRIPTOR.metadata(),
+        epicgamer::COMMAND_DESCRIPTOR.metadata(),
+        demineur::COMMAND_DESCRIPTOR.metadata(),
+        catsay::COMMAND_DESCRIPTOR.metadata(),
+        claque::COMMAND_DESCRIPTOR.metadata(),
+        slot::COMMAND_DESCRIPTOR.metadata(),
+        fasttype::COMMAND_DESCRIPTOR.metadata(),
+        rickroll::COMMAND_DESCRIPTOR.metadata(),
+        kiss::COMMAND_DESCRIPTOR.metadata(),
+        wordle::COMMAND_DESCRIPTOR.metadata(),
+        findemoji::COMMAND_DESCRIPTOR.metadata(),
+        marry::COMMAND_DESCRIPTOR.metadata(),
+        guesspokemon::COMMAND_DESCRIPTOR.metadata(),
+        eightball::COMMAND_DESCRIPTOR.metadata(),
+        halloween::COMMAND_DESCRIPTOR.metadata(),
+        christmas::COMMAND_DESCRIPTOR.metadata(),
         embed::COMMAND_DESCRIPTOR.metadata(),
         clear_messages::COMMAND_DESCRIPTOR.metadata(),
         clear_limit::COMMAND_DESCRIPTOR.metadata(),
