@@ -87,6 +87,11 @@ const HELP_PAGES: &[HelpPage] = &[
         description: "Informations sur le serveur, les membres et les profils.",
     },
     HelpPage {
+        key: "invitation",
+        title: "Invitation",
+        description: "Compteurs d invitations et classement des invitations du serveur.",
+    },
+    HelpPage {
         key: "logs",
         title: "Logs",
         description: "Configuration des logs de modération, messages, vocal et boosts.",
@@ -132,6 +137,7 @@ fn help_page_for_command(
     meta: &crate::commands::command_contract::CommandMetadata,
 ) -> &'static str {
     match meta.name {
+        "addinvite" | "removeinvite" | "invite" | "invitereset" | "inviteboard" => "invitation",
         "modlog" | "messagelog" | "voicelog" | "boostlog" | "rolelog" | "raidlog"
         | "autoconfiglog" | "nolog" | "joinsettings" | "boostembed" | "setmodlogs"
         | "setboostembed" | "leavesettings" | "viewlogs" => "logs",
@@ -151,12 +157,13 @@ fn help_page_for_command(
         | "idle" | "dnd" | "invisible" | "change" | "changereset" | "changeall" => "bot",
         "owner" | "unowner" | "clearowners" | "bl" | "unbl" | "blinfo" | "clearbl" | "allbots"
         | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp" | "mpsettings" | "mpsent"
-        | "mpdelete" | "invite" | "leave" | "discussion" => "administration",
+        | "mpdelete" | "leave" | "discussion" => "administration",
         "perms" | "delperm" | "clearperms" | "allperms" | "alias" | "help" | "helpsetting" => {
             "permissions"
         }
         _ => match meta.category {
             "info" => "infos",
+            "invitation" => "invitation",
             "mod" => "moderation",
             "config" => "logs",
             "botconfig" => "bot",
@@ -219,6 +226,13 @@ fn help_page_matches_input(page: &HelpPage, input: &str) -> bool {
     let normalized = help_lookup_key(input);
     let aliases = match page.key {
         "infos" => &["general", "info", "informations"][..],
+        "invitation" => &[
+            "invite",
+            "invites",
+            "invitation",
+            "invitations",
+            "inviteboard",
+        ][..],
         "logs" => &["log", "journal"][..],
         "moderation" => &["mod", "sanction"][..],
         "roles" => &["role", "roles"][..],
@@ -424,6 +438,10 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "mpsettings" => Some("mpsettings"),
         "mpsent" => Some("mpsent"),
         "mpdelete" | "mpdel" => Some("mpdelete"),
+        "add invite" | "addinvite" => Some("addinvite"),
+        "remove invite" | "removeinvite" => Some("removeinvite"),
+        "invite reset" | "invitereset" => Some("invitereset"),
+        "invite board" | "inviteboard" => Some("inviteboard"),
         "discussion" => Some("discussion"),
         "owner" => Some("owner"),
         "unowner" => Some("unowner"),

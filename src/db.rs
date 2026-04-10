@@ -186,6 +186,16 @@ pub struct TempvocProfile {
 
 #[derive(Debug, Clone, sqlx::FromRow)]
 #[allow(dead_code)]
+pub struct InviteCounter {
+    pub bot_id: i64,
+    pub guild_id: i64,
+    pub user_id: i64,
+    pub invite_count: i64,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, sqlx::FromRow)]
+#[allow(dead_code)]
 pub struct ModerationSettings {
     pub bot_id: i64,
     pub guild_id: i64,
@@ -901,6 +911,30 @@ pub async fn init_schema(pool: &PgPool) -> Result<(), sqlx::Error> {
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             PRIMARY KEY (bot_id, guild_id, channel_id)
         );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS bot_invite_counts (
+            bot_id BIGINT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            invite_count BIGINT NOT NULL DEFAULT 0,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (bot_id, guild_id, user_id)
+        );
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    sqlx::query(
+        r#"
+        CREATE INDEX IF NOT EXISTS idx_bot_invite_counts_lookup
+        ON bot_invite_counts (bot_id, guild_id, invite_count DESC, updated_at ASC);
         "#,
     )
     .execute(pool)
@@ -3238,6 +3272,123 @@ pub async fn is_piconly_channel(
     .await?;
 
     Ok(row.0)
+}
+
+// ========== INVITE COUNTERS FUNCTIONS ==========
+
+pub async fn get_invite_count(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+) -> Result<i64, sqlx::Error> {
+    let row = sqlx::query_as::<_, (i64,)>(
+        r#"
+        SELECT invite_count
+        FROM bot_invite_counts
+        WHERE bot_id = $1 AND guild_id = $2 AND user_id = $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(row.map(|value| value.0).unwrap_or(0))
+}
+
+pub async fn add_invite_count(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+    delta: i64,
+) -> Result<i64, sqlx::Error> {
+    let row = sqlx::query_as::<_, (i64,)>(
+        r#"
+        INSERT INTO bot_invite_counts (bot_id, guild_id, user_id, invite_count)
+        VALUES ($1, $2, $3, GREATEST($4, 0))
+        ON CONFLICT (bot_id, guild_id, user_id)
+        DO UPDATE SET
+            invite_count = GREATEST(bot_invite_counts.invite_count + $4, 0),
+            updated_at = NOW()
+        RETURNING invite_count;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .bind(delta)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(row.0)
+}
+
+pub async fn reset_invite_count_for_user(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    user_id: i64,
+) -> Result<u64, sqlx::Error> {
+    let result = sqlx::query(
+        r#"
+        DELETE FROM bot_invite_counts
+        WHERE bot_id = $1 AND guild_id = $2 AND user_id = $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(user_id)
+    .execute(pool)
+    .await?;
+
+    Ok(result.rows_affected())
+}
+
+pub async fn reset_invite_counts_for_guild(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+) -> Result<u64, sqlx::Error> {
+    let result = sqlx::query(
+        r#"
+        DELETE FROM bot_invite_counts
+        WHERE bot_id = $1 AND guild_id = $2;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .execute(pool)
+    .await?;
+
+    Ok(result.rows_affected())
+}
+
+pub async fn list_invite_board(
+    pool: &PgPool,
+    bot_id: i64,
+    guild_id: i64,
+    limit: i64,
+) -> Result<Vec<(i64, i64)>, sqlx::Error> {
+    let capped_limit = limit.clamp(1, 100);
+    let rows = sqlx::query_as::<_, (i64, i64)>(
+        r#"
+        SELECT user_id, invite_count
+        FROM bot_invite_counts
+        WHERE bot_id = $1 AND guild_id = $2 AND invite_count > 0
+        ORDER BY invite_count DESC, updated_at ASC
+        LIMIT $3;
+        "#,
+    )
+    .bind(bot_id)
+    .bind(guild_id)
+    .bind(capped_limit)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows)
 }
 
 // ========== ANCIEN SETTINGS FUNCTIONS ==========

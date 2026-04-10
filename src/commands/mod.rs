@@ -1,5 +1,7 @@
 use crate::commands::command_contract::{CommandMetadata, CommandSpec};
 
+#[path = "invitation/addinvite.rs"]
+pub mod addinvite;
 #[path = "roles/addrole.rs"]
 pub mod addrole;
 #[path = "../utils/admin_common.rs"]
@@ -150,8 +152,12 @@ pub mod hideall;
 pub mod idle;
 #[path = "botconfig/invisible.rs"]
 pub mod invisible;
-#[path = "owner/invite.rs"]
+#[path = "invitation/invite.rs"]
 pub mod invite;
+#[path = "invitation/inviteboard.rs"]
+pub mod inviteboard;
+#[path = "invitation/invitereset.rs"]
+pub mod invitereset;
 #[path = "config/join.rs"]
 pub mod join;
 #[path = "mod/kick.rs"]
@@ -252,6 +258,8 @@ pub mod punishsetup;
 pub mod raidlog;
 #[path = "botconfig/removeactivity.rs"]
 pub mod remove_activity;
+#[path = "invitation/removeinvite.rs"]
+pub mod removeinvite;
 #[path = "ticket/rename.rs"]
 pub mod rename;
 #[path = "channel/renew.rs"]
@@ -390,6 +398,11 @@ pub mod watch;
 pub fn all_command_metadata() -> Vec<CommandMetadata> {
     vec![
         ping::COMMAND_DESCRIPTOR.metadata(),
+        addinvite::COMMAND_DESCRIPTOR.metadata(),
+        invite::COMMAND_DESCRIPTOR.metadata(),
+        inviteboard::COMMAND_DESCRIPTOR.metadata(),
+        invitereset::COMMAND_DESCRIPTOR.metadata(),
+        removeinvite::COMMAND_DESCRIPTOR.metadata(),
         timeout::COMMAND_DESCRIPTOR.metadata(),
         allbots::COMMAND_DESCRIPTOR.metadata(),
         alladmins::COMMAND_DESCRIPTOR.metadata(),
@@ -559,7 +572,6 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         mpsettings::COMMAND_DESCRIPTOR.metadata(),
         mpsent::COMMAND_DESCRIPTOR.metadata(),
         mpdelete::COMMAND_DESCRIPTOR.metadata(),
-        invite::COMMAND_DESCRIPTOR.metadata(),
         leave::COMMAND_DESCRIPTOR.metadata(),
         leave_settings::COMMAND_DESCRIPTOR.metadata(),
         viewlogs::COMMAND_DESCRIPTOR.metadata(),
