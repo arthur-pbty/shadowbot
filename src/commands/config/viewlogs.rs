@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serenity::builder::{CreateActionRow, CreateButton, CreateEmbed, CreateMessage};
 use serenity::model::application::ButtonStyle;
 use serenity::model::prelude::*;
@@ -15,6 +17,101 @@ fn total_pages(total: i64) -> i64 {
 pub async fn pool(ctx: &Context) -> Option<sqlx::PgPool> {
     let data = ctx.data.read().await;
     data.get::<DbPoolKey>().cloned()
+}
+
+async fn fetch_log_channels(
+    pool: &sqlx::PgPool,
+    bot_id: UserId,
+    guild_id: GuildId,
+) -> HashMap<String, u64> {
+    let rows = sqlx::query_as::<_, (String, Option<i64>)>(
+        r#"
+        SELECT log_type, channel_id
+        FROM bot_log_channels
+        WHERE bot_id = $1 AND guild_id = $2 AND enabled = TRUE;
+        "#,
+    )
+    .bind(bot_id.get() as i64)
+    .bind(guild_id.get() as i64)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+
+    rows.into_iter()
+        .filter_map(|(log_type, channel_id)| {
+            channel_id
+                .and_then(|id| u64::try_from(id).ok())
+                .map(|id| (log_type, id))
+        })
+        .collect()
+}
+
+fn extract_log_channel_id(
+    log: &crate::db::AuditLog,
+    channels: &HashMap<String, u64>,
+) -> Option<u64> {
+    let from_details = log
+        .details
+        .as_ref()
+        .and_then(|details| details.get("log_channel_id"))
+        .and_then(|value| value.as_i64())
+        .and_then(|id| u64::try_from(id).ok());
+
+    from_details.or_else(|| channels.get(&log.log_type).copied())
+}
+
+fn build_log_link(
+    log: &crate::db::AuditLog,
+    guild_id: GuildId,
+    channels: &HashMap<String, u64>,
+) -> Option<String> {
+    let message_id = log.message_id.and_then(|id| u64::try_from(id).ok())?;
+    let log_channel_id = extract_log_channel_id(log, channels)?;
+
+    Some(format!(
+        "https://discord.com/channels/{}/{}/{}",
+        guild_id.get(),
+        log_channel_id,
+        message_id
+    ))
+}
+
+fn append_log_fields(
+    mut embed: CreateEmbed,
+    logs: Vec<crate::db::AuditLog>,
+    guild_id: GuildId,
+    channels: &HashMap<String, u64>,
+) -> CreateEmbed {
+    for log in logs {
+        let actor = log
+            .user_id
+            .map(|id| format!("<@{}>", id))
+            .unwrap_or_else(|| "Systeme".to_string());
+
+        let target = match (log.channel_id, log.role_id) {
+            (Some(ch_id), _) => format!("<#{}>", ch_id),
+            (_, Some(role_id)) => format!("<@&{}>", role_id),
+            _ => "-".to_string(),
+        };
+
+        let link = build_log_link(&log, guild_id, channels)
+            .map(|url| format!("[Voir]({})", url))
+            .unwrap_or_else(|| "indisponible".to_string());
+
+        embed = embed.field(
+            format!("[{}] {}", log.log_type.to_uppercase(), log.action),
+            format!(
+                "Acteur: {}\nQuand: <t:{}:R>\nCible: {}\nLien: {}",
+                actor,
+                log.created_at.timestamp(),
+                target,
+                link
+            ),
+            false,
+        );
+    }
+
+    embed
 }
 
 pub async fn handle_viewlogs(ctx: &Context, msg: &Message, args: &[&str]) {
@@ -75,32 +172,14 @@ pub async fn handle_viewlogs(ctx: &Context, msg: &Message, args: &[&str]) {
         .await
         .unwrap_or_default();
 
-    let mut embed = CreateEmbed::new()
+    let log_channels = fetch_log_channels(&pool, bot_id, guild_id).await;
+
+    let embed = CreateEmbed::new()
         .title("Logs d'audit")
-        .description(format!(
-            "Page {}/{} ({} logs total)",
-            page, total_pages, total
-        ))
+        .description(format!("Page {}/{} • {} logs", page, total_pages, total))
         .color(theme_color(ctx).await);
 
-    for log in logs {
-        let user_mention = log
-            .user_id
-            .map(|id| format!("<@{}>", id))
-            .unwrap_or_else(|| "Système".to_string());
-
-        let extra = match (log.channel_id, log.role_id) {
-            (Some(ch_id), _) => format!(" · <#{}>", ch_id),
-            (_, Some(role_id)) => format!(" · <@&{}>", role_id),
-            _ => String::new(),
-        };
-
-        embed = embed.field(
-            format!("[{}] {} {}", &log.log_type, user_mention, log.action),
-            format!("<t:{}:R>{}", log.created_at.timestamp(), extra),
-            false,
-        );
-    }
+    let embed = append_log_fields(embed, logs, guild_id, &log_channels);
 
     let mut components = Vec::new();
 
@@ -187,32 +266,17 @@ pub async fn handle_viewlogs_button(ctx: &Context, component: &ComponentInteract
         .await
         .unwrap_or_default();
 
-    let mut embed = CreateEmbed::new()
+    let log_channels = fetch_log_channels(&pool, bot_id, guild_id).await;
+
+    let embed = CreateEmbed::new()
         .title("Logs d'audit")
         .description(format!(
-            "Page {}/{} ({} logs total)",
+            "Page {}/{} • {} logs",
             new_page, total_pages, total
         ))
         .color(theme_color(ctx).await);
 
-    for log in logs {
-        let user_mention = log
-            .user_id
-            .map(|id| format!("<@{}>", id))
-            .unwrap_or_else(|| "Système".to_string());
-
-        let extra = match (log.channel_id, log.role_id) {
-            (Some(ch_id), _) => format!(" · <#{}>", ch_id),
-            (_, Some(role_id)) => format!(" · <@&{}>", role_id),
-            _ => String::new(),
-        };
-
-        embed = embed.field(
-            format!("[{}] {} {}", &log.log_type, user_mention, log.action),
-            format!("<t:{}:R>{}", log.created_at.timestamp(), extra),
-            false,
-        );
-    }
+    let embed = append_log_fields(embed, logs, guild_id, &log_channels);
 
     let mut components = Vec::new();
     if total_pages > 1 {

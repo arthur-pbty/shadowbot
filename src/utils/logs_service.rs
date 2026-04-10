@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use chrono::Utc;
+use serde_json::json;
 use serenity::builder::{CreateEmbed, CreateEmbedFooter};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -85,7 +86,9 @@ async fn record_audit_log(
     user_id: Option<UserId>,
     channel_id: Option<ChannelId>,
     role_id: Option<RoleId>,
+    message_id: Option<MessageId>,
     action: &str,
+    details: Option<sqlx::types::JsonValue>,
 ) {
     let Some(pool) = pool(ctx).await else {
         return;
@@ -93,9 +96,14 @@ async fn record_audit_log(
 
     let bot_id = ctx.cache.current_user().id;
     let _ = crate::db::insert_audit_log(
-        &pool, bot_id, guild_id, log_type, user_id, channel_id, role_id, None, action, None,
+        &pool, bot_id, guild_id, log_type, user_id, channel_id, role_id, message_id, action,
+        details,
     )
     .await;
+}
+
+fn build_audit_details(log_channel_id: Option<ChannelId>) -> Option<sqlx::types::JsonValue> {
+    log_channel_id.map(|id| json!({ "log_channel_id": id.get() as i64 }))
 }
 
 fn color_for_log_type(log_type: &str) -> u32 {
@@ -199,9 +207,8 @@ fn enrich_log_embed(
 }
 
 pub async fn send_log_embed(ctx: &Context, guild_id: GuildId, log_type: &str, embed: CreateEmbed) {
-    record_audit_log(ctx, guild_id, log_type, None, None, None, log_type).await;
-
     let log_channel_id = get_log_channel(ctx, guild_id, log_type).await;
+    let mut sent_log_message_id = None;
 
     if let Some(channel_id) = log_channel_id {
         let embed = enrich_log_embed(
@@ -216,13 +223,28 @@ pub async fn send_log_embed(ctx: &Context, guild_id: GuildId, log_type: &str, em
             embed,
         );
 
-        let _ = channel_id
+        let sent = channel_id
             .send_message(
                 &ctx.http,
                 serenity::builder::CreateMessage::new().embed(embed),
             )
             .await;
+
+        sent_log_message_id = sent.ok().map(|message| message.id);
     }
+
+    record_audit_log(
+        ctx,
+        guild_id,
+        log_type,
+        None,
+        None,
+        None,
+        sent_log_message_id,
+        log_type,
+        build_audit_details(log_channel_id),
+    )
+    .await;
 }
 
 pub async fn emit_log(
@@ -235,12 +257,10 @@ pub async fn emit_log(
     action: &str,
     embed: CreateEmbed,
 ) {
-    record_audit_log(
-        ctx, guild_id, log_type, user_id, channel_id, role_id, action,
-    )
-    .await;
+    let log_channel_id = get_log_channel(ctx, guild_id, log_type).await;
+    let mut sent_log_message_id = None;
 
-    if let Some(log_channel_id) = get_log_channel(ctx, guild_id, log_type).await {
+    if let Some(log_channel_id) = log_channel_id {
         let embed = enrich_log_embed(
             ctx,
             guild_id,
@@ -253,13 +273,28 @@ pub async fn emit_log(
             embed,
         );
 
-        let _ = log_channel_id
+        let sent = log_channel_id
             .send_message(
                 &ctx.http,
                 serenity::builder::CreateMessage::new().embed(embed),
             )
             .await;
+
+        sent_log_message_id = sent.ok().map(|message| message.id);
     }
+
+    record_audit_log(
+        ctx,
+        guild_id,
+        log_type,
+        user_id,
+        channel_id,
+        role_id,
+        sent_log_message_id,
+        action,
+        build_audit_details(log_channel_id),
+    )
+    .await;
 }
 
 pub async fn on_member_join(ctx: &Context, guild_id: GuildId, user: &User) {
