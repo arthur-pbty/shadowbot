@@ -186,6 +186,8 @@ pub mod renew;
 pub mod reroll;
 #[path = "infos/role.rs"]
 pub mod role;
+#[path = "roles/rolemenu.rs"]
+pub mod rolemenu;
 #[path = "logs/rolelog.rs"]
 pub mod rolelog;
 #[path = "infos/rolemembers.rs"]
@@ -214,6 +216,8 @@ pub mod snipe;
 pub mod stream;
 #[path = "outils/suggestion.rs"]
 pub mod suggestion;
+#[path = "salons_vocal/slowmode.rs"]
+pub mod slowmode;
 #[path = "roles/sync.rs"]
 pub mod sync;
 #[path = "moderation/tempban.rs"]
@@ -287,6 +291,7 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         botadmins::COMMAND_DESCRIPTOR.metadata(),
         boosters::COMMAND_DESCRIPTOR.metadata(),
         rolemembers::COMMAND_DESCRIPTOR.metadata(),
+        rolemenu::COMMAND_DESCRIPTOR.metadata(),
         serverinfo::COMMAND_DESCRIPTOR.metadata(),
         vocinfo::COMMAND_DESCRIPTOR.metadata(),
         role::COMMAND_DESCRIPTOR.metadata(),
@@ -355,6 +360,7 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         tempban::COMMAND_DESCRIPTOR.metadata(),
         unban::COMMAND_DESCRIPTOR.metadata(),
         banlist::COMMAND_DESCRIPTOR.metadata(),
+        slowmode::COMMAND_DESCRIPTOR.metadata(),
         lock::COMMAND_DESCRIPTOR.metadata(),
         unlock::COMMAND_DESCRIPTOR.metadata(),
         lockall::COMMAND_DESCRIPTOR.metadata(),

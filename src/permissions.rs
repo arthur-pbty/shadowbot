@@ -232,6 +232,7 @@ pub fn all_command_keys() -> Vec<String> {
         "botadmins",
         "boosters",
         "rolemembers",
+        "rolemenu",
         "serverinfo",
         "vocinfo",
         "role",
@@ -265,6 +266,7 @@ pub fn all_command_keys() -> Vec<String> {
         "tempban",
         "unban",
         "banlist",
+        "slowmode",
         "lock",
         "unlock",
         "lockall",
@@ -440,6 +442,7 @@ pub fn default_permission(command_key: &str) -> u8 {
         | "tempban"
         | "unban"
         | "banlist"
+        | "slowmode"
         | "lock"
         | "unlock"
         | "lockall"
@@ -451,6 +454,7 @@ pub fn default_permission(command_key: &str) -> u8 {
         | "addrole"
         | "delrole"
         | "derank"
+        | "rolemenu"
         | "modlog"
         | "messagelog"
         | "voicelog"

@@ -14,8 +14,9 @@ use crate::commands::{
     invisible, invite, join, kick, leave, leave_settings, listen, loading, lock, lockall,
     mainprefix, massiverole, member, messagelog, modlog, mp, mute, mutelist, newsticker, nolog,
     online, owner, perms, pic, ping, playto, prefix, raidlog, rename, renew, reroll, role, rolelog,
-    rolemembers, sanctions, say, server, serverinfo, set, set_boostembed, set_modlogs, shadowbot,
-    showpics, snipe, stream, suggestion, sync, tempban, tempcmute, tempmute, temprole, tempvoc,
+    rolemembers, rolemenu, sanctions, say, server, serverinfo, set, set_boostembed, set_modlogs,
+    shadowbot, showpics, slowmode, snipe, stream, suggestion, sync, tempban, tempcmute, tempmute,
+    temprole, tempvoc,
     tempvoc_cmd, theme, ticket, ticket_member, tickets, unban, unbanall, unbl, uncmute, unhide,
     unhideall, unlock, unlockall, unmassiverole, unmute, unmuteall, unowner, untemprole, user,
     viewlogs, vocinfo, voicekick, voicelog, voicemove, warn, watch,
@@ -173,6 +174,7 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "serverinfo" => serverinfo::handle_serverinfo(ctx, msg, &args).await,
         "vocinfo" => vocinfo::handle_vocinfo(ctx, msg, &args).await,
         "role" => role::handle_role(ctx, msg, &args).await,
+        "rolemenu" => rolemenu::handle_rolemenu(ctx, msg, &args).await,
         "channel" => channel::handle_channel(ctx, msg, &args).await,
         "user" => user::handle_user(ctx, msg, &args).await,
         "member" => member::handle_member(ctx, msg, &args).await,
@@ -269,6 +271,11 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "banlist" => {
             banlist::handle_banlist(ctx, msg).await;
             crate::commands::logs_service::log_moderation_command(ctx, msg, "banlist", &args).await;
+        }
+        "slowmode" => {
+            slowmode::handle_slowmode(ctx, msg, &args).await;
+            crate::commands::logs_service::log_moderation_command(ctx, msg, "slowmode", &args)
+                .await;
         }
         "lock" => {
             lock::handle_lock(ctx, msg, &args).await;
