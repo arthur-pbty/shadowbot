@@ -83,10 +83,7 @@ fn parse_toggle_role_id(custom_id: &str) -> Option<RoleId> {
 }
 
 fn parse_role_id_input(raw: &str) -> Option<RoleId> {
-    let cleaned = raw
-        .trim()
-        .trim_start_matches("<@&")
-        .trim_end_matches('>');
+    let cleaned = raw.trim().trim_start_matches("<@&").trim_end_matches('>');
     cleaned.parse::<u64>().ok().map(RoleId::new)
 }
 
@@ -183,10 +180,7 @@ fn message_has_role_button(message: &Message, role_id: RoleId) -> bool {
     for row in &message.components {
         for component in &row.components {
             if let ActionRowComponent::Button(button) = component {
-                if let ButtonKind::NonLink {
-                    custom_id, ..
-                } = &button.data
-                {
+                if let ButtonKind::NonLink { custom_id, .. } = &button.data {
                     if custom_id == &wanted {
                         return true;
                     }
@@ -406,24 +400,23 @@ pub async fn handle_component_interaction(ctx: &Context, component: &ComponentIn
     }
 
     if action == "addrole" {
-        let modal =
-            CreateModal::new(modal_custom_id("addrole", target), "Ajouter un bouton role")
-                .components(vec![
-                    CreateActionRow::InputText(
-                        CreateInputText::new(InputTextStyle::Short, "Label du bouton", "label")
-                            .required(true)
-                            .max_length(80),
-                    ),
-                    CreateActionRow::InputText(
-                        CreateInputText::new(InputTextStyle::Short, "Role ID ou mention", "role_id")
-                            .required(true),
-                    ),
-                    CreateActionRow::InputText(
-                        CreateInputText::new(InputTextStyle::Short, "Style", "style")
-                            .required(false)
-                            .placeholder("secondary | primary | success | danger"),
-                    ),
-                ]);
+        let modal = CreateModal::new(modal_custom_id("addrole", target), "Ajouter un bouton role")
+            .components(vec![
+                CreateActionRow::InputText(
+                    CreateInputText::new(InputTextStyle::Short, "Label du bouton", "label")
+                        .required(true)
+                        .max_length(80),
+                ),
+                CreateActionRow::InputText(
+                    CreateInputText::new(InputTextStyle::Short, "Role ID ou mention", "role_id")
+                        .required(true),
+                ),
+                CreateActionRow::InputText(
+                    CreateInputText::new(InputTextStyle::Short, "Style", "style")
+                        .required(false)
+                        .placeholder("secondary | primary | success | danger"),
+                ),
+            ]);
 
         let _ = component
             .create_response(&ctx.http, CreateInteractionResponse::Modal(modal))
@@ -444,8 +437,12 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
     };
 
     if modal.user.id.get() != target.owner_id {
-        respond_modal_ephemeral(ctx, modal, "Seul l'auteur du panneau peut soumettre ce formulaire.")
-            .await;
+        respond_modal_ephemeral(
+            ctx,
+            modal,
+            "Seul l'auteur du panneau peut soumettre ce formulaire.",
+        )
+        .await;
         return true;
     }
 
@@ -508,8 +505,7 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
         if edited {
             respond_modal_ephemeral(ctx, modal, "Embed du rolemenu mis a jour.").await;
         } else {
-            respond_modal_ephemeral(ctx, modal, "Impossible de mettre a jour l'embed cible.")
-                .await;
+            respond_modal_ephemeral(ctx, modal, "Impossible de mettre a jour l'embed cible.").await;
         }
 
         return true;
@@ -589,7 +585,11 @@ impl crate::commands::command_contract::CommandSpec for RolemenuCommand {
             params: "[message_id]",
             summary: "Cree ou modifie un menu de roles",
             description: "Ouvre un panneau interactif (boutons + modales) pour construire un embed de roles et des boutons auto-roles.",
-            examples: &["+rolemenu", "+rolemenu 123456789012345678", "+help rolemenu"],
+            examples: &[
+                "+rolemenu",
+                "+rolemenu 123456789012345678",
+                "+help rolemenu",
+            ],
             default_aliases: &["rmenu"],
             allow_in_dm: false,
             default_permission: 8,

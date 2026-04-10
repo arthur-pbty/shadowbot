@@ -16,10 +16,9 @@ use crate::commands::{
     online, owner, perms, pic, ping, playto, prefix, raidlog, rename, renew, reroll, role, rolelog,
     rolemembers, rolemenu, sanctions, say, server, serverinfo, set, set_boostembed, set_modlogs,
     shadowbot, showpics, slowmode, snipe, stream, suggestion, sync, tempban, tempcmute, tempmute,
-    temprole, tempvoc,
-    tempvoc_cmd, theme, ticket, ticket_member, tickets, unban, unbanall, unbl, uncmute, unhide,
-    unhideall, unlock, unlockall, unmassiverole, unmute, unmuteall, unowner, untemprole, user,
-    viewlogs, vocinfo, voicekick, voicelog, voicemove, warn, watch,
+    temprole, tempvoc, tempvoc_cmd, theme, ticket, ticket_member, tickets, unban, unbanall, unbl,
+    uncmute, unhide, unhideall, unlock, unlockall, unmassiverole, unmute, unmuteall, unowner,
+    untemprole, user, viewlogs, vocinfo, voicekick, voicelog, voicemove, warn, watch,
 };
 use crate::commands::{alladmins, allbots, allperms, botadmins};
 use crate::db::{DbPoolKey, upsert_message_observed};

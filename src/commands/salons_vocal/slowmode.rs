@@ -85,7 +85,11 @@ pub async fn handle_slowmode(ctx: &Context, msg: &Message, args: &[&str]) {
         if seconds == 0 {
             format!("Mode lent desactive sur <#{}>.", target.get())
         } else {
-            format!("Mode lent de {}s applique sur <#{}>.", seconds, target.get())
+            format!(
+                "Mode lent de {}s applique sur <#{}>.",
+                seconds,
+                target.get()
+            )
         }
     } else {
         "Echec de mise a jour du mode lent (verifie le type de salon et les permissions)."
@@ -114,11 +118,7 @@ impl crate::commands::command_contract::CommandSpec for SlowmodeCommand {
             params: "<duree> [salon]",
             summary: "Change le mode lent d'un salon",
             description: "Modifie la duree du mode lent sur un salon texte (maximum 6 heures).",
-            examples: &[
-                "+slowmode 10s",
-                "+slowmode 2m #general",
-                "+slowmode off",
-            ],
+            examples: &["+slowmode 10s", "+slowmode 2m #general", "+slowmode off"],
             default_aliases: &["sm"],
             allow_in_dm: false,
             default_permission: 8,

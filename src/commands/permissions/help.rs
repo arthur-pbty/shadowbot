@@ -12,7 +12,7 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::alias::resolve_alias;
-use crate::commands::common::{add_list_fields, truncate_text};
+use crate::commands::common::truncate_text;
 use crate::db::{
     DbPoolKey, get_help_aliases_enabled, get_help_perms_enabled, get_help_type,
     list_command_aliases,
@@ -529,29 +529,34 @@ fn build_help_embed(
     let page = &HELP_PAGES[page_index];
     let lines = help_page_content(page, alias_map, state.aliases_enabled, state.perms_enabled);
 
-    let mut embed = CreateEmbed::new()
-        .title(format!("Aide · {}", page.title))
-        .description(format!(
-            "Page {}/{} · mode `{}` · aliases {} · perms {}\n{}",
-            page_index + 1,
-            HELP_PAGES.len(),
-            state.layout.as_str(),
-            if state.aliases_enabled {
-                "activés"
-            } else {
-                "désactivés"
-            },
-            if state.perms_enabled {
-                "activées"
-            } else {
-                "désactivées"
-            },
-            page.description,
-        ))
-        .color(0x5865F2);
+    let header = format!(
+        "Page {}/{} · mode `{}` · aliases {} · perms {}\n{}",
+        page_index + 1,
+        HELP_PAGES.len(),
+        state.layout.as_str(),
+        if state.aliases_enabled {
+            "activés"
+        } else {
+            "désactivés"
+        },
+        if state.perms_enabled {
+            "activées"
+        } else {
+            "désactivées"
+        },
+        page.description,
+    );
 
-    embed = add_list_fields(embed, &lines, "Commandes");
-    embed
+    let commands_intro = "\n\n**Commandes**\n";
+    let available = 4096usize
+        .saturating_sub(header.chars().count())
+        .saturating_sub(commands_intro.chars().count());
+    let commands_block = truncate_text(&lines.join("\n"), available);
+
+    CreateEmbed::new()
+        .title(format!("Aide · {}", page.title))
+        .description(format!("{}{}{}", header, commands_intro, commands_block))
+        .color(0x5865F2)
 }
 
 fn help_components(owner_id: UserId, page_index: usize, state: &HelpState) -> Vec<CreateActionRow> {
