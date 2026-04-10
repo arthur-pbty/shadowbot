@@ -1,17 +1,17 @@
 use std::collections::BTreeMap;
 
 use serenity::builder::{
-    CreateActionRow, CreateButton, CreateCommand, CreateEmbed, CreateInteractionResponse,
-    CreateInteractionResponseMessage, CreateMessage, CreateSelectMenu, CreateSelectMenuKind,
-    CreateSelectMenuOption,
+    CreateActionRow, CreateButton, CreateCommand, CreateCommandOption, CreateEmbed,
+    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreateSelectMenu,
+    CreateSelectMenuKind, CreateSelectMenuOption,
 };
 use serenity::model::application::{
-    Command, CommandInteraction, ComponentInteractionDataKind, Interaction,
+    Command, CommandInteraction, CommandOptionType, ComponentInteractionDataKind, Interaction,
+    ResolvedValue,
 };
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
-use crate::commands::alias::resolve_alias;
 use crate::commands::common::truncate_text;
 use crate::db::{
     DbPoolKey, get_help_aliases_enabled, get_help_perms_enabled, get_help_type,
@@ -448,6 +448,28 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
     matched.or_else(|| help_metadata_lookup_key(input))
 }
 
+fn resolve_help_command_key(input: &str, alias_map: &BTreeMap<String, Vec<String>>) -> Option<String> {
+    if let Some(key) = help_lookup_to_key(input) {
+        return Some(key.to_string());
+    }
+
+    if let Some(key) = help_metadata_lookup_key(input) {
+        return Some(key.to_string());
+    }
+
+    let normalized = help_lookup_key(input);
+    if normalized.is_empty() {
+        return None;
+    }
+
+    alias_map.iter().find_map(|(command, aliases)| {
+        aliases
+            .iter()
+            .any(|alias| help_lookup_key(alias).eq_ignore_ascii_case(&normalized))
+            .then(|| command.clone())
+    })
+}
+
 fn help_page_index(key: &str) -> Option<usize> {
     HELP_PAGES
         .iter()
@@ -795,10 +817,93 @@ fn parse_help_component_id(custom_id: &str) -> Option<(&str, u64, Option<usize>)
     Some((kind, owner_id, page))
 }
 
+async fn build_command_help_embed(
+    ctx: &Context,
+    state: &HelpState,
+    alias_map: &BTreeMap<String, Vec<String>>,
+    key: &str,
+) -> Option<CreateEmbed> {
+    let doc = command_doc(key)?;
+
+    let aliases = doc
+        .alias_source_key
+        .and_then(|alias_key| alias_map.get(alias_key))
+        .cloned()
+        .unwrap_or_default();
+
+    let alias_text = if aliases.is_empty() {
+        "Aucun alias".to_string()
+    } else {
+        aliases
+            .iter()
+            .map(|alias| format!("`{}`", alias))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+
+    let examples = doc
+        .examples
+        .iter()
+        .map(|ex| format!("`{}`", ex))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    let mut embed = CreateEmbed::new()
+        .title(format!("Aide commande · +{}", doc.command.replace('_', " ")))
+        .description(doc.description)
+        .field(
+            "Commande",
+            format!("`+{}`", doc.command.replace('_', " ")),
+            false,
+        )
+        .field("Clé ACL", format!("`{}`", doc.key), false)
+        .field("Catégorie", help_page_title_for_command_key(doc.key), false)
+        .field("Alias", alias_text, false)
+        .field("Paramètres", doc.params, false)
+        .field(
+            "Disponible en DM",
+            if doc.allow_in_dm { "Oui" } else { "Non" },
+            true,
+        )
+        .field("Exemples", truncate_text(&examples, 1024), false);
+
+    if state.perms_enabled {
+        embed = embed.field(
+            "Permission",
+            permission_level_description(doc.default_permission),
+            false,
+        );
+    }
+
+    Some(embed.color(crate::commands::common::theme_color(ctx).await))
+}
+
+fn slash_help_input(command: &CommandInteraction) -> Option<String> {
+    command
+        .data
+        .options()
+        .into_iter()
+        .find(|option| option.name == "commande")
+        .and_then(|option| match option.value {
+            ResolvedValue::String(value) => Some(value.trim().to_string()),
+            _ => None,
+        })
+        .filter(|value| !value.is_empty())
+}
+
 pub async fn register_slash_help(ctx: &Context) {
     let _ = Command::create_global_command(
         &ctx.http,
-        CreateCommand::new("help").description("Affiche l'aide du bot"),
+        CreateCommand::new("help")
+            .description("Affiche l'aide du bot")
+            .add_option(
+                CreateCommandOption::new(
+                    CommandOptionType::String,
+                    "commande",
+                    "Commande, alias ou categorie/page d'aide",
+                )
+                .required(false),
+            ),
     )
     .await;
 }
@@ -806,10 +911,41 @@ pub async fn register_slash_help(ctx: &Context) {
 pub async fn handle_help_slash(ctx: &Context, command: &CommandInteraction) {
     let state = current_help_state(ctx).await;
     let alias_map = aliases_map(ctx).await;
+    let input = slash_help_input(command);
+
+    if let Some(value) = input.as_deref() {
+        let resolved_key = resolve_help_command_key(value, &alias_map).or_else(|| {
+            value
+                .split_whitespace()
+                .next()
+                .and_then(|first| resolve_help_command_key(first, &alias_map))
+        });
+
+        if let Some(key) = resolved_key {
+            if let Some(embed) = build_command_help_embed(ctx, &state, &alias_map, &key).await {
+                let _ = command
+                    .create_response(
+                        &ctx.http,
+                        CreateInteractionResponse::Message(
+                            CreateInteractionResponseMessage::new().embed(embed),
+                        ),
+                    )
+                    .await;
+                return;
+            }
+        }
+    }
+
     let view_pages = build_help_view_pages(&state, &alias_map);
     let avatar_url = bot_avatar_url(ctx);
-    let embed = build_help_embed(0, &state, &view_pages, &avatar_url);
-    let components = help_components(command.user.id, 0, &state, &view_pages);
+    let page_index = input
+        .as_deref()
+        .and_then(help_page_from_input)
+        .map(|category_index| first_view_page_for_category(&view_pages, category_index))
+        .unwrap_or(0)
+        .min(view_pages.len().saturating_sub(1));
+    let embed = build_help_embed(page_index, &state, &view_pages, &avatar_url);
+    let components = help_components(command.user.id, page_index, &state, &view_pages);
 
     let _ = command
         .create_response(
@@ -896,82 +1032,11 @@ pub async fn handle_help(ctx: &Context, msg: &Message, args: &[&str]) {
     if !args.is_empty() {
         let joined = args.join(" ");
 
-        let mut resolved_key = help_lookup_to_key(&joined).map(|s| s.to_string());
-        if resolved_key.is_none() {
-            let first = args[0];
-            if let Some(key) = help_lookup_to_key(first) {
-                resolved_key = Some(key.to_string());
-            }
-        }
-
-        if resolved_key.is_none() {
-            let alias_input = help_lookup_key(&joined).replace(' ', "_");
-            if let Some(alias_target) = resolve_alias(ctx, &alias_input).await {
-                resolved_key = Some(alias_target);
-            }
-        }
-
-        if resolved_key.is_none() {
-            resolved_key = help_metadata_lookup_key(&joined).map(|key| key.to_string());
-        }
+        let resolved_key = resolve_help_command_key(&joined, &alias_map)
+            .or_else(|| resolve_help_command_key(args[0], &alias_map));
 
         if let Some(key) = resolved_key {
-            if let Some(doc) = command_doc(&key) {
-                let aliases = doc
-                    .alias_source_key
-                    .and_then(|alias_key| alias_map.get(alias_key))
-                    .cloned()
-                    .unwrap_or_default();
-
-                let alias_text = if aliases.is_empty() {
-                    "Aucun alias".to_string()
-                } else {
-                    aliases
-                        .iter()
-                        .map(|alias| format!("`{}`", alias))
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                };
-
-                let examples = doc
-                    .examples
-                    .iter()
-                    .map(|ex| format!("`{}`", ex))
-                    .collect::<Vec<_>>()
-                    .join("\n");
-
-                let mut embed = CreateEmbed::new()
-                    .title(format!(
-                        "Aide commande · +{}",
-                        doc.command.replace('_', " ")
-                    ))
-                    .description(doc.description)
-                    .field(
-                        "Commande",
-                        format!("`+{}`", doc.command.replace('_', " ")),
-                        false,
-                    )
-                    .field("Clé ACL", format!("`{}`", doc.key), false)
-                    .field("Catégorie", help_page_title_for_command_key(doc.key), false)
-                    .field("Alias", alias_text, false)
-                    .field("Paramètres", doc.params, false)
-                    .field(
-                        "Disponible en DM",
-                        if doc.allow_in_dm { "Oui" } else { "Non" },
-                        true,
-                    )
-                    .field("Exemples", truncate_text(&examples, 1024), false);
-
-                if state.perms_enabled {
-                    embed = embed.field(
-                        "Permission",
-                        permission_level_description(doc.default_permission),
-                        false,
-                    );
-                }
-
-                embed = embed.color(crate::commands::common::theme_color(ctx).await);
-
+            if let Some(embed) = build_command_help_embed(ctx, &state, &alias_map, &key).await {
                 let _ = msg
                     .channel_id
                     .send_message(&ctx.http, CreateMessage::new().embed(embed))
@@ -1014,7 +1079,7 @@ impl crate::commands::command_contract::CommandSpec for HelpCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "help",
             category: "permissions",
-            params: "[commande|page]",
+            params: "[commande|alias|page]",
             description: "Affiche les pages daide du bot ou la fiche detaillee dune commande avec parametres, aliases et exemples.",
             examples: &["+help", "+hp", "+help help"],
             default_aliases: &["hp"],
