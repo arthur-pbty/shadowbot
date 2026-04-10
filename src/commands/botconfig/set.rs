@@ -16,7 +16,7 @@ async fn handle_set_perm(ctx: &Context, msg: &Message, args: &[&str]) {
     if args.len() < 3 || !args[0].eq_ignore_ascii_case("perm") {
         let embed = CreateEmbed::new()
             .title("Erreur")
-            .description("Usage: `set perm <permission/commande> <role/membre>`")
+            .description("Usage: `+setperm <permission/commande> <role/membre>`")
             .color(0xED4245);
         send_embed(ctx, msg, embed).await;
         return;

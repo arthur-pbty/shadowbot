@@ -76,11 +76,11 @@ pub static COMMAND_DESCRIPTOR: ClearMessagesCommand = ClearMessagesCommand;
 impl crate::commands::command_contract::CommandSpec for ClearMessagesCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "clear_messages",
+            name: "clearmessages",
             category: "mod",
             params: "<nombre> [@membre/ID]",
             description: "Supprime un nombre de messages, optionnellement filtres par membre.",
-            examples: &["+clear 20", "+clear 20 @User"],
+            examples: &["+clearmessages 20", "+clearmessages 20 @User"],
             default_aliases: &["purge"],
             allow_in_dm: false,
             default_permission: 5,

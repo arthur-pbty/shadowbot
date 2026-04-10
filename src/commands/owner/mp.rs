@@ -38,7 +38,7 @@ pub async fn handle_mp(ctx: &Context, msg: &Message, args: &[&str]) {
             let embed = CreateEmbed::new()
                 .title("MP settings")
                 .description(format!(
-                    "Envoi de MP: `{}`\nUtilise `+mp settings on/off`.",
+                    "Envoi de MP: `{}`\nUtilise `+mpsettings on/off`.",
                     if enabled { "on" } else { "off" }
                 ))
                 .color(0x5865F2);
@@ -52,7 +52,7 @@ pub async fn handle_mp(ctx: &Context, msg: &Message, args: &[&str]) {
             _ => {
                 let embed = CreateEmbed::new()
                     .title("Erreur")
-                    .description("Usage: `+mp settings <on/off>`")
+                    .description("Usage: `+mpsettings <on/off>`")
                     .color(0xED4245);
                 send_embed(ctx, msg, embed).await;
                 return;
@@ -93,7 +93,7 @@ pub async fn handle_mp(ctx: &Context, msg: &Message, args: &[&str]) {
         let Some(entry_id_raw) = args.get(1) else {
             let embed = CreateEmbed::new()
                 .title("Erreur")
-                .description("Usage: `+mp delete <id>`")
+                .description("Usage: `+mpdelete <id>`")
                 .color(0xED4245);
             send_embed(ctx, msg, embed).await;
             return;
@@ -158,7 +158,7 @@ pub async fn handle_mp(ctx: &Context, msg: &Message, args: &[&str]) {
     if args.len() < 2 {
         let embed = CreateEmbed::new()
             .title("Erreur")
-            .description("Usage: `+mp settings` ou `+mp <membre> <message>`")
+            .description("Usage: `+mpsettings` ou `+mp <membre> <message>`")
             .color(0xED4245);
         send_embed(ctx, msg, embed).await;
         return;
@@ -182,7 +182,7 @@ pub async fn handle_mp(ctx: &Context, msg: &Message, args: &[&str]) {
     if !enabled {
         let embed = CreateEmbed::new()
             .title("MP désactivés")
-            .description("Réactive-les avec `+mp settings on`.")
+            .description("Réactive-les avec `+mpsettings on`.")
             .color(0xED4245);
         send_embed(ctx, msg, embed).await;
         return;

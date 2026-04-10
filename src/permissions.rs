@@ -1,6 +1,7 @@
 use serenity::builder::CreateEmbed;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
+use std::collections::BTreeSet;
 use std::env;
 
 use crate::commands::common::send_embed;
@@ -9,519 +10,111 @@ use crate::db::{
     has_perm_level_access, is_bot_owner,
 };
 
+const EXTRA_COMMAND_KEYS: &[&str] = &[
+    "ticket_settings",
+    "ticket_add",
+    "ticket_remove",
+    "ticket_close",
+    "suggestion_settings",
+    "setperm",
+    "delperm",
+    "changereset",
+    "serverlist",
+    "endgiveaway",
+    "mpsettings",
+];
+
+fn first_arg_is(args: &[&str], expected: &str) -> bool {
+    args.first()
+        .map(|value| value.eq_ignore_ascii_case(expected))
+        .unwrap_or(false)
+}
+
 pub fn command_key(command: &str, args: &[&str]) -> String {
-    match command {
+    let normalized = command.to_lowercase();
+
+    match normalized.as_str() {
         "ticket" => "ticket_settings".to_string(),
-        "claim" => "claim".to_string(),
-        "rename" => "rename".to_string(),
         "add" => "ticket_add".to_string(),
-        "del" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("perm"))
-                .unwrap_or(false)
-            {
-                "del_perm".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("sanction"))
-                .unwrap_or(false)
-            {
-                "del_sanction".to_string()
-            } else {
-                "ticket_remove".to_string()
-            }
-        }
+        "del" => "ticket_remove".to_string(),
         "close" => "ticket_close".to_string(),
-        "tickets" => "tickets".to_string(),
-        "show" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("pics"))
-                .unwrap_or(false)
-            {
-                "show_pics".to_string()
-            } else {
-                "show".to_string()
-            }
-        }
-        "showpics" => "show_pics".to_string(),
+        "clear" => "clearmessages".to_string(),
         "suggestion" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("settings"))
-                .unwrap_or(false)
-            {
+            if first_arg_is(args, "settings") {
                 "suggestion_settings".to_string()
             } else {
                 "suggestion_create".to_string()
             }
         }
-        "autopublish" => "autopublish".to_string(),
-        "tempvoc" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("cmd"))
-                .unwrap_or(false)
-            {
-                "tempvoc_cmd".to_string()
-            } else {
-                "tempvoc".to_string()
-            }
-        }
-        "clear" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("owners"))
-                .unwrap_or(false)
-            {
-                "clear_owners".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("bl"))
-                .unwrap_or(false)
-            {
-                "clear_bl".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("limit"))
-                .unwrap_or(false)
-            {
-                "clear_limit".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("badwords"))
-                .unwrap_or(false)
-            {
-                "clear_badwords".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("perms"))
-                .unwrap_or(false)
-            {
-                "clear_perms".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("sanctions"))
-                .unwrap_or(false)
-            {
-                "clear_sanctions".to_string()
-            } else if args.len() >= 2
-                && args[0].eq_ignore_ascii_case("all")
-                && args[1].eq_ignore_ascii_case("sanctions")
-            {
-                "clear_all_sanctions".to_string()
-            } else {
-                "clear_messages".to_string()
-            }
-        }
         "change" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("reset"))
-                .unwrap_or(false)
-            {
-                "change_reset".to_string()
+            if first_arg_is(args, "reset") {
+                "changereset".to_string()
             } else {
                 "change".to_string()
             }
         }
-        "remove" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("activity"))
-                .unwrap_or(false)
-            {
-                "remove_activity".to_string()
-            } else {
-                "remove".to_string()
-            }
-        }
-        "set" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("perm"))
-                .unwrap_or(false)
-            {
-                "set_perm".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("muterole"))
-                .unwrap_or(false)
-            {
-                "set_muterole".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("modlogs"))
-                .unwrap_or(false)
-            {
-                "set_modlogs".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("boostembed"))
-                .unwrap_or(false)
-            {
-                "set_boostembed".to_string()
-            } else {
-                "set".to_string()
-            }
-        }
-        "mp" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("settings"))
-                .unwrap_or(false)
-            {
-                "mp_settings".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("sent"))
-                .unwrap_or(false)
-            {
-                "mp".to_string()
-            } else if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("delete") || s.eq_ignore_ascii_case("del"))
-                .unwrap_or(false)
-            {
-                "mp".to_string()
-            } else {
-                "mp".to_string()
-            }
-        }
         "server" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("list"))
-                .unwrap_or(false)
-            {
-                "server_list".to_string()
+            if first_arg_is(args, "list") {
+                "serverlist".to_string()
             } else {
                 "server".to_string()
             }
         }
         "end" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("giveaway"))
-                .unwrap_or(false)
-            {
-                "end_giveaway".to_string()
+            if first_arg_is(args, "giveaway") {
+                "endgiveaway".to_string()
             } else {
                 "end".to_string()
             }
         }
-        "help" => "help".to_string(),
-        "helpsetting" => "helpsetting".to_string(),
-        "helpetting" => "helpsetting".to_string(),
-        "alias" => "alias".to_string(),
-        "modlog" => "modlog".to_string(),
-        "messagelog" => "messagelog".to_string(),
-        "voicelog" => "voicelog".to_string(),
-        "boostlog" => "boostlog".to_string(),
-        "rolelog" => "rolelog".to_string(),
-        "raidlog" => "raidlog".to_string(),
-        "autoconfiglog" => "autoconfiglog".to_string(),
-        "join" => "join".to_string(),
-        "boostembed" => "boostembed".to_string(),
-        "nolog" => "nolog".to_string(),
-        "invite" => "invite".to_string(),
-        "leave" => {
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("settings"))
-                .unwrap_or(false)
-            {
-                "leave_settings".to_string()
+        "mp" => {
+            if first_arg_is(args, "settings") {
+                "mpsettings".to_string()
             } else {
-                "leave".to_string()
+                "mp".to_string()
             }
         }
-        "discussion" => "discussion".to_string(),
-        other => other.to_string(),
+        "mpsent" | "mpdelete" | "mpdel" => "mp".to_string(),
+        "helpetting" => "helpsetting".to_string(),
+        _ => normalized,
     }
 }
 
 pub fn all_command_keys() -> Vec<String> {
-    vec![
-        "ping",
-        "allbots",
-        "alladmins",
-        "botadmins",
-        "boosters",
-        "rolemembers",
-        "rolemenu",
-        "ancien",
-        "serverinfo",
-        "vocinfo",
-        "role",
-        "channel",
-        "user",
-        "member",
-        "pic",
-        "banner",
-        "server",
-        "snipe",
-        "emoji",
-        "giveaway",
-        "end",
-        "end_giveaway",
-        "sanctions",
-        "del_sanction",
-        "clear_sanctions",
-        "clear_all_sanctions",
-        "clear_messages",
-        "clear_limit",
-        "clear_badwords",
-        "timeout",
-        "muterole",
-        "set_muterole",
-        "antispam",
-        "antiraideautoconfig",
-        "antilink",
-        "antimassmention",
-        "badwords",
-        "spam",
-        "link",
-        "strikes",
-        "punish",
-        "noderank",
-        "public",
-        "resetantiraide",
-        "warn",
-        "mute",
-        "tempmute",
-        "unmute",
-        "cmute",
-        "tempcmute",
-        "uncmute",
-        "mutelist",
-        "unmuteall",
-        "kick",
-        "ban",
-        "tempban",
-        "unban",
-        "banlist",
-        "slowmode",
-        "lock",
-        "unlock",
-        "lockall",
-        "unlockall",
-        "hide",
-        "unhide",
-        "hideall",
-        "unhideall",
-        "addrole",
-        "delrole",
-        "derank",
-        "reroll",
-        "choose",
-        "embed",
-        "backup",
-        "ticket_settings",
-        "claim",
-        "rename",
-        "ticket_add",
-        "ticket_remove",
-        "ticket_close",
-        "tickets",
-        "show_pics",
-        "piconly",
-        "suggestion_create",
-        "suggestion_settings",
-        "autopublish",
-        "tempvoc",
-        "tempvoc_cmd",
-        "autobackup",
-        "loading",
-        "create",
-        "newsticker",
-        "massiverole",
-        "unmassiverole",
-        "voicemove",
-        "voicekick",
-        "cleanup",
-        "bringall",
-        "renew",
-        "unbanall",
-        "temprole",
-        "untemprole",
-        "sync",
-        "button",
-        "autoreact",
-        "calc",
-        "shadowbot",
-        "set",
-        "set_modlogs",
-        "set_boostembed",
-        "theme",
-        "playto",
-        "listen",
-        "watch",
-        "compet",
-        "stream",
-        "remove_activity",
-        "online",
-        "idle",
-        "dnd",
-        "invisible",
-        "owner",
-        "unowner",
-        "clear_owners",
-        "bl",
-        "unbl",
-        "blinfo",
-        "clear_bl",
-        "say",
-        "change",
-        "changeall",
-        "change_reset",
-        "mainprefix",
-        "prefix",
-        "perms",
-        "set_perm",
-        "del_perm",
-        "clear_perms",
-        "allperms",
-        "help",
-        "helpsetting",
-        "alias",
-        "modlog",
-        "messagelog",
-        "voicelog",
-        "boostlog",
-        "rolelog",
-        "raidlog",
-        "autoconfiglog",
-        "join",
-        "leave_settings",
-        "boostembed",
-        "nolog",
-        "mp",
-        "mp_settings",
-        "server_list",
-        "invite",
-        "leave",
-        "discussion",
-    ]
-    .into_iter()
-    .map(String::from)
-    .collect()
+    let mut keys = BTreeSet::new();
+
+    for meta in crate::commands::all_command_metadata() {
+        keys.insert(command_key(meta.name, &[]));
+    }
+
+    for key in EXTRA_COMMAND_KEYS {
+        keys.insert((*key).to_string());
+    }
+
+    keys.into_iter().collect()
+}
+
+fn metadata_key_for_permission(command_key: &str) -> &str {
+    match command_key {
+        "ticket_settings" => "ticket",
+        "ticket_add" | "ticket_remove" => "add",
+        "ticket_close" => "close",
+        "suggestion_create" | "suggestion_settings" => "suggestion",
+        "setperm" => "set",
+        "delperm" => "del",
+        "changereset" => "change",
+        "serverlist" => "server",
+        "endgiveaway" => "end",
+        "mpsettings" => "mp",
+        _ => command_key,
+    }
 }
 
 pub fn default_permission(command_key: &str) -> u8 {
-    match command_key {
-        "ticket_settings" | "suggestion_settings" | "autopublish" | "piconly" | "tempvoc" => 8,
-        "claim" | "rename" | "ticket_add" | "ticket_remove" | "ticket_close" | "tickets" => 2,
-        "show_pics" | "suggestion_create" | "tempvoc_cmd" => 0,
-        "owner" | "unowner" | "clear_owners" => 9,
-        "bl" | "unbl" | "blinfo" | "clear_bl" => 9,
-        "change" | "changeall" | "change_reset" | "mainprefix" | "set_perm" | "del_perm"
-        | "clear_perms" => 9,
-        "set_modlogs" | "set_boostembed" | "set_muterole" => 8,
-        "prefix" | "perms" | "allperms" => 8,
-        "help" | "server_list" => 0,
-        "helpsetting" | "alias" | "leave" => 9,
-        "mp_settings" => 9,
-        "mp" | "mp_sent" | "mp_delete" | "invite" | "discussion" => 8,
-        "set"
-        | "theme"
-        | "playto"
-        | "listen"
-        | "watch"
-        | "compet"
-        | "stream"
-        | "remove_activity"
-        | "online"
-        | "idle"
-        | "dnd"
-        | "invisible"
-        | "say"
-        | "giveaway"
-        | "end_giveaway"
-        | "reroll"
-        | "choose"
-        | "embed"
-        | "backup"
-        | "autobackup"
-        | "loading"
-        | "create"
-        | "newsticker"
-        | "massiverole"
-        | "unmassiverole"
-        | "voicemove"
-        | "voicekick"
-        | "cleanup"
-        | "bringall"
-        | "renew"
-        | "unbanall"
-        | "temprole"
-        | "untemprole"
-        | "sync"
-        | "button"
-        | "autoreact"
-        | "sanctions"
-        | "del_sanction"
-        | "clear_sanctions"
-        | "clear_all_sanctions"
-        | "clear_messages"
-        | "clear_limit"
-        | "clear_badwords"
-        | "timeout"
-        | "muterole"
-        | "antispam"
-        | "antiraideautoconfig"
-        | "antilink"
-        | "antimassmention"
-        | "badwords"
-        | "spam"
-        | "link"
-        | "strikes"
-        | "punish"
-        | "noderank"
-        | "public"
-        | "resetantiraide"
-        | "warn"
-        | "mute"
-        | "tempmute"
-        | "unmute"
-        | "cmute"
-        | "tempcmute"
-        | "uncmute"
-        | "mutelist"
-        | "unmuteall"
-        | "kick"
-        | "ban"
-        | "tempban"
-        | "unban"
-        | "banlist"
-        | "slowmode"
-        | "lock"
-        | "unlock"
-        | "lockall"
-        | "unlockall"
-        | "hide"
-        | "unhide"
-        | "hideall"
-        | "unhideall"
-        | "addrole"
-        | "delrole"
-        | "derank"
-        | "rolemenu"
-        | "ancien"
-        | "modlog"
-        | "messagelog"
-        | "voicelog"
-        | "boostlog"
-        | "rolelog"
-        | "raidlog"
-        | "autoconfiglog"
-        | "join"
-        | "boostembed"
-        | "leave_settings"
-        | "nolog" => 8,
-        _ => 0,
-    }
+    let metadata_key = metadata_key_for_permission(command_key);
+    crate::commands::command_metadata_by_key(metadata_key)
+        .map(|meta| meta.default_permission)
+        .unwrap_or(0)
 }
 
 fn is_forced_owner_from_env(user_id: UserId) -> bool {

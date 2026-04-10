@@ -35,7 +35,7 @@ pub static COMMAND_DESCRIPTOR: ClearPermsCommand = ClearPermsCommand;
 impl crate::commands::command_contract::CommandSpec for ClearPermsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "clear_perms",
+            name: "clearperms",
             category: "perms",
             params: "aucun",
             description: "Supprime toutes les permissions ACL configurees en base.",

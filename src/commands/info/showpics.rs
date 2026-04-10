@@ -65,7 +65,7 @@ impl crate::commands::command_contract::CommandSpec for ShowpicsCommand {
             category: "info",
             params: "[nombre 1-5]",
             description: "Affiche jusqua 5 avatars de membres du serveur.",
-            examples: &["+show pics", "+help showpics"],
+            examples: &["+showpics", "+help showpics"],
             default_aliases: &[],
             allow_in_dm: false,
             default_permission: 0,

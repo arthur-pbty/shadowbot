@@ -594,7 +594,7 @@ pub async fn public_command_allowed(
         .title("Commandes publiques desactivees")
         .description(format!(
             "La commande `{}` est desactivee dans ce salon.",
-            command_key.replace('_', " ")
+            command_key.replace('_', "")
         ))
         .color(0xED4245);
     send_embed(ctx, msg, embed).await;

@@ -37,7 +37,7 @@ pub static COMMAND_DESCRIPTOR: ClearBadwordsCommand = ClearBadwordsCommand;
 impl crate::commands::command_contract::CommandSpec for ClearBadwordsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "clear_badwords",
+            name: "clearbadwords",
             category: "mod",
             params: "badwords",
             description: "Supprime l ensemble des mots interdits enregistres.",

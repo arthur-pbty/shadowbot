@@ -14,7 +14,7 @@ pub async fn handle_del(ctx: &Context, msg: &Message, args: &[&str]) {
     if args.len() < 2 || !args[0].eq_ignore_ascii_case("perm") {
         let embed = CreateEmbed::new()
             .title("Erreur")
-            .description("Usage: `del perm <role>`")
+            .description("Usage: `+delperm <role>`")
             .color(0xED4245);
         send_embed(ctx, msg, embed).await;
         return;

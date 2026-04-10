@@ -1177,7 +1177,7 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
                 ))
                 .color(theme_color(ctx).await)
                 .footer(CreateEmbedFooter::new(
-                    "Utilise +end giveaway <ID> pour terminer",
+                    "Utilise +endgiveaway <ID> pour terminer",
                 ));
 
             let _ = modal

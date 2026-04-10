@@ -126,7 +126,7 @@ pub static COMMAND_DESCRIPTOR: LeaveSettingsCommand = LeaveSettingsCommand;
 impl crate::commands::command_contract::CommandSpec for LeaveSettingsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "leave_settings",
+            name: "leavesettings",
             category: "config",
             params: "settings [on/off] [salon] [message]",
             description: "Configure les actions a executer quand un membre quitte le serveur.",

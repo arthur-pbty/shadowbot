@@ -61,7 +61,7 @@ pub static COMMAND_DESCRIPTOR: ClearLimitCommand = ClearLimitCommand;
 impl crate::commands::command_contract::CommandSpec for ClearLimitCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "clear_limit",
+            name: "clearlimit",
             category: "mod",
             params: "limit <nombre>",
             description: "Definit la limite max de messages supprimables avec +clear.",

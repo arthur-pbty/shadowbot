@@ -63,7 +63,7 @@ pub static COMMAND_DESCRIPTOR: ClearSanctionsCommand = ClearSanctionsCommand;
 impl crate::commands::command_contract::CommandSpec for ClearSanctionsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "clear_sanctions",
+            name: "clearsanctions",
             category: "mod",
             params: "<@membre/ID>",
             description: "Efface completement les sanctions d un membre cible.",

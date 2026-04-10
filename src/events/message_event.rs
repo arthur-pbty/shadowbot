@@ -114,12 +114,19 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
     }
 
     let mut parts = without_prefix.split_whitespace();
-    let mut command = parts.next().unwrap_or("").to_lowercase();
-    let args = parts.collect::<Vec<_>>();
+    let typed_command = parts.next().unwrap_or("").to_lowercase();
+    let typed_args = parts.collect::<Vec<_>>();
+
+    let mut command = typed_command;
+    let args = typed_args;
 
     // Ne laisse pas un alias écraser une commande native.
     let native_commands = permissions::all_command_keys();
-    if !native_commands.iter().any(|cmd| cmd == &command) {
+    let is_native = native_commands.iter().any(|cmd| cmd == &command)
+        || crate::commands::all_command_metadata()
+            .into_iter()
+            .any(|meta| meta.name.eq_ignore_ascii_case(&command));
+    if !is_native {
         if let Some(alias_target) = alias::resolve_command_alias_name(ctx, &command).await {
             command = alias_target;
         } else if let Some(default_target) = crate::commands::resolve_default_alias(&command) {
@@ -133,17 +140,17 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         let dm_metadata = crate::commands::command_metadata_by_key(&command_key)
             .or_else(|| {
                 let mapped = match command_key.as_str() {
-                    "show_pics" => Some("showpics"),
+                    "showpics" => Some("showpics"),
                     "suggestion_create" | "suggestion_settings" => Some("suggestion"),
                     "ticket_settings" => Some("ticket"),
                     "ticket_add" => Some("add"),
                     "ticket_remove" => Some("del"),
                     "ticket_close" => Some("close"),
-                    "set_perm" => Some("set"),
-                    "change_reset" => Some("change"),
-                    "server_list" => Some("server"),
-                    "end_giveaway" => Some("end"),
-                    "mp_settings" | "mp_sent" | "mp_delete" => Some("mp"),
+                    "setperm" => Some("set"),
+                    "changereset" => Some("change"),
+                    "serverlist" => Some("server"),
+                    "endgiveaway" => Some("end"),
+                    "mpsettings" | "mpsent" | "mpdelete" => Some("mp"),
                     _ => None,
                 };
 
@@ -157,7 +164,7 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
                     .title("Commande indisponible en DM")
                     .description(format!(
                         "La commande `+{}` n'est pas autorisee en message prive.",
-                        command.replace('_', " ")
+                        command.replace('_', "")
                     ))
                     .color(0xED4245);
                 crate::commands::common::send_embed(ctx, msg, embed).await;
@@ -184,44 +191,24 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "claim" => claim::handle_claim(ctx, msg, &args).await,
         "rename" => rename::handle_rename(ctx, msg, &args).await,
         "add" => ticket_member::handle_ticket_add(ctx, msg, &args).await,
-        "del"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("perm"))
-                .unwrap_or(false) =>
-        {
-            del::handle_del(ctx, msg, &args).await
+        "delperm" => {
+            let mut forwarded = vec!["perm"];
+            forwarded.extend(args.iter().copied());
+            del::handle_del(ctx, msg, &forwarded).await
         }
-        "del"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("sanction"))
-                .unwrap_or(false) =>
-        {
-            del_sanction::handle_del_sanction(ctx, msg, &args).await
+        "delsanction" => {
+            let mut forwarded = vec!["sanction"];
+            forwarded.extend(args.iter().copied());
+            del_sanction::handle_del_sanction(ctx, msg, &forwarded).await
         }
         "del" => ticket_member::handle_ticket_remove(ctx, msg, &args).await,
         "close" => close::handle_close(ctx, msg, &args).await,
         "tickets" => tickets::handle_tickets(ctx, msg, &args).await,
-        "show"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("pics"))
-                .unwrap_or(false) =>
-        {
-            showpics::handle_show_pics(ctx, msg, &args[1..]).await
-        }
+        "showpics" => showpics::handle_show_pics(ctx, msg, &args).await,
         "piconly" => piconly::handle_piconly(ctx, msg, &args).await,
         "suggestion" => suggestion::handle_suggestion(ctx, msg, &args).await,
         "autopublish" => autopublish::handle_autopublish(ctx, msg, &args).await,
-        "tempvoc"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("cmd"))
-                .unwrap_or(false) =>
-        {
-            tempvoc_cmd::handle_tempvoc_cmd(ctx, msg, &args[1..]).await
-        }
+        "tempvoccmd" => tempvoc_cmd::handle_tempvoc_cmd(ctx, msg, &args).await,
         "tempvoc" => tempvoc::handle_tempvoc(ctx, msg, &args).await,
         "ping" => ping::handle_ping(ctx, msg, &args).await,
         "timeout" => timeout::handle_timeout_toggle(ctx, msg, &args).await,
@@ -255,6 +242,7 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "pic" => pic::handle_pic(ctx, msg, &args).await,
         "banner" => banner::handle_banner(ctx, msg, &args).await,
         "server" => server::handle_server(ctx, msg, &args).await,
+        "serverlist" => server::handle_server_list(ctx, msg).await,
         "snipe" => snipe::handle_snipe(ctx, msg, &args).await,
         "emoji" => emoji::handle_emoji(ctx, msg, &args).await,
         "giveaway" => giveaway::handle_giveaway(ctx, msg, &args).await,
@@ -269,6 +257,11 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "boostembed" => boostembed::handle_boostembed(ctx, msg, &args).await,
         "nolog" => nolog::handle_nolog(ctx, msg, &args).await,
         "sanctions" => sanctions::handle_sanctions(ctx, msg, &args).await,
+        "endgiveaway" => {
+            let mut forwarded = vec!["giveaway"];
+            forwarded.extend(args.iter().copied());
+            end::handle_end(ctx, msg, &forwarded).await
+        }
         "end" => end::handle_end(ctx, msg, &args).await,
         "reroll" => reroll::handle_reroll(ctx, msg, &args).await,
         "choose" => choose::handle_choose(ctx, msg, &args).await,
@@ -405,30 +398,18 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "autoreact" => autoreact::handle_autoreact(ctx, msg, &args).await,
         "calc" => calc::handle_calc(ctx, msg, &args).await,
         "shadowbot" => shadowbot::handle_shadowbot(ctx, msg, &args).await,
-        "set"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("muterole"))
-                .unwrap_or(false) =>
-        {
-            set_muterole::handle_set_muterole(ctx, msg, &args).await
+        "setperm" => {
+            let mut forwarded = vec!["perm"];
+            forwarded.extend(args.iter().copied());
+            set::handle_set(ctx, msg, &forwarded).await
         }
-        "set"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("modlogs"))
-                .unwrap_or(false) =>
-        {
-            set_modlogs::handle_set_modlogs(ctx, msg, &args[1..]).await
+        "setmuterole" => {
+            let mut forwarded = vec!["muterole"];
+            forwarded.extend(args.iter().copied());
+            set_muterole::handle_set_muterole(ctx, msg, &forwarded).await
         }
-        "set"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("boostembed"))
-                .unwrap_or(false) =>
-        {
-            set_boostembed::handle_set_boostembed(ctx, msg, &args[1..]).await
-        }
+        "setmodlogs" => set_modlogs::handle_set_modlogs(ctx, msg, &args).await,
+        "setboostembed" => set_boostembed::handle_set_boostembed(ctx, msg, &args).await,
         "set" => set::handle_set(ctx, msg, &args).await,
         "theme" => theme::handle_theme(ctx, msg, &args).await,
         "playto" => playto::handle_playto(ctx, msg, &args).await,
@@ -439,27 +420,32 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "help" => help::handle_help(ctx, msg, &args).await,
         "helpsetting" => helpsetting::handle_helpsetting(ctx, msg, &args).await,
         "alias" => alias::handle_alias(ctx, msg, &args).await,
+        "mpsettings" => {
+            let mut forwarded = vec!["settings"];
+            forwarded.extend(args.iter().copied());
+            mp::handle_mp(ctx, msg, &forwarded).await
+        }
+        "mpsent" => {
+            let mut forwarded = vec!["sent"];
+            forwarded.extend(args.iter().copied());
+            mp::handle_mp(ctx, msg, &forwarded).await
+        }
+        "mpdelete" | "mpdel" => {
+            let mut forwarded = vec!["delete"];
+            forwarded.extend(args.iter().copied());
+            mp::handle_mp(ctx, msg, &forwarded).await
+        }
         "mp" => mp::handle_mp(ctx, msg, &args).await,
         "invite" => invite::handle_invite(ctx, msg, &args).await,
-        "leave"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("settings"))
-                .unwrap_or(false) =>
-        {
-            leave_settings::handle_leave_settings(ctx, msg, &args).await
+        "leavesettings" => {
+            let mut forwarded = vec!["settings"];
+            forwarded.extend(args.iter().copied());
+            leave_settings::handle_leave_settings(ctx, msg, &forwarded).await
         }
         "leave" => leave::handle_leave(ctx, msg, &args).await,
         "viewlogs" => viewlogs::handle_viewlogs(ctx, msg, &args).await,
         "discussion" => discussion::handle_discussion(ctx, msg, &args).await,
-        "remove"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("activity"))
-                .unwrap_or(false) =>
-        {
-            remove_activity::handle_remove_activity(ctx, msg).await
-        }
+        "removeactivity" => remove_activity::handle_remove_activity(ctx, msg).await,
         "online" => online::handle_online(ctx, msg).await,
         "idle" => idle::handle_idle(ctx, msg).await,
         "dnd" => dnd::handle_dnd(ctx, msg).await,
@@ -470,67 +456,33 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "unbl" => unbl::handle_unbl(ctx, msg, &args).await,
         "blinfo" => blinfo::handle_blinfo(ctx, msg, &args).await,
         "say" => say::handle_say(ctx, msg, &args).await,
+        "changereset" => {
+            let mut forwarded = vec!["reset"];
+            forwarded.extend(args.iter().copied());
+            change::handle_change(ctx, msg, &forwarded).await
+        }
         "change" => change::handle_change(ctx, msg, &args).await,
         "changeall" => changeall::handle_changeall(ctx, msg, &args).await,
         "mainprefix" => mainprefix::handle_mainprefix(ctx, msg, &args).await,
         "prefix" => prefix::handle_prefix(ctx, msg, &args).await,
         "perms" => perms::handle_perms(ctx, msg, &args).await,
         "allperms" => allperms::handle_allperms(ctx, msg, &args).await,
-        "clear"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("owners"))
-                .unwrap_or(false) =>
-        {
-            clear_owners::handle_clear_owners(ctx, msg).await
+        "clearowners" => clear_owners::handle_clear_owners(ctx, msg).await,
+        "clearbl" => clear_bl::handle_clear_bl(ctx, msg).await,
+        "clearperms" => clear_perms::handle_clear_perms(ctx, msg).await,
+        "clearlimit" => {
+            let mut forwarded = vec!["limit"];
+            forwarded.extend(args.iter().copied());
+            clear_limit::handle_clear_limit(ctx, msg, &forwarded).await
         }
-        "clear"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("bl"))
-                .unwrap_or(false) =>
-        {
-            clear_bl::handle_clear_bl(ctx, msg).await
+        "clearbadwords" => clear_badwords::handle_clear_badwords(ctx, msg, &args).await,
+        "clearsanctions" => {
+            let mut forwarded = vec!["sanctions"];
+            forwarded.extend(args.iter().copied());
+            clear_sanctions::handle_clear_sanctions(ctx, msg, &forwarded).await
         }
-        "clear"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("perms"))
-                .unwrap_or(false) =>
-        {
-            clear_perms::handle_clear_perms(ctx, msg).await
-        }
-        "clear"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("limit"))
-                .unwrap_or(false) =>
-        {
-            clear_limit::handle_clear_limit(ctx, msg, &args).await
-        }
-        "clear"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("badwords"))
-                .unwrap_or(false) =>
-        {
-            clear_badwords::handle_clear_badwords(ctx, msg, &args).await
-        }
-        "clear"
-            if args
-                .first()
-                .map(|s| s.eq_ignore_ascii_case("sanctions"))
-                .unwrap_or(false) =>
-        {
-            clear_sanctions::handle_clear_sanctions(ctx, msg, &args).await
-        }
-        "clear"
-            if args.len() >= 2
-                && args[0].eq_ignore_ascii_case("all")
-                && args[1].eq_ignore_ascii_case("sanctions") =>
-        {
-            clear_all_sanctions::handle_clear_all_sanctions(ctx, msg).await
-        }
+        "clearallsanctions" => clear_all_sanctions::handle_clear_all_sanctions(ctx, msg).await,
+        "clearmessages" => clear_messages::handle_clear_messages(ctx, msg, &args).await,
         "clear" => clear_messages::handle_clear_messages(ctx, msg, &args).await,
         _ => {}
     }

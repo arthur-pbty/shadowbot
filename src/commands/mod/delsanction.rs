@@ -85,7 +85,7 @@ pub static COMMAND_DESCRIPTOR: DelSanctionCommand = DelSanctionCommand;
 impl crate::commands::command_contract::CommandSpec for DelSanctionCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "del_sanction",
+            name: "delsanction",
             category: "mod",
             params: "<@membre/ID> <nombre>",
             description: "Supprime une sanction specifique dans l historique d un membre.",

@@ -99,7 +99,7 @@ pub static COMMAND_DESCRIPTOR: SetBoostembedCommand = SetBoostembedCommand;
 impl crate::commands::command_contract::CommandSpec for SetBoostembedCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "set_boostembed",
+            name: "setboostembed",
             category: "config",
             params: "<title|description|color> <valeur>",
             description: "Configure le titre, la description et la couleur de l embed boost.",

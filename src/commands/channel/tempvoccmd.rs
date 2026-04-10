@@ -22,11 +22,11 @@ pub static COMMAND_DESCRIPTOR: TempvocCmdCommand = TempvocCmdCommand;
 impl crate::commands::command_contract::CommandSpec for TempvocCmdCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "tempvoc_cmd",
+            name: "tempvoccmd",
             category: "channel",
             params: "aucun",
             description: "Affiche un rappel des commandes et du fonctionnement de tempvoc.",
-            examples: &["+tempvoccmd", "+help tempvoc_cmd"],
+            examples: &["+tempvoccmd", "+help tempvoccmd"],
             default_aliases: &[],
             allow_in_dm: false,
             default_permission: 0,

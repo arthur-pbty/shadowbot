@@ -66,7 +66,7 @@ pub static COMMAND_DESCRIPTOR: SetMuteRoleCommand = SetMuteRoleCommand;
 impl crate::commands::command_contract::CommandSpec for SetMuteRoleCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "set_muterole",
+            name: "setmuterole",
             category: "mod",
             params: "muterole <@role/ID/nom>",
             description: "Definit le role utilise pour le mute lorsque le mode timeout est desactive.",

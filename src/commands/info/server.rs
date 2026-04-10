@@ -26,7 +26,7 @@ pub async fn handle_server(ctx: &Context, msg: &Message, args: &[&str]) {
     if args.is_empty() {
         let embed = CreateEmbed::new()
             .title("Erreur")
-            .description("Usage: `+server pic`, `+server banner` ou `+server list`")
+            .description("Usage: `+server pic`, `+server banner` ou `+serverlist`")
             .color(0xED4245);
         send_embed(ctx, msg, embed).await;
         return;
@@ -74,7 +74,7 @@ pub async fn handle_server(ctx: &Context, msg: &Message, args: &[&str]) {
         _ => {
             let embed = CreateEmbed::new()
                 .title("Erreur")
-                .description("Usage: `+server pic`, `+server banner` ou `+server list`")
+                .description("Usage: `+server pic`, `+server banner` ou `+serverlist`")
                 .color(0xED4245);
             send_embed(ctx, msg, embed).await;
         }

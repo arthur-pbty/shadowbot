@@ -112,7 +112,7 @@ pub static COMMAND_DESCRIPTOR: SetModlogsCommand = SetModlogsCommand;
 impl crate::commands::command_contract::CommandSpec for SetModlogsCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "set_modlogs",
+            name: "setmodlogs",
             category: "config",
             params: "[event on/off]",
             description: "Affiche ou modifie les evenements qui apparaissent dans les logs de moderation.",

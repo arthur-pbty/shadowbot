@@ -90,7 +90,7 @@ pub async fn handle_end(ctx: &Context, msg: &Message, args: &[&str]) {
         msg,
         CreateEmbed::new()
             .title("End")
-            .description("Usage: +end giveaway <id_message>")
+            .description("Usage: +endgiveaway <id_message>")
             .color(0xED4245),
     )
     .await;
@@ -106,7 +106,7 @@ impl crate::commands::command_contract::CommandSpec for EndCommand {
             category: "event",
             params: "giveaway <id_message>",
             description: "Permet de stopper instantanement un giveaway avec l'identifiant du message.",
-            examples: &["+end giveaway 123456789012345678"],
+            examples: &["+endgiveaway 123456789012345678"],
             default_aliases: &["gend"],
             allow_in_dm: false,
             default_permission: 6,

@@ -133,8 +133,8 @@ fn help_page_for_command(
 ) -> &'static str {
     match meta.name {
         "modlog" | "messagelog" | "voicelog" | "boostlog" | "rolelog" | "raidlog"
-        | "autoconfiglog" | "nolog" | "join" | "boostembed" | "set_modlogs" | "set_boostembed"
-        | "leave_settings" | "viewlogs" => "logs",
+        | "autoconfiglog" | "nolog" | "join" | "boostembed" | "setmodlogs" | "setboostembed"
+        | "leavesettings" | "viewlogs" => "logs",
         "warn"
         | "mute"
         | "tempmute"
@@ -151,12 +151,12 @@ fn help_page_for_command(
         | "banlist"
         | "unbanall"
         | "sanctions"
-        | "del_sanction"
-        | "clear_sanctions"
-        | "clear_all_sanctions"
+        | "delsanction"
+        | "clearsanctions"
+        | "clearallsanctions"
         | "cleanup"
         | "renew"
-        | "clear_messages" => "moderation",
+        | "clearmessages" => "moderation",
         "addrole" | "delrole" | "derank" | "massiverole" | "unmassiverole" | "temprole"
         | "untemprole" | "sync" => "roles",
         "lock" | "unlock" | "lockall" | "unlockall" | "hide" | "unhide" | "hideall"
@@ -165,16 +165,24 @@ fn help_page_for_command(
         | "create" | "newsticker" | "button" | "autoreact" | "snipe" | "loading" | "backup"
         | "autobackup" => "outils",
         "shadowbot" | "set" | "theme" | "playto" | "listen" | "watch" | "compet" | "stream"
-        | "remove_activity" | "online" | "idle" | "dnd" | "invisible" | "change" | "changeall" => {
+        | "removeactivity" | "online" | "idle" | "dnd" | "invisible" | "change" | "changeall" => {
             "bot"
         }
-        "owner" | "unowner" | "clear_owners" | "bl" | "unbl" | "blinfo" | "clear_bl"
+        "owner" | "unowner" | "clearowners" | "bl" | "unbl" | "blinfo" | "clearbl"
         | "allbots" | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp" | "invite"
         | "leave" | "discussion" => "administration",
-        "perms" | "del" | "clear_perms" | "allperms" | "alias" | "help" | "helpsetting" => {
+        "perms" | "del" | "clearperms" | "allperms" | "alias" | "help" | "helpsetting" => {
             "permissions"
         }
         _ => match meta.category {
+            "info" => "infos",
+            "mod" => "moderation",
+            "config" => "logs",
+            "botconfig" => "bot",
+            "owner" => "administration",
+            "perms" => "permissions",
+            "channel" => "salons_vocal",
+            "event" => "outils",
             "infos" => "infos",
             "logs" => "logs",
             "moderation" => "moderation",
@@ -209,12 +217,14 @@ fn help_page_title_for_command_key(key: &str) -> &'static str {
 fn help_metadata_lookup_key(input: &str) -> Option<&'static str> {
     let normalized = help_lookup_key(input);
     let underscored = normalized.replace(' ', "_");
+    let compact = normalized.replace(' ', "");
 
     crate::commands::all_command_metadata()
         .into_iter()
         .find(|meta| {
             meta.name.eq_ignore_ascii_case(&normalized)
                 || meta.name.eq_ignore_ascii_case(&underscored)
+                || meta.name.replace('_', "").eq_ignore_ascii_case(&compact)
                 || meta
                     .name
                     .replace('_', " ")
@@ -321,18 +331,58 @@ async fn aliases_map(ctx: &Context) -> BTreeMap<String, Vec<String>> {
 }
 
 fn command_doc(key: &str) -> Option<CommandDoc> {
-    let meta = match key {
-        "mp_settings" | "mp_sent" | "mp_delete" => crate::commands::command_metadata_by_key("mp")?,
-        "server_list" => crate::commands::command_metadata_by_key("server")?,
-        "change_reset" => crate::commands::command_metadata_by_key("change")?,
-        "set_perm" => crate::commands::command_metadata_by_key("set")?,
-        "del_perm" => crate::commands::command_metadata_by_key("del")?,
-        other => crate::commands::command_metadata_by_key(other)?,
+    let (meta, command, acl_key, alias_source_key) = match key {
+        "mpsettings" => (
+            crate::commands::command_metadata_by_key("mp")?,
+            "mpsettings",
+            "mpsettings",
+            Some("mp"),
+        ),
+        "mpsent" => (
+            crate::commands::command_metadata_by_key("mp")?,
+            "mpsent",
+            "mpsent",
+            Some("mp"),
+        ),
+        "mpdelete" => (
+            crate::commands::command_metadata_by_key("mp")?,
+            "mpdelete",
+            "mpdelete",
+            Some("mp"),
+        ),
+        "serverlist" => (
+            crate::commands::command_metadata_by_key("server")?,
+            "serverlist",
+            "serverlist",
+            Some("server"),
+        ),
+        "changereset" => (
+            crate::commands::command_metadata_by_key("change")?,
+            "changereset",
+            "changereset",
+            Some("change"),
+        ),
+        "setperm" => (
+            crate::commands::command_metadata_by_key("set")?,
+            "setperm",
+            "setperm",
+            Some("set"),
+        ),
+        "delperm" => (
+            crate::commands::command_metadata_by_key("del")?,
+            "delperm",
+            "delperm",
+            Some("del"),
+        ),
+        other => {
+            let meta = crate::commands::command_metadata_by_key(other)?;
+            (meta, meta.name, meta.name, Some(meta.name))
+        }
     };
 
     Some(CommandDoc {
-        key: meta.name,
-        command: meta.name,
+        key: acl_key,
+        command,
         allow_in_dm: meta.allow_in_dm,
         default_permission: meta.default_permission,
         params: meta.params,
@@ -342,7 +392,7 @@ fn command_doc(key: &str) -> Option<CommandDoc> {
         } else {
             meta.examples
         },
-        alias_source_key: Some(meta.name),
+        alias_source_key,
     })
 }
 
@@ -351,7 +401,6 @@ fn help_lookup_key(input: &str) -> String {
         .trim()
         .trim_start_matches('+')
         .to_lowercase()
-        .replace('_', " ")
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ")
@@ -375,11 +424,11 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "pic" => Some("pic"),
         "banner" => Some("banner"),
         "server" => Some("server"),
-        "server list" => Some("server_list"),
+        "serverlist" => Some("serverlist"),
         "snipe" => Some("snipe"),
         "emoji" => Some("emoji"),
         "giveaway" => Some("giveaway"),
-        "end" | "end giveaway" => Some("end"),
+        "end" | "endgiveaway" => Some("end"),
         "reroll" => Some("reroll"),
         "choose" => Some("choose"),
         "embed" => Some("embed"),
@@ -410,36 +459,36 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "watch" => Some("watch"),
         "compet" => Some("compet"),
         "stream" => Some("stream"),
-        "remove activity" => Some("remove_activity"),
+        "removeactivity" => Some("removeactivity"),
         "online" => Some("online"),
         "idle" => Some("idle"),
         "dnd" => Some("dnd"),
         "invisible" => Some("invisible"),
         "mp" => Some("mp"),
-        "mp settings" => Some("mp_settings"),
-        "mp sent" => Some("mp_sent"),
-        "mp delete" | "mp del" => Some("mp_delete"),
+        "mpsettings" => Some("mpsettings"),
+        "mpsent" => Some("mpsent"),
+        "mpdelete" | "mpdel" => Some("mpdelete"),
         "discussion" => Some("discussion"),
         "owner" => Some("owner"),
         "unowner" => Some("unowner"),
-        "clear owners" => Some("clear_owners"),
+        "clearowners" => Some("clearowners"),
         "bl" => Some("bl"),
         "unbl" => Some("unbl"),
         "blinfo" => Some("blinfo"),
-        "clear bl" => Some("clear_bl"),
+        "clearbl" => Some("clearbl"),
         "say" => Some("say"),
         "invite" => Some("invite"),
         "leave" => Some("leave"),
         "change" => Some("change"),
-        "change reset" => Some("change_reset"),
+        "changereset" => Some("changereset"),
         "changeall" => Some("changeall"),
         "mainprefix" => Some("mainprefix"),
         "prefix" => Some("prefix"),
         "perms" => Some("perms"),
         "allperms" => Some("allperms"),
-        "set perm" => Some("set_perm"),
-        "del perm" => Some("del_perm"),
-        "clear perms" => Some("clear_perms"),
+        "setperm" => Some("setperm"),
+        "delperm" => Some("delperm"),
+        "clearperms" => Some("clearperms"),
         "alias" => Some("alias"),
         "helpsetting" | "helpetting" => Some("helpsetting"),
         _ => None,
@@ -518,7 +567,7 @@ fn help_page_content(
     let mut lines = Vec::with_capacity(commands.len());
 
     for meta in commands {
-        let label = meta.name.replace('_', " ");
+        let label = meta.name.replace('_', "");
         let alias_key = meta.name;
         let params = if meta.params.trim().is_empty() {
             "aucun"
@@ -854,14 +903,11 @@ async fn build_command_help_embed(
         .join("\n");
 
     let mut embed = CreateEmbed::new()
-        .title(format!(
-            "Aide commande · +{}",
-            doc.command.replace('_', " ")
-        ))
+        .title(format!("Aide commande · +{}", doc.command.replace('_', "")))
         .description(doc.description)
         .field(
             "Commande",
-            format!("`+{}`", doc.command.replace('_', " ")),
+            format!("`+{}`", doc.command.replace('_', "")),
             false,
         )
         .field("Clé ACL", format!("`{}`", doc.key), false)

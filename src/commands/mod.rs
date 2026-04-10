@@ -74,21 +74,21 @@ pub mod choose;
 pub mod claim;
 #[path = "mod/cleanup.rs"]
 pub mod cleanup;
-#[path = "mod/clear_all_sanctions.rs"]
+#[path = "mod/clearallsanctions.rs"]
 pub mod clear_all_sanctions;
-#[path = "mod/clear_badwords.rs"]
+#[path = "mod/clearbadwords.rs"]
 pub mod clear_badwords;
-#[path = "owner/clear_bl.rs"]
+#[path = "owner/clearbl.rs"]
 pub mod clear_bl;
-#[path = "mod/clear_limit.rs"]
+#[path = "mod/clearlimit.rs"]
 pub mod clear_limit;
-#[path = "mod/clear_messages.rs"]
+#[path = "mod/clearmessages.rs"]
 pub mod clear_messages;
-#[path = "owner/clear_owners.rs"]
+#[path = "owner/clearowners.rs"]
 pub mod clear_owners;
-#[path = "perms/clear_perms.rs"]
+#[path = "perms/clearperms.rs"]
 pub mod clear_perms;
-#[path = "mod/clear_sanctions.rs"]
+#[path = "mod/clearsanctions.rs"]
 pub mod clear_sanctions;
 #[path = "ticket/close.rs"]
 pub mod close;
@@ -102,7 +102,7 @@ pub mod compet;
 pub mod create;
 #[path = "perms/del.rs"]
 pub mod del;
-#[path = "mod/del_sanction.rs"]
+#[path = "mod/delsanction.rs"]
 pub mod del_sanction;
 #[path = "roles/delrole.rs"]
 pub mod delrole;
@@ -140,7 +140,7 @@ pub mod join;
 pub mod kick;
 #[path = "owner/leave.rs"]
 pub mod leave;
-#[path = "config/leave_settings.rs"]
+#[path = "config/leavesettings.rs"]
 pub mod leave_settings;
 #[path = "security/link.rs"]
 pub mod link;
@@ -205,7 +205,7 @@ pub mod public;
 pub mod punish;
 #[path = "config/raidlog.rs"]
 pub mod raidlog;
-#[path = "botconfig/remove_activity.rs"]
+#[path = "botconfig/removeactivity.rs"]
 pub mod remove_activity;
 #[path = "ticket/rename.rs"]
 pub mod rename;
@@ -233,11 +233,11 @@ pub mod server;
 pub mod serverinfo;
 #[path = "botconfig/set.rs"]
 pub mod set;
-#[path = "config/set_boostembed.rs"]
+#[path = "config/setboostembed.rs"]
 pub mod set_boostembed;
-#[path = "config/set_modlogs.rs"]
+#[path = "config/setmodlogs.rs"]
 pub mod set_modlogs;
-#[path = "mod/set_muterole.rs"]
+#[path = "mod/setmuterole.rs"]
 pub mod set_muterole;
 #[path = "botconfig/shadowbot.rs"]
 pub mod shadowbot;
@@ -267,13 +267,13 @@ pub mod tempmute;
 pub mod temprole;
 #[path = "channel/tempvoc.rs"]
 pub mod tempvoc;
-#[path = "channel/tempvoc_cmd.rs"]
+#[path = "channel/tempvoccmd.rs"]
 pub mod tempvoc_cmd;
 #[path = "botconfig/theme.rs"]
 pub mod theme;
 #[path = "ticket/ticket.rs"]
 pub mod ticket;
-#[path = "ticket/ticket_member.rs"]
+#[path = "ticket/ticketmember.rs"]
 pub mod ticket_member;
 #[path = "ticket/tickets.rs"]
 pub mod tickets;
@@ -481,9 +481,15 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
 }
 
 pub fn command_metadata_by_key(key: &str) -> Option<CommandMetadata> {
+    let normalized = key.to_lowercase();
+    let compact = normalized.replace('_', "");
+
     all_command_metadata()
         .into_iter()
-        .find(|meta| meta.name == key)
+        .find(|meta| {
+            meta.name.eq_ignore_ascii_case(&normalized)
+                || meta.name.replace('_', "").eq_ignore_ascii_case(&compact)
+        })
 }
 
 pub fn resolve_default_alias(alias: &str) -> Option<&'static str> {

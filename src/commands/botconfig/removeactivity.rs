@@ -34,7 +34,7 @@ pub static COMMAND_DESCRIPTOR: RemoveActivityCommand = RemoveActivityCommand;
 impl crate::commands::command_contract::CommandSpec for RemoveActivityCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "remove_activity",
+            name: "removeactivity",
             category: "botconfig",
             params: "aucun",
             description: "Arrete la rotation d activite et retire lactivite courante du bot.",

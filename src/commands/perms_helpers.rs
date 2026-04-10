@@ -33,10 +33,26 @@ pub fn parse_user_or_role(input: &str) -> Option<(&'static str, u64)> {
 }
 
 pub fn normalize_command_name(input: &str) -> String {
-    input
-        .trim_start_matches('+')
-        .replace(' ', "_")
-        .to_lowercase()
+    let normalized = input.trim_start_matches('+').to_lowercase();
+    let underscored = normalized
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join("_");
+    let compact = underscored.replace('_', "");
+
+    let known = crate::permissions::all_command_keys();
+
+    let direct = crate::permissions::command_key(&underscored, &[]);
+    if known.iter().any(|value| value == &direct) {
+        return direct;
+    }
+
+    let compact_mapped = crate::permissions::command_key(&compact, &[]);
+    if known.iter().any(|value| value == &compact_mapped) {
+        return compact_mapped;
+    }
+
+    underscored
 }
 
 pub async fn ensure_owner(ctx: &Context, msg: &Message) -> bool {
