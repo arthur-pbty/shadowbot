@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use chrono::Utc;
-use serenity::builder::CreateEmbed;
+use serenity::builder::{CreateEmbed, CreateEmbedFooter};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
@@ -98,10 +98,124 @@ async fn record_audit_log(
     .await;
 }
 
+fn color_for_log_type(log_type: &str) -> u32 {
+    match log_type {
+        "message" => 0xF4C430,
+        "voice" => 0x3BA55D,
+        "role" => 0x5865F2,
+        "channel" => 0x2D7D9A,
+        "moderation" => 0xED4245,
+        "raid" => 0xF04747,
+        "boost" => 0xFF73FA,
+        _ => 0x99AAB5,
+    }
+}
+
+fn truncate_for_embed(value: &str, max_chars: usize) -> String {
+    let mut out = String::new();
+    let mut count = 0usize;
+
+    for ch in value.chars() {
+        if count >= max_chars {
+            out.push_str("...");
+            break;
+        }
+        out.push(ch);
+        count += 1;
+    }
+
+    if out.trim().is_empty() {
+        "(vide)".to_string()
+    } else {
+        out
+    }
+}
+
+fn enrich_log_embed(
+    ctx: &Context,
+    guild_id: GuildId,
+    log_type: &str,
+    action: Option<&str>,
+    user_id: Option<UserId>,
+    channel_id: Option<ChannelId>,
+    role_id: Option<RoleId>,
+    log_channel_id: Option<ChannelId>,
+    embed: CreateEmbed,
+) -> CreateEmbed {
+    let now = Utc::now();
+    let guild_name = ctx
+        .cache
+        .guild(guild_id)
+        .map(|guild| guild.name.clone())
+        .unwrap_or_else(|| "Serveur inconnu".to_string());
+
+    let mut context_lines = Vec::new();
+    context_lines.push(format!("Type: `{}`", log_type));
+    if let Some(action) = action {
+        context_lines.push(format!("Action: `{}`", action));
+    }
+    context_lines.push(format!("Serveur: `{}` (`{}`)", guild_name, guild_id.get()));
+    context_lines.push(format!(
+        "Canal de log: {}",
+        log_channel_id
+            .map(|id| format!("<#{}> (`{}`)", id.get(), id.get()))
+            .unwrap_or_else(|| "non configure".to_string())
+    ));
+    if let Some(channel_id) = channel_id {
+        context_lines.push(format!(
+            "Canal cible: <#{}> (`{}`)",
+            channel_id.get(),
+            channel_id.get()
+        ));
+    }
+    if let Some(user_id) = user_id {
+        context_lines.push(format!(
+            "Utilisateur cible: <@{}> (`{}`)",
+            user_id.get(),
+            user_id.get()
+        ));
+    }
+    if let Some(role_id) = role_id {
+        context_lines.push(format!(
+            "Role cible: <@&{}> (`{}`)",
+            role_id.get(),
+            role_id.get()
+        ));
+    }
+    context_lines.push(format!(
+        "Horodatage: <t:{}:F> (<t:{}:R>)",
+        now.timestamp(),
+        now.timestamp()
+    ));
+
+    embed
+        .color(color_for_log_type(log_type))
+        .timestamp(now)
+        .field("Contexte", context_lines.join("\n"), false)
+        .footer(CreateEmbedFooter::new(format!(
+            "{} • logs {}",
+            guild_name, log_type
+        )))
+}
+
 pub async fn send_log_embed(ctx: &Context, guild_id: GuildId, log_type: &str, embed: CreateEmbed) {
     record_audit_log(ctx, guild_id, log_type, None, None, None, log_type).await;
 
-    if let Some(channel_id) = get_log_channel(ctx, guild_id, log_type).await {
+    let log_channel_id = get_log_channel(ctx, guild_id, log_type).await;
+
+    if let Some(channel_id) = log_channel_id {
+        let embed = enrich_log_embed(
+            ctx,
+            guild_id,
+            log_type,
+            None,
+            None,
+            None,
+            None,
+            Some(channel_id),
+            embed,
+        );
+
         let _ = channel_id
             .send_message(
                 &ctx.http,
@@ -119,18 +233,26 @@ pub async fn emit_log(
     channel_id: Option<ChannelId>,
     role_id: Option<RoleId>,
     action: &str,
-    mut embed: CreateEmbed,
+    embed: CreateEmbed,
 ) {
-    let timestamp = Utc::now();
-
-    embed = embed.timestamp(timestamp);
-
     record_audit_log(
         ctx, guild_id, log_type, user_id, channel_id, role_id, action,
     )
     .await;
 
     if let Some(log_channel_id) = get_log_channel(ctx, guild_id, log_type).await {
+        let embed = enrich_log_embed(
+            ctx,
+            guild_id,
+            log_type,
+            Some(action),
+            user_id,
+            channel_id,
+            role_id,
+            Some(log_channel_id),
+            embed,
+        );
+
         let _ = log_channel_id
             .send_message(
                 &ctx.http,
@@ -254,6 +376,18 @@ pub async fn send_boost_embed(ctx: &Context, guild_id: GuildId, user: &User) {
         .color(color);
 
     if let Some(channel_id) = get_log_channel(ctx, guild_id, "boost").await {
+        let embed = enrich_log_embed(
+            ctx,
+            guild_id,
+            "boost",
+            Some("boost_custom_embed"),
+            Some(user.id),
+            None,
+            None,
+            Some(channel_id),
+            embed,
+        );
+
         let _ = channel_id
             .send_message(
                 &ctx.http,
@@ -278,24 +412,48 @@ pub async fn on_message_deleted(
         return;
     }
 
+    let author = author_id
+        .map(|id| format!("<@{}> (`{}`)", id.get(), id.get()))
+        .unwrap_or_else(|| "inconnu".to_string());
+    let content_value = content.unwrap_or_else(|| "(indisponible)".to_string());
+    let message_url = format!(
+        "https://discord.com/channels/{}/{}/{}",
+        guild_id.get(),
+        channel_id.get(),
+        message_id.get()
+    );
+
     let embed = CreateEmbed::new()
-        .title("Message supprimé")
-        .description(format!(
-            "Salon: <#{}>\nAuteur: {}\nMessage: `{}`\nContenu: {}",
-            channel_id.get(),
-            author_id
-                .map(|id| format!("<@{}>", id.get()))
-                .unwrap_or_else(|| "inconnu".to_string()),
-            message_id.get(),
-            content.unwrap_or_else(|| "(indisponible)".to_string())
-        ));
-    send_log_embed(ctx, guild_id, "message", embed).await;
+        .title("Message supprime")
+        .description("Un message a ete supprime.")
+        .field("Auteur", author, true)
+        .field(
+            "Salon",
+            format!("<#{}>\n`{}`", channel_id.get(), channel_id.get()),
+            true,
+        )
+        .field("Message ID", format!("`{}`", message_id.get()), true)
+        .field("Lien", format!("[Acces rapide]({})", message_url), false)
+        .field("Contenu", truncate_for_embed(&content_value, 900), false);
+
+    emit_log(
+        ctx,
+        guild_id,
+        "message",
+        author_id,
+        Some(channel_id),
+        None,
+        "message_delete",
+        embed,
+    )
+    .await;
 }
 
 pub async fn on_message_edited(
     ctx: &Context,
     guild_id: Option<GuildId>,
     channel_id: ChannelId,
+    message_id: MessageId,
     author_id: Option<UserId>,
     before: Option<String>,
     after: Option<String>,
@@ -307,19 +465,43 @@ pub async fn on_message_edited(
         return;
     }
 
-    let embed = CreateEmbed::new()
-        .title("Message édité")
-        .description(format!(
-            "Salon: <#{}>\nAuteur: {}\nAvant: {}\nAprès: {}",
-            channel_id.get(),
-            author_id
-                .map(|id| format!("<@{}>", id.get()))
-                .unwrap_or_else(|| "inconnu".to_string()),
-            before.unwrap_or_else(|| "(indisponible)".to_string()),
-            after.unwrap_or_else(|| "(indisponible)".to_string())
-        ));
+    let author = author_id
+        .map(|id| format!("<@{}> (`{}`)", id.get(), id.get()))
+        .unwrap_or_else(|| "inconnu".to_string());
+    let before_value = before.unwrap_or_else(|| "(indisponible)".to_string());
+    let after_value = after.unwrap_or_else(|| "(indisponible)".to_string());
+    let message_url = format!(
+        "https://discord.com/channels/{}/{}/{}",
+        guild_id.get(),
+        channel_id.get(),
+        message_id.get()
+    );
 
-    send_log_embed(ctx, guild_id, "message", embed).await;
+    let embed = CreateEmbed::new()
+        .title("Message edite")
+        .description("Un message a ete modifie.")
+        .field("Auteur", author, true)
+        .field(
+            "Salon",
+            format!("<#{}>\n`{}`", channel_id.get(), channel_id.get()),
+            true,
+        )
+        .field("Message ID", format!("`{}`", message_id.get()), true)
+        .field("Lien", format!("[Acces rapide]({})", message_url), false)
+        .field("Avant", truncate_for_embed(&before_value, 900), false)
+        .field("Apres", truncate_for_embed(&after_value, 900), false);
+
+    emit_log(
+        ctx,
+        guild_id,
+        "message",
+        author_id,
+        Some(channel_id),
+        None,
+        "message_update",
+        embed,
+    )
+    .await;
 }
 
 pub async fn on_voice_update(
@@ -833,10 +1015,14 @@ pub async fn on_message_delete_bulk(
         description.push_str(&format!("\n... et {} autres", hidden));
     }
 
-    send_log_embed(
+    emit_log(
         ctx,
         guild_id,
         "message",
+        None,
+        Some(channel_id),
+        None,
+        "message_delete_bulk",
         CreateEmbed::new()
             .title("Suppression en masse")
             .description(description),
@@ -857,10 +1043,14 @@ pub async fn on_reaction_add(ctx: &Context, reaction: &Reaction) {
         .map(|id| format!("<@{}>", id.get()))
         .unwrap_or_else(|| "Inconnu".to_string());
 
-    send_log_embed(
+    emit_log(
         ctx,
         guild_id,
         "message",
+        reaction.user_id,
+        Some(reaction.channel_id),
+        None,
+        "reaction_add",
         CreateEmbed::new()
             .title("Reaction ajoutee")
             .description(format!(
@@ -887,10 +1077,14 @@ pub async fn on_reaction_remove(ctx: &Context, reaction: &Reaction) {
         .map(|id| format!("<@{}>", id.get()))
         .unwrap_or_else(|| "Inconnu".to_string());
 
-    send_log_embed(
+    emit_log(
         ctx,
         guild_id,
         "message",
+        reaction.user_id,
+        Some(reaction.channel_id),
+        None,
+        "reaction_remove",
         CreateEmbed::new()
             .title("Reaction retiree")
             .description(format!(
@@ -916,10 +1110,14 @@ pub async fn on_reaction_remove_all(
         return;
     }
 
-    send_log_embed(
+    emit_log(
         ctx,
         guild_id,
         "message",
+        None,
+        Some(channel_id),
+        None,
+        "reaction_remove_all",
         CreateEmbed::new()
             .title("Toutes les reactions retirees")
             .description(format!(
@@ -939,10 +1137,14 @@ pub async fn on_reaction_remove_emoji(ctx: &Context, removed_reactions: &Reactio
         return;
     }
 
-    send_log_embed(
+    emit_log(
         ctx,
         guild_id,
         "message",
+        removed_reactions.user_id,
+        Some(removed_reactions.channel_id),
+        None,
+        "reaction_remove_emoji",
         CreateEmbed::new()
             .title("Emoji de reaction retire")
             .description(format!(

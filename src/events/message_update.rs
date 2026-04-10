@@ -62,6 +62,7 @@ pub async fn handle_message_update(
         ctx,
         event.guild_id,
         event.channel_id,
+        event.id,
         author_id,
         before,
         after,
