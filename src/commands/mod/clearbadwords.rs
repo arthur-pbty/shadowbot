@@ -39,7 +39,7 @@ impl crate::commands::command_contract::CommandSpec for ClearBadwordsCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "clearbadwords",
             category: "mod",
-            params: "badwords",
+            params: "aucun",
             description: "Supprime l ensemble des mots interdits enregistres.",
             examples: &["+clearbadwords", "+help clearbadwords"],
             default_aliases: &["cbw"],

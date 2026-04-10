@@ -15,20 +15,7 @@ pub async fn handle_join(ctx: &Context, msg: &Message, args: &[&str]) {
     };
     let bot_id = ctx.cache.current_user().id;
 
-    if args.is_empty() || !args[0].eq_ignore_ascii_case("settings") {
-        send_embed(
-            ctx,
-            msg,
-            CreateEmbed::new()
-                .title("join settings")
-                .description("Usage: +join settings [on/off] [salon] [message...]")
-                .color(0xED4245),
-        )
-        .await;
-        return;
-    }
-
-    if args.len() == 1 {
+    if args.is_empty() {
         let row = sqlx::query_as::<_, (bool, Option<i64>, Option<String>)>(
             r#"
             SELECT enabled, channel_id, custom_message
@@ -70,14 +57,27 @@ pub async fn handle_join(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     }
 
-    let action = args[1].to_lowercase();
+    let action = args[0].to_lowercase();
+    if action != "on" && action != "off" {
+        send_embed(
+            ctx,
+            msg,
+            CreateEmbed::new()
+                .title("join settings")
+                .description("Usage: +joinsettings [on/off] [salon] [message...]")
+                .color(0xED4245),
+        )
+        .await;
+        return;
+    }
+
     let enabled = action == "on";
     let channel = if enabled {
-        parse_target_channel(msg, args, 2)
+        parse_target_channel(msg, args, 1)
     } else {
         None
     };
-    let message_start = if enabled { 3 } else { 2 };
+    let message_start = if enabled { 2 } else { 1 };
     let custom_message = if args.len() > message_start {
         Some(args[message_start..].join(" "))
     } else {
@@ -125,15 +125,15 @@ pub static COMMAND_DESCRIPTOR: JoinCommand = JoinCommand;
 impl crate::commands::command_contract::CommandSpec for JoinCommand {
     fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
         crate::commands::command_contract::CommandMetadata {
-            name: "join",
+            name: "joinsettings",
             category: "config",
-            params: "settings [on/off] [salon] [message]",
+            params: "[on/off] [salon] [message]",
             description: "Permet de configurer les actions quand un membre rejoint.",
             examples: &[
-                "+join settings",
-                "+join settings on #welcome Bienvenue {user}",
+                "+joinsettings",
+                "+joinsettings on #welcome Bienvenue {user}",
             ],
-            default_aliases: &["jset"],
+            default_aliases: &["jset", "join"],
             allow_in_dm: false,
             default_permission: 5,
         }

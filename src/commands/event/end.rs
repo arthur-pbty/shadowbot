@@ -8,12 +8,8 @@ fn owned_component_id(action: &str, owner_id: UserId) -> String {
     format!("{}:{}", action, owner_id.get())
 }
 
-async fn handle_end_giveaway(ctx: &Context, msg: &Message, args: &[&str]) {
-    let message_id_raw = args
-        .get(1)
-        .or_else(|| args.first())
-        .copied()
-        .unwrap_or_default();
+pub async fn handle_endgiveaway(ctx: &Context, msg: &Message, args: &[&str]) {
+    let message_id_raw = args.first().copied().unwrap_or_default();
 
     let Ok(message_id) = message_id_raw.trim().parse::<u64>() else {
         send_embed(
@@ -76,21 +72,12 @@ pub async fn handle_end(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     }
 
-    if args
-        .first()
-        .map(|v| v.eq_ignore_ascii_case("giveaway"))
-        .unwrap_or(false)
-    {
-        handle_end_giveaway(ctx, msg, args).await;
-        return;
-    }
-
     send_embed(
         ctx,
         msg,
         CreateEmbed::new()
             .title("End")
-            .description("Usage: +endgiveaway <id_message>")
+            .description("Usage: +end")
             .color(0xED4245),
     )
     .await;
@@ -104,10 +91,10 @@ impl crate::commands::command_contract::CommandSpec for EndCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "end",
             category: "event",
-            params: "giveaway <id_message>",
-            description: "Permet de stopper instantanement un giveaway avec l'identifiant du message.",
-            examples: &["+endgiveaway 123456789012345678"],
-            default_aliases: &["gend"],
+            params: "aucun",
+            description: "Affiche le panneau interactif pour terminer un giveaway.",
+            examples: &["+end", "+help end"],
+            default_aliases: &["endmenu"],
             allow_in_dm: false,
             default_permission: 6,
         }

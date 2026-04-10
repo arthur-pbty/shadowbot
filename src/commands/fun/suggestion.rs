@@ -127,6 +127,10 @@ async fn show_menu(ctx: &Context, msg: &Message) {
         .await;
 }
 
+pub async fn handle_suggestionsettings(ctx: &Context, msg: &Message, _args: &[&str]) {
+    show_menu(ctx, msg).await;
+}
+
 async fn submit_suggestion(
     ctx: &Context,
     guild_id: GuildId,
@@ -199,22 +203,13 @@ async fn submit_suggestion(
 }
 
 pub async fn handle_suggestion(ctx: &Context, msg: &Message, args: &[&str]) {
-    if args
-        .first()
-        .map(|value| value.eq_ignore_ascii_case("settings"))
-        .unwrap_or(false)
-    {
-        show_menu(ctx, msg).await;
-        return;
-    }
-
     if args.is_empty() {
         send_embed(
             ctx,
             msg,
             CreateEmbed::new()
                 .title("Suggestion")
-                .description("Utilisation: +suggestion <contenu> ou +suggestion settings")
+                .description("Utilisation: +suggestion <contenu>")
                 .color(0xED4245),
         )
         .await;
@@ -505,13 +500,9 @@ impl crate::commands::command_contract::CommandSpec for SuggestionCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "suggestion",
             category: "fun",
-            params: "<contenu...> | settings",
-            description: "Publie une suggestion utilisateur ou ouvre le panneau de configuration.",
-            examples: &[
-                "+suggestion Ameliorer le salon",
-                "+suggestion settings",
-                "+help suggestion",
-            ],
+            params: "<contenu...>",
+            description: "Publie une suggestion utilisateur dans le salon configure.",
+            examples: &["+suggestion Ameliorer le salon", "+help suggestion"],
             default_aliases: &[],
             allow_in_dm: false,
             default_permission: 0,

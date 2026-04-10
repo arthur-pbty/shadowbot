@@ -3,7 +3,7 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::common::send_embed;
-use crate::commands::server::resolve_guild_target;
+use crate::commands::servertarget::resolve_guild_target;
 
 pub async fn handle_leave(ctx: &Context, msg: &Message, args: &[&str]) {
     let target = if args.is_empty() {

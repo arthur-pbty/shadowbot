@@ -3,7 +3,7 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::common::send_embed;
-use crate::commands::server::resolve_guild_target;
+use crate::commands::servertarget::resolve_guild_target;
 
 pub async fn handle_discussion(ctx: &Context, msg: &Message, args: &[&str]) {
     if args.len() < 2 {

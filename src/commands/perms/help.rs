@@ -133,8 +133,8 @@ fn help_page_for_command(
 ) -> &'static str {
     match meta.name {
         "modlog" | "messagelog" | "voicelog" | "boostlog" | "rolelog" | "raidlog"
-        | "autoconfiglog" | "nolog" | "join" | "boostembed" | "setmodlogs" | "setboostembed"
-        | "leavesettings" | "viewlogs" => "logs",
+        | "autoconfiglog" | "nolog" | "joinsettings" | "boostembed" | "setmodlogs"
+        | "setboostembed" | "leavesettings" | "viewlogs" => "logs",
         "warn"
         | "mute"
         | "tempmute"
@@ -164,14 +164,19 @@ fn help_page_for_command(
         "giveaway" | "end" | "reroll" | "choose" | "calc" | "emoji" | "embed" | "say"
         | "create" | "newsticker" | "button" | "autoreact" | "snipe" | "loading" | "backup"
         | "autobackup" => "outils",
-        "shadowbot" | "set" | "theme" | "playto" | "listen" | "watch" | "compet" | "stream"
-        | "removeactivity" | "online" | "idle" | "dnd" | "invisible" | "change" | "changeall" => {
+        "shadowbot" | "setname" | "setpic" | "setbanner" | "setprofil" | "setperm"
+        | "theme" | "playto" | "listen" | "watch" | "compet" | "stream"
+        | "removeactivity" | "online" | "idle" | "dnd" | "invisible" | "change"
+        | "changereset" | "changeall" => {
             "bot"
         }
         "owner" | "unowner" | "clearowners" | "bl" | "unbl" | "blinfo" | "clearbl"
-        | "allbots" | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp" | "invite"
-        | "leave" | "discussion" => "administration",
-        "perms" | "del" | "clearperms" | "allperms" | "alias" | "help" | "helpsetting" => {
+        | "allbots" | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp"
+        | "mpsettings" | "mpsent" | "mpdelete" | "invite" | "leave" | "discussion" => {
+            "administration"
+        }
+        "perms" | "delperm" | "clearperms" | "allperms" | "alias" | "help"
+        | "helpsetting" => {
             "permissions"
         }
         _ => match meta.category {
@@ -193,6 +198,7 @@ fn help_page_for_command(
             "administration" => "administration",
             "permissions" => "permissions",
             "general" => "infos",
+            "automation" => "outils",
             "profile" => "bot",
             "admin" => "administration",
             _ => "infos",
@@ -332,48 +338,6 @@ async fn aliases_map(ctx: &Context) -> BTreeMap<String, Vec<String>> {
 
 fn command_doc(key: &str) -> Option<CommandDoc> {
     let (meta, command, acl_key, alias_source_key) = match key {
-        "mpsettings" => (
-            crate::commands::command_metadata_by_key("mp")?,
-            "mpsettings",
-            "mpsettings",
-            Some("mp"),
-        ),
-        "mpsent" => (
-            crate::commands::command_metadata_by_key("mp")?,
-            "mpsent",
-            "mpsent",
-            Some("mp"),
-        ),
-        "mpdelete" => (
-            crate::commands::command_metadata_by_key("mp")?,
-            "mpdelete",
-            "mpdelete",
-            Some("mp"),
-        ),
-        "serverlist" => (
-            crate::commands::command_metadata_by_key("server")?,
-            "serverlist",
-            "serverlist",
-            Some("server"),
-        ),
-        "changereset" => (
-            crate::commands::command_metadata_by_key("change")?,
-            "changereset",
-            "changereset",
-            Some("change"),
-        ),
-        "setperm" => (
-            crate::commands::command_metadata_by_key("set")?,
-            "setperm",
-            "setperm",
-            Some("set"),
-        ),
-        "delperm" => (
-            crate::commands::command_metadata_by_key("del")?,
-            "delperm",
-            "delperm",
-            Some("del"),
-        ),
         other => {
             let meta = crate::commands::command_metadata_by_key(other)?;
             (meta, meta.name, meta.name, Some(meta.name))
@@ -423,22 +387,37 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "member" => Some("member"),
         "pic" => Some("pic"),
         "banner" => Some("banner"),
-        "server" => Some("server"),
+        "server" | "server list" => Some("serverlist"),
+        "server pic" | "serverpic" => Some("serverpic"),
+        "server banner" | "serverbanner" => Some("serverbanner"),
         "serverlist" => Some("serverlist"),
+        "suggestion settings" | "suggestionsettings" => Some("suggestionsettings"),
         "snipe" => Some("snipe"),
         "emoji" => Some("emoji"),
         "giveaway" => Some("giveaway"),
-        "end" | "endgiveaway" => Some("end"),
+        "end" => Some("end"),
+        "end giveaway" | "endgiveaway" => Some("endgiveaway"),
         "reroll" => Some("reroll"),
         "choose" => Some("choose"),
         "embed" => Some("embed"),
         "backup" | "backup list" | "backup delete" | "backup load" => Some("backup"),
+        "autopublish" => Some("autopublish"),
+        "autopublish on" | "autopublishon" => Some("autopublishon"),
+        "autopublish off" | "autopublishoff" => Some("autopublishoff"),
         "autobackup" => Some("autobackup"),
         "loading" => Some("loading"),
         "create" => Some("create"),
         "newsticker" => Some("newsticker"),
+        "piconly" => Some("piconly"),
+        "piconly add" | "piconlyadd" => Some("piconlyadd"),
+        "piconly del" | "piconly remove" | "piconly delete" | "piconlydel" => {
+            Some("piconlydel")
+        }
         "massiverole" => Some("massiverole"),
         "unmassiverole" => Some("unmassiverole"),
+        "noderank" => Some("noderank"),
+        "noderank add" | "noderankadd" => Some("noderankadd"),
+        "noderank del" | "noderank remove" | "noderankdel" => Some("noderankdel"),
         "voicemove" => Some("voicemove"),
         "voicekick" => Some("voicekick"),
         "cleanup" => Some("cleanup"),
@@ -452,7 +431,10 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "autoreact" => Some("autoreact"),
         "calc" => Some("calc"),
         "shadowbot" => Some("shadowbot"),
-        "set" => Some("set"),
+        "set" | "set name" | "setname" => Some("setname"),
+        "set pic" | "setpic" => Some("setpic"),
+        "set banner" | "setbanner" => Some("setbanner"),
+        "set profil" | "setprofil" => Some("setprofil"),
         "theme" => Some("theme"),
         "playto" => Some("playto"),
         "listen" => Some("listen"),
@@ -479,6 +461,7 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "say" => Some("say"),
         "invite" => Some("invite"),
         "leave" => Some("leave"),
+        "join" | "join settings" | "joinsettings" => Some("joinsettings"),
         "change" => Some("change"),
         "changereset" => Some("changereset"),
         "changeall" => Some("changeall"),
@@ -488,8 +471,13 @@ fn help_lookup_to_key(input: &str) -> Option<&'static str> {
         "allperms" => Some("allperms"),
         "setperm" => Some("setperm"),
         "delperm" => Some("delperm"),
+        "punish" => Some("punish"),
+        "punish setup" | "punishsetup" => Some("punishsetup"),
+        "punish add" | "punishadd" => Some("punishadd"),
+        "punish del" | "punishdel" => Some("punishdel"),
         "clearperms" => Some("clearperms"),
         "alias" => Some("alias"),
+        "alias remove" | "alias delete" | "unalias" => Some("unalias"),
         "helpsetting" | "helpetting" => Some("helpsetting"),
         _ => None,
     };

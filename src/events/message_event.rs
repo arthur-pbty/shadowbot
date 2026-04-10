@@ -7,20 +7,24 @@ use crate::commands::moderation_tools;
 use crate::commands::remove_activity;
 use crate::commands::{
     addrole, alias, ancien, antilink, antimassmention, antiraideautoconfig, antispam, autobackup,
-    autoconfiglog, autopublish, autoreact, backup, badwords, ban, banlist, banner, bl, blinfo,
-    boostembed, boosters, boostlog, bringall, button, calc, change, changeall, channel, choose,
-    claim, cleanup, clear_all_sanctions, clear_badwords, clear_bl, clear_limit, clear_messages,
-    clear_owners, clear_perms, clear_sanctions, close, cmute, compet, create, del, del_sanction,
-    delrole, derank, discussion, dnd, embed, emoji, end, giveaway, help, helpsetting, hide,
-    hideall, idle, invisible, invite, join, kick, leave, leave_settings, link, listen, loading,
-    lock, lockall, mainprefix, massiverole, member, messagelog, modlog, mp, mute, mutelist,
-    muterole, newsticker, noderank, nolog, online, owner, perms, pic, piconly, ping, playto,
-    prefix, public, punish, raidlog, rename, renew, reroll, resetantiraide, role, rolelog,
-    rolemembers, rolemenu, sanctions, say, server, serverinfo, set, set_boostembed, set_modlogs,
-    set_muterole, shadowbot, showpics, slowmode, snipe, spam, stream, strikes, suggestion, sync,
+    autoconfiglog, autopublish, autopublishoff, autopublishon, autoreact, backup, badwords, ban,
+    banlist, banner, bl, blinfo, boostembed, boosters, boostlog, bringall, button, calc, change,
+    changeall, changereset,
+    channel, choose, claim, cleanup, clear_all_sanctions, clear_badwords, clear_bl, clear_limit,
+    clear_messages, clear_owners, clear_perms, clear_sanctions, close, cmute, compet, create,
+    del_sanction, delperm, delrole, derank, discussion, dnd, embed, emoji, end, endgiveaway,
+    giveaway, help, helpsetting, hide, hideall, idle, invisible, invite, join, kick, leave,
+    leave_settings, link, listen, loading, lock, lockall, mainprefix, massiverole, member,
+    messagelog, modlog, mp, mpdelete, mpsent, mpsettings, mute, mutelist, muterole, newsticker,
+    noderank, noderankadd, noderankdel, nolog, online, owner, perms, pic, piconly, piconlyadd,
+    piconlydel, ping, playto, prefix, public, punish, punishadd, punishdel, punishsetup,
+    raidlog, rename, renew, reroll, resetantiraide, role, rolelog, rolemembers, rolemenu,
+    sanctions, say, serverbanner, serverinfo, serverlist, serverpic, set_boostembed,
+    set_modlogs, set_muterole, setbanner, setname, setperm, setpic, setprofil, shadowbot,
+    showpics, slowmode, snipe, spam, stream, strikes, suggestion, suggestionsettings, sync,
     tempban, tempcmute, tempmute, temprole, tempvoc, tempvoc_cmd, theme, ticket, ticket_member,
     tickets, timeout, unban, unbanall, unbl, uncmute, unhide, unhideall, unlock, unlockall,
-    unmassiverole, unmute, unmuteall, unowner, untemprole, user, viewlogs, vocinfo, voicekick,
+    unalias, unmassiverole, unmute, unmuteall, unowner, untemprole, user, viewlogs, vocinfo, voicekick,
     voicelog, voicemove, warn, watch,
 };
 use crate::commands::{alladmins, allbots, allperms, botadmins};
@@ -141,16 +145,10 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
             .or_else(|| {
                 let mapped = match command_key.as_str() {
                     "showpics" => Some("showpics"),
-                    "suggestion_create" | "suggestion_settings" => Some("suggestion"),
                     "ticket_settings" => Some("ticket"),
                     "ticket_add" => Some("add"),
                     "ticket_remove" => Some("del"),
                     "ticket_close" => Some("close"),
-                    "setperm" => Some("set"),
-                    "changereset" => Some("change"),
-                    "serverlist" => Some("server"),
-                    "endgiveaway" => Some("end"),
-                    "mpsettings" | "mpsent" | "mpdelete" => Some("mp"),
                     _ => None,
                 };
 
@@ -191,23 +189,22 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "claim" => claim::handle_claim(ctx, msg, &args).await,
         "rename" => rename::handle_rename(ctx, msg, &args).await,
         "add" => ticket_member::handle_ticket_add(ctx, msg, &args).await,
-        "delperm" => {
-            let mut forwarded = vec!["perm"];
-            forwarded.extend(args.iter().copied());
-            del::handle_del(ctx, msg, &forwarded).await
-        }
-        "delsanction" => {
-            let mut forwarded = vec!["sanction"];
-            forwarded.extend(args.iter().copied());
-            del_sanction::handle_del_sanction(ctx, msg, &forwarded).await
-        }
+        "delperm" => delperm::handle_delperm_command(ctx, msg, &args).await,
+        "delsanction" => del_sanction::handle_del_sanction(ctx, msg, &args).await,
         "del" => ticket_member::handle_ticket_remove(ctx, msg, &args).await,
         "close" => close::handle_close(ctx, msg, &args).await,
         "tickets" => tickets::handle_tickets(ctx, msg, &args).await,
         "showpics" => showpics::handle_show_pics(ctx, msg, &args).await,
         "piconly" => piconly::handle_piconly(ctx, msg, &args).await,
+        "piconlyadd" => piconlyadd::handle_piconlyadd_command(ctx, msg, &args).await,
+        "piconlydel" => piconlydel::handle_piconlydel_command(ctx, msg, &args).await,
         "suggestion" => suggestion::handle_suggestion(ctx, msg, &args).await,
+        "suggestionsettings" => {
+            suggestionsettings::handle_suggestionsettings_command(ctx, msg, &args).await
+        }
         "autopublish" => autopublish::handle_autopublish(ctx, msg, &args).await,
+        "autopublishon" => autopublishon::handle_autopublishon_command(ctx, msg, &args).await,
+        "autopublishoff" => autopublishoff::handle_autopublishoff_command(ctx, msg, &args).await,
         "tempvoccmd" => tempvoc_cmd::handle_tempvoc_cmd(ctx, msg, &args).await,
         "tempvoc" => tempvoc::handle_tempvoc(ctx, msg, &args).await,
         "ping" => ping::handle_ping(ctx, msg, &args).await,
@@ -224,6 +221,9 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "link" => link::handle_link_override(ctx, msg, &args).await,
         "strikes" => strikes::handle_strikes(ctx, msg, &args).await,
         "punish" => punish::handle_punish(ctx, msg, &args).await,
+        "punishsetup" => punishsetup::handle_punishsetup_command(ctx, msg, &args).await,
+        "punishadd" => punishadd::handle_punishadd_command(ctx, msg, &args).await,
+        "punishdel" => punishdel::handle_punishdel_command(ctx, msg, &args).await,
         "public" => public::handle_public(ctx, msg, &args).await,
         "resetantiraide" => resetantiraide::handle_resetantiraide(ctx, msg, &args).await,
         "allbots" => allbots::handle_allbots(ctx, msg, &args).await,
@@ -241,8 +241,9 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "member" => member::handle_member(ctx, msg, &args).await,
         "pic" => pic::handle_pic(ctx, msg, &args).await,
         "banner" => banner::handle_banner(ctx, msg, &args).await,
-        "server" => server::handle_server(ctx, msg, &args).await,
-        "serverlist" => server::handle_server_list(ctx, msg).await,
+        "serverpic" => serverpic::handle_serverpic(ctx, msg, &args).await,
+        "serverbanner" => serverbanner::handle_serverbanner(ctx, msg, &args).await,
+        "serverlist" => serverlist::handle_serverlist(ctx, msg, &args).await,
         "snipe" => snipe::handle_snipe(ctx, msg, &args).await,
         "emoji" => emoji::handle_emoji(ctx, msg, &args).await,
         "giveaway" => giveaway::handle_giveaway(ctx, msg, &args).await,
@@ -253,15 +254,11 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "rolelog" => rolelog::handle_rolelog(ctx, msg, &args).await,
         "raidlog" => raidlog::handle_raidlog(ctx, msg, &args).await,
         "autoconfiglog" => autoconfiglog::handle_autoconfiglog(ctx, msg).await,
-        "join" => join::handle_join(ctx, msg, &args).await,
+        "joinsettings" => join::handle_join(ctx, msg, &args).await,
         "boostembed" => boostembed::handle_boostembed(ctx, msg, &args).await,
         "nolog" => nolog::handle_nolog(ctx, msg, &args).await,
         "sanctions" => sanctions::handle_sanctions(ctx, msg, &args).await,
-        "endgiveaway" => {
-            let mut forwarded = vec!["giveaway"];
-            forwarded.extend(args.iter().copied());
-            end::handle_end(ctx, msg, &forwarded).await
-        }
+        "endgiveaway" => endgiveaway::handle_endgiveaway_command(ctx, msg, &args).await,
         "end" => end::handle_end(ctx, msg, &args).await,
         "reroll" => reroll::handle_reroll(ctx, msg, &args).await,
         "choose" => choose::handle_choose(ctx, msg, &args).await,
@@ -391,6 +388,8 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
             crate::commands::logs_service::log_moderation_command(ctx, msg, "derank", &args).await;
         }
         "noderank" => noderank::handle_noderank(ctx, msg, &args).await,
+        "noderankadd" => noderankadd::handle_noderankadd_command(ctx, msg, &args).await,
+        "noderankdel" => noderankdel::handle_noderankdel_command(ctx, msg, &args).await,
         "temprole" => temprole::handle_temprole(ctx, msg, &args).await,
         "untemprole" => untemprole::handle_untemprole(ctx, msg, &args).await,
         "sync" => sync::handle_sync(ctx, msg, &args).await,
@@ -398,19 +397,14 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "autoreact" => autoreact::handle_autoreact(ctx, msg, &args).await,
         "calc" => calc::handle_calc(ctx, msg, &args).await,
         "shadowbot" => shadowbot::handle_shadowbot(ctx, msg, &args).await,
-        "setperm" => {
-            let mut forwarded = vec!["perm"];
-            forwarded.extend(args.iter().copied());
-            set::handle_set(ctx, msg, &forwarded).await
-        }
-        "setmuterole" => {
-            let mut forwarded = vec!["muterole"];
-            forwarded.extend(args.iter().copied());
-            set_muterole::handle_set_muterole(ctx, msg, &forwarded).await
-        }
+        "setperm" => setperm::handle_setperm_command(ctx, msg, &args).await,
+        "setname" => setname::handle_setname_command(ctx, msg, &args).await,
+        "setpic" => setpic::handle_setpic_command(ctx, msg, &args).await,
+        "setbanner" => setbanner::handle_setbanner_command(ctx, msg, &args).await,
+        "setprofil" => setprofil::handle_setprofil_command(ctx, msg, &args).await,
+        "setmuterole" => set_muterole::handle_set_muterole(ctx, msg, &args).await,
         "setmodlogs" => set_modlogs::handle_set_modlogs(ctx, msg, &args).await,
         "setboostembed" => set_boostembed::handle_set_boostembed(ctx, msg, &args).await,
-        "set" => set::handle_set(ctx, msg, &args).await,
         "theme" => theme::handle_theme(ctx, msg, &args).await,
         "playto" => playto::handle_playto(ctx, msg, &args).await,
         "listen" => listen::handle_listen(ctx, msg, &args).await,
@@ -420,28 +414,13 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "help" => help::handle_help(ctx, msg, &args).await,
         "helpsetting" => helpsetting::handle_helpsetting(ctx, msg, &args).await,
         "alias" => alias::handle_alias(ctx, msg, &args).await,
-        "mpsettings" => {
-            let mut forwarded = vec!["settings"];
-            forwarded.extend(args.iter().copied());
-            mp::handle_mp(ctx, msg, &forwarded).await
-        }
-        "mpsent" => {
-            let mut forwarded = vec!["sent"];
-            forwarded.extend(args.iter().copied());
-            mp::handle_mp(ctx, msg, &forwarded).await
-        }
-        "mpdelete" | "mpdel" => {
-            let mut forwarded = vec!["delete"];
-            forwarded.extend(args.iter().copied());
-            mp::handle_mp(ctx, msg, &forwarded).await
-        }
+        "unalias" => unalias::handle_unalias_command(ctx, msg, &args).await,
+        "mpsettings" => mpsettings::handle_mpsettings_command(ctx, msg, &args).await,
+        "mpsent" => mpsent::handle_mpsent_command(ctx, msg, &args).await,
+        "mpdelete" | "mpdel" => mpdelete::handle_mpdelete_command(ctx, msg, &args).await,
         "mp" => mp::handle_mp(ctx, msg, &args).await,
         "invite" => invite::handle_invite(ctx, msg, &args).await,
-        "leavesettings" => {
-            let mut forwarded = vec!["settings"];
-            forwarded.extend(args.iter().copied());
-            leave_settings::handle_leave_settings(ctx, msg, &forwarded).await
-        }
+        "leavesettings" => leave_settings::handle_leave_settings(ctx, msg, &args).await,
         "leave" => leave::handle_leave(ctx, msg, &args).await,
         "viewlogs" => viewlogs::handle_viewlogs(ctx, msg, &args).await,
         "discussion" => discussion::handle_discussion(ctx, msg, &args).await,
@@ -456,11 +435,7 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "unbl" => unbl::handle_unbl(ctx, msg, &args).await,
         "blinfo" => blinfo::handle_blinfo(ctx, msg, &args).await,
         "say" => say::handle_say(ctx, msg, &args).await,
-        "changereset" => {
-            let mut forwarded = vec!["reset"];
-            forwarded.extend(args.iter().copied());
-            change::handle_change(ctx, msg, &forwarded).await
-        }
+        "changereset" => changereset::handle_changereset_command(ctx, msg, &args).await,
         "change" => change::handle_change(ctx, msg, &args).await,
         "changeall" => changeall::handle_changeall(ctx, msg, &args).await,
         "mainprefix" => mainprefix::handle_mainprefix(ctx, msg, &args).await,
@@ -470,17 +445,9 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "clearowners" => clear_owners::handle_clear_owners(ctx, msg).await,
         "clearbl" => clear_bl::handle_clear_bl(ctx, msg).await,
         "clearperms" => clear_perms::handle_clear_perms(ctx, msg).await,
-        "clearlimit" => {
-            let mut forwarded = vec!["limit"];
-            forwarded.extend(args.iter().copied());
-            clear_limit::handle_clear_limit(ctx, msg, &forwarded).await
-        }
+        "clearlimit" => clear_limit::handle_clear_limit(ctx, msg, &args).await,
         "clearbadwords" => clear_badwords::handle_clear_badwords(ctx, msg, &args).await,
-        "clearsanctions" => {
-            let mut forwarded = vec!["sanctions"];
-            forwarded.extend(args.iter().copied());
-            clear_sanctions::handle_clear_sanctions(ctx, msg, &forwarded).await
-        }
+        "clearsanctions" => clear_sanctions::handle_clear_sanctions(ctx, msg, &args).await,
         "clearallsanctions" => clear_all_sanctions::handle_clear_all_sanctions(ctx, msg).await,
         "clearmessages" => clear_messages::handle_clear_messages(ctx, msg, &args).await,
         "clear" => clear_messages::handle_clear_messages(ctx, msg, &args).await,

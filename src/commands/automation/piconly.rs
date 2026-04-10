@@ -106,61 +106,65 @@ pub async fn handle_piconly(ctx: &Context, msg: &Message, args: &[&str]) {
     let bot_id = ctx.cache.current_user().id.get() as i64;
     let guild_id_i64 = guild_id.get() as i64;
 
-    if args.is_empty() {
-        let channels = db::get_piconly_channels(&pool, bot_id, guild_id_i64)
-            .await
-            .unwrap_or_default();
-
-        let description = if channels.is_empty() {
-            "Aucun salon selfie configure.".to_string()
-        } else {
-            channels
-                .into_iter()
-                .map(|channel| format!("<#{}>", channel.channel_id))
-                .collect::<Vec<_>>()
-                .join("\n")
-        };
-
+    if !args.is_empty() {
         send_embed(
             ctx,
             msg,
             CreateEmbed::new()
                 .title("PicOnly")
-                .description(description)
-                .timestamp(Utc::now()),
-        )
-        .await;
-        return;
-    }
-
-    let adding = args[0].eq_ignore_ascii_case("add");
-    let deleting = args[0].eq_ignore_ascii_case("del")
-        || args[0].eq_ignore_ascii_case("remove")
-        || args[0].eq_ignore_ascii_case("delete");
-
-    if !adding && !deleting {
-        send_embed(
-            ctx,
-            msg,
-            CreateEmbed::new()
-                .title("PicOnly")
-                .description("Utilisation: +piconly <add/del> [#salon]")
+                .description("Utilisation: +piconly")
                 .color(0xED4245),
         )
         .await;
         return;
     }
 
+    let channels = db::get_piconly_channels(&pool, bot_id, guild_id_i64)
+        .await
+        .unwrap_or_default();
+
+    let description = if channels.is_empty() {
+        "Aucun salon selfie configure.".to_string()
+    } else {
+        channels
+            .into_iter()
+            .map(|channel| format!("<#{}>", channel.channel_id))
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+
+    send_embed(
+        ctx,
+        msg,
+        CreateEmbed::new()
+            .title("PicOnly")
+            .description(description)
+            .timestamp(Utc::now()),
+    )
+    .await;
+}
+
+pub async fn handle_piconlyadd(ctx: &Context, msg: &Message, args: &[&str]) {
+    let Some(guild_id) = msg.guild_id else {
+        return;
+    };
+
+    let Some(pool) = ({
+        let data = ctx.data.read().await;
+        data.get::<db::DbPoolKey>().cloned()
+    }) else {
+        return;
+    };
+
+    let bot_id = ctx.cache.current_user().id.get() as i64;
+    let guild_id_i64 = guild_id.get() as i64;
+
     let channel_id = args
-        .get(1)
+        .first()
         .and_then(|raw| parse_channel_id(raw))
         .unwrap_or(msg.channel_id);
 
-    let result = if adding {
-        db::add_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await
-    } else {
-        db::remove_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await
-    };
+    let result = db::add_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
 
     if result.is_err() {
         send_embed(
@@ -175,19 +179,61 @@ pub async fn handle_piconly(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     }
 
-    let embed = if adding {
+    send_embed(
+        ctx,
+        msg,
         CreateEmbed::new()
             .title("Salon selfie ajoute")
             .description(format!("Salon: <#{}>", channel_id.get()))
-            .timestamp(Utc::now())
-    } else {
+            .timestamp(Utc::now()),
+    )
+    .await;
+}
+
+pub async fn handle_piconlydel(ctx: &Context, msg: &Message, args: &[&str]) {
+    let Some(guild_id) = msg.guild_id else {
+        return;
+    };
+
+    let Some(pool) = ({
+        let data = ctx.data.read().await;
+        data.get::<db::DbPoolKey>().cloned()
+    }) else {
+        return;
+    };
+
+    let bot_id = ctx.cache.current_user().id.get() as i64;
+    let guild_id_i64 = guild_id.get() as i64;
+
+    let channel_id = args
+        .first()
+        .and_then(|raw| parse_channel_id(raw))
+        .unwrap_or(msg.channel_id);
+
+    let result = db::remove_piconly_channel(&pool, bot_id, guild_id_i64, channel_id.get() as i64).await;
+
+    if result.is_err() {
+        send_embed(
+            ctx,
+            msg,
+            CreateEmbed::new()
+                .title("PicOnly")
+                .description("Impossible de mettre a jour le salon selfie.")
+                .color(0xED4245),
+        )
+        .await;
+        return;
+    }
+
+    send_embed(
+        ctx,
+        msg,
         CreateEmbed::new()
             .title("Salon selfie retire")
             .description(format!("Salon: <#{}>", channel_id.get()))
-            .timestamp(Utc::now())
-    };
-
-    send_embed(ctx, msg, embed).await;
+            .timestamp(Utc::now()),
+    )
+    .await;
 }
 
 pub struct PiconlyCommand;
@@ -198,9 +244,9 @@ impl crate::commands::command_contract::CommandSpec for PiconlyCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "piconly",
             category: "automation",
-            params: "<add/del> [salon]",
-            description: "Definit ou supprime un salon selfie, ou les membres ne peuvent envoyer que des photos.",
-            examples: &["+piconly", "+piconly add #selfie", "+piconly del #selfie"],
+            params: "aucun",
+            description: "Affiche la liste des salons selfie, ou les membres ne peuvent envoyer que des photos.",
+            examples: &["+piconly", "+help piconly"],
             default_aliases: &["selfieonly"],
             allow_in_dm: false,
             default_permission: 6,

@@ -10,14 +10,14 @@ pub async fn handle_del_sanction(ctx: &Context, msg: &Message, args: &[&str]) {
     let Some(guild_id) = msg.guild_id else {
         return;
     };
-    if args.len() < 3 {
+    if args.len() < 2 {
         return;
     }
 
-    let Some(target) = parse_user_id(args[1]) else {
+    let Some(target) = parse_user_id(args[0]) else {
         return;
     };
-    let Ok(index) = args[2].parse::<usize>() else {
+    let Ok(index) = args[1].parse::<usize>() else {
         return;
     };
     if index == 0 {

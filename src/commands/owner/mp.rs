@@ -13,152 +13,137 @@ use crate::db::{
     log_sent_mp_message, mark_sent_mp_deleted, set_mp_enabled,
 };
 
-pub async fn handle_mp(ctx: &Context, msg: &Message, args: &[&str]) {
-    if args
-        .first()
-        .map(|value| value.eq_ignore_ascii_case("settings"))
-        .unwrap_or(false)
-    {
-        let bot_id = ctx.cache.current_user().id;
-        let Some(pool) = pool(ctx).await else {
-            let embed = CreateEmbed::new()
-                .title("Erreur")
-                .description("DB indisponible.")
-                .color(0xED4245);
-            send_embed(ctx, msg, embed).await;
-            return;
-        };
-
-        if args.len() == 1 {
-            let enabled = get_mp_enabled(&pool, bot_id)
-                .await
-                .ok()
-                .flatten()
-                .unwrap_or(true);
-            let embed = CreateEmbed::new()
-                .title("MP settings")
-                .description(format!(
-                    "Envoi de MP: `{}`\nUtilise `+mpsettings on/off`.",
-                    if enabled { "on" } else { "off" }
-                ))
-                .color(0x5865F2);
-            send_embed(ctx, msg, embed).await;
-            return;
-        }
-
-        let enabled = match args[1].to_lowercase().as_str() {
-            "on" | "true" | "yes" => true,
-            "off" | "false" | "no" => false,
-            _ => {
-                let embed = CreateEmbed::new()
-                    .title("Erreur")
-                    .description("Usage: `+mpsettings <on/off>`")
-                    .color(0xED4245);
-                send_embed(ctx, msg, embed).await;
-                return;
-            }
-        };
-
-        let _ = set_mp_enabled(&pool, bot_id, enabled).await;
+pub async fn handle_mpsettings(ctx: &Context, msg: &Message, args: &[&str]) {
+    let bot_id = ctx.cache.current_user().id;
+    let Some(pool) = pool(ctx).await else {
         let embed = CreateEmbed::new()
-            .title("MP settings mis à jour")
+            .title("Erreur")
+            .description("DB indisponible.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    if args.is_empty() {
+        let enabled = get_mp_enabled(&pool, bot_id)
+            .await
+            .ok()
+            .flatten()
+            .unwrap_or(true);
+        let embed = CreateEmbed::new()
+            .title("MP settings")
             .description(format!(
-                "Envoi de MP: `{}`",
+                "Envoi de MP: `{}`\nUtilise `+mpsettings on/off`.",
                 if enabled { "on" } else { "off" }
             ))
-            .color(0x57F287);
+            .color(0x5865F2);
         send_embed(ctx, msg, embed).await;
         return;
     }
 
-    if args
-        .first()
-        .map(|value| value.eq_ignore_ascii_case("sent"))
-        .unwrap_or(false)
-    {
-        let page = args
-            .get(1)
-            .and_then(|value| value.parse::<i64>().ok())
-            .filter(|value| *value >= 1)
-            .unwrap_or(1);
-        let _ = send_mp_sent_page(ctx, msg, page).await;
-        return;
-    }
-
-    if args
-        .first()
-        .map(|value| value.eq_ignore_ascii_case("delete") || value.eq_ignore_ascii_case("del"))
-        .unwrap_or(false)
-    {
-        let Some(entry_id_raw) = args.get(1) else {
+    let enabled = match args[0].to_lowercase().as_str() {
+        "on" | "true" | "yes" => true,
+        "off" | "false" | "no" => false,
+        _ => {
             let embed = CreateEmbed::new()
                 .title("Erreur")
-                .description("Usage: `+mpdelete <id>`")
+                .description("Usage: `+mpsettings <on/off>`")
                 .color(0xED4245);
             send_embed(ctx, msg, embed).await;
             return;
-        };
-
-        let Ok(entry_id) = entry_id_raw.parse::<i64>() else {
-            let embed = CreateEmbed::new()
-                .title("Erreur")
-                .description("ID invalide.")
-                .color(0xED4245);
-            send_embed(ctx, msg, embed).await;
-            return;
-        };
-
-        let bot_id = ctx.cache.current_user().id;
-        let Some(pool) = pool(ctx).await else {
-            let embed = CreateEmbed::new()
-                .title("Erreur")
-                .description("DB indisponible.")
-                .color(0xED4245);
-            send_embed(ctx, msg, embed).await;
-            return;
-        };
-
-        let Some(entry) = get_sent_mp_message(&pool, bot_id, entry_id)
-            .await
-            .ok()
-            .flatten()
-        else {
-            let embed = CreateEmbed::new()
-                .title("Erreur")
-                .description("Message MP introuvable.")
-                .color(0xED4245);
-            send_embed(ctx, msg, embed).await;
-            return;
-        };
-
-        let delete_result = ChannelId::new(entry.dm_channel_id as u64)
-            .delete_message(&ctx.http, MessageId::new(entry.message_id as u64))
-            .await;
-
-        let _ = mark_sent_mp_deleted(&pool, bot_id, entry_id).await;
-        if delete_result.is_err() {
-            let embed = CreateEmbed::new()
-                .title("MP déjà supprimé ou inaccessible")
-                .description(format!(
-                    "Entrée `#{}` marquée supprimée en base (Discord a refusé la suppression).",
-                    entry.entry_id
-                ))
-                .color(0xFEE75C);
-            send_embed(ctx, msg, embed).await;
-        } else {
-            let embed = CreateEmbed::new()
-                .title("MP supprimé")
-                .description(format!("Entrée `#{}` supprimée.", entry.entry_id))
-                .color(0x57F287);
-            send_embed(ctx, msg, embed).await;
         }
-        return;
-    }
+    };
 
+    let _ = set_mp_enabled(&pool, bot_id, enabled).await;
+    let embed = CreateEmbed::new()
+        .title("MP settings mis à jour")
+        .description(format!(
+            "Envoi de MP: `{}`",
+            if enabled { "on" } else { "off" }
+        ))
+        .color(0x57F287);
+    send_embed(ctx, msg, embed).await;
+}
+
+pub async fn handle_mpsent(ctx: &Context, msg: &Message, args: &[&str]) {
+    let page = args
+        .first()
+        .and_then(|value| value.parse::<i64>().ok())
+        .filter(|value| *value >= 1)
+        .unwrap_or(1);
+    let _ = send_mp_sent_page(ctx, msg, page).await;
+}
+
+pub async fn handle_mpdelete(ctx: &Context, msg: &Message, args: &[&str]) {
+    let Some(entry_id_raw) = args.first() else {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("Usage: `+mpdelete <id>`")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    let Ok(entry_id) = entry_id_raw.parse::<i64>() else {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("ID invalide.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    let bot_id = ctx.cache.current_user().id;
+    let Some(pool) = pool(ctx).await else {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("DB indisponible.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    let Some(entry) = get_sent_mp_message(&pool, bot_id, entry_id)
+        .await
+        .ok()
+        .flatten()
+    else {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("Message MP introuvable.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    let delete_result = ChannelId::new(entry.dm_channel_id as u64)
+        .delete_message(&ctx.http, MessageId::new(entry.message_id as u64))
+        .await;
+
+    let _ = mark_sent_mp_deleted(&pool, bot_id, entry_id).await;
+    if delete_result.is_err() {
+        let embed = CreateEmbed::new()
+            .title("MP déjà supprimé ou inaccessible")
+            .description(format!(
+                "Entrée `#{}` marquée supprimée en base (Discord a refusé la suppression).",
+                entry.entry_id
+            ))
+            .color(0xFEE75C);
+        send_embed(ctx, msg, embed).await;
+    } else {
+        let embed = CreateEmbed::new()
+            .title("MP supprimé")
+            .description(format!("Entrée `#{}` supprimée.", entry.entry_id))
+            .color(0x57F287);
+        send_embed(ctx, msg, embed).await;
+    }
+}
+
+pub async fn handle_mp(ctx: &Context, msg: &Message, args: &[&str]) {
     if args.len() < 2 {
         let embed = CreateEmbed::new()
             .title("Erreur")
-            .description("Usage: `+mpsettings` ou `+mp <membre> <message>`")
+            .description("Usage: `+mp <membre> <message>`")
             .color(0xED4245);
         send_embed(ctx, msg, embed).await;
         return;
@@ -462,9 +447,9 @@ impl crate::commands::command_contract::CommandSpec for MpCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "mp",
             category: "owner",
-            params: "settings [on|off] | sent [page] | delete <id> | <@membre/ID> <message...>",
-            description: "Permet de configurer, envoyer, lister et supprimer des messages prives envoyes.",
-            examples: &["+mp", "+help mp"],
+            params: "<@membre/ID> <message...>",
+            description: "Envoie un message prive a un membre cible.",
+            examples: &["+mp @Arthur Salut", "+help mp"],
             default_aliases: &["dmsg"],
             allow_in_dm: false,
             default_permission: 9,

@@ -6,7 +6,7 @@ use crate::commands::common::send_embed;
 use crate::commands::perms_helpers::{ensure_owner, get_pool, normalize_command_name};
 use crate::db::{reset_command_permissions, set_command_permission};
 
-pub async fn handle_change(ctx: &Context, msg: &Message, args: &[&str]) {
+pub async fn handle_changereset(ctx: &Context, msg: &Message) {
     if !ensure_owner(ctx, msg).await {
         return;
     }
@@ -21,19 +21,28 @@ pub async fn handle_change(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     };
 
-    if args
-        .first()
-        .map(|s| s.eq_ignore_ascii_case("reset"))
-        .unwrap_or(false)
-    {
-        let removed = reset_command_permissions(&pool, bot_id).await.unwrap_or(0);
-        let embed = CreateEmbed::new()
-            .title("Permissions reinitialisees")
-            .description(format!("Overrides supprimes: {}", removed))
-            .color(0x57F287);
-        send_embed(ctx, msg, embed).await;
+    let removed = reset_command_permissions(&pool, bot_id).await.unwrap_or(0);
+    let embed = CreateEmbed::new()
+        .title("Permissions reinitialisees")
+        .description(format!("Overrides supprimes: {}", removed))
+        .color(0x57F287);
+    send_embed(ctx, msg, embed).await;
+}
+
+pub async fn handle_change(ctx: &Context, msg: &Message, args: &[&str]) {
+    if !ensure_owner(ctx, msg).await {
         return;
     }
+
+    let bot_id = ctx.cache.current_user().id;
+    let Some(pool) = get_pool(ctx).await else {
+        let embed = CreateEmbed::new()
+            .title("Erreur")
+            .description("DB indisponible.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
 
     if args.len() < 2 {
         let embed = CreateEmbed::new()
@@ -79,8 +88,8 @@ impl crate::commands::command_contract::CommandSpec for ChangeCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "change",
             category: "botconfig",
-            params: "<commande> <niveau 0-9> | reset",
-            description: "Definit le niveau ACL requis pour une commande ou reinitialise les overrides.",
+            params: "<commande> <niveau 0-9>",
+            description: "Definit le niveau ACL requis pour une commande cible.",
             examples: &["+change", "+ce", "+help change"],
             default_aliases: &["chg"],
             allow_in_dm: false,

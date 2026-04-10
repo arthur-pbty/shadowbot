@@ -16,7 +16,7 @@ pub async fn handle_leave_settings(ctx: &Context, msg: &Message, args: &[&str]) 
     };
     let bot_id = ctx.cache.current_user().id;
 
-    if args.is_empty() || !args[0].eq_ignore_ascii_case("settings") {
+    if args.is_empty() {
         send_embed(
             ctx,
             msg,
@@ -71,14 +71,27 @@ pub async fn handle_leave_settings(ctx: &Context, msg: &Message, args: &[&str]) 
         return;
     }
 
-    let action = args[1].to_lowercase();
+    let action = args[0].to_lowercase();
+    if action != "on" && action != "off" {
+        send_embed(
+            ctx,
+            msg,
+            CreateEmbed::new()
+                .title("leave settings")
+                .description("Usage: +leavesettings [on/off] [salon] [message...]")
+                .color(0xED4245),
+        )
+        .await;
+        return;
+    }
+
     let enabled = action == "on";
     let channel = if enabled {
-        parse_target_channel(msg, args, 2)
+        parse_target_channel(msg, args, 1)
     } else {
         None
     };
-    let message_start = if enabled { 3 } else { 2 };
+    let message_start = if enabled { 2 } else { 1 };
     let custom_message = if args.len() > message_start {
         Some(args[message_start..].join(" "))
     } else {
@@ -128,7 +141,7 @@ impl crate::commands::command_contract::CommandSpec for LeaveSettingsCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "leavesettings",
             category: "config",
-            params: "settings [on/off] [salon] [message]",
+            params: "[on/off] [salon] [message]",
             description: "Configure les actions a executer quand un membre quitte le serveur.",
             examples: &[
                 "+leavesettings",

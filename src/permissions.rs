@@ -15,22 +15,9 @@ const EXTRA_COMMAND_KEYS: &[&str] = &[
     "ticket_add",
     "ticket_remove",
     "ticket_close",
-    "suggestion_settings",
-    "setperm",
-    "delperm",
-    "changereset",
-    "serverlist",
-    "endgiveaway",
-    "mpsettings",
 ];
 
-fn first_arg_is(args: &[&str], expected: &str) -> bool {
-    args.first()
-        .map(|value| value.eq_ignore_ascii_case(expected))
-        .unwrap_or(false)
-}
-
-pub fn command_key(command: &str, args: &[&str]) -> String {
+pub fn command_key(command: &str, _args: &[&str]) -> String {
     let normalized = command.to_lowercase();
 
     match normalized.as_str() {
@@ -39,42 +26,7 @@ pub fn command_key(command: &str, args: &[&str]) -> String {
         "del" => "ticket_remove".to_string(),
         "close" => "ticket_close".to_string(),
         "clear" => "clearmessages".to_string(),
-        "suggestion" => {
-            if first_arg_is(args, "settings") {
-                "suggestion_settings".to_string()
-            } else {
-                "suggestion_create".to_string()
-            }
-        }
-        "change" => {
-            if first_arg_is(args, "reset") {
-                "changereset".to_string()
-            } else {
-                "change".to_string()
-            }
-        }
-        "server" => {
-            if first_arg_is(args, "list") {
-                "serverlist".to_string()
-            } else {
-                "server".to_string()
-            }
-        }
-        "end" => {
-            if first_arg_is(args, "giveaway") {
-                "endgiveaway".to_string()
-            } else {
-                "end".to_string()
-            }
-        }
-        "mp" => {
-            if first_arg_is(args, "settings") {
-                "mpsettings".to_string()
-            } else {
-                "mp".to_string()
-            }
-        }
-        "mpsent" | "mpdelete" | "mpdel" => "mp".to_string(),
+        "mpdel" => "mpdelete".to_string(),
         "helpetting" => "helpsetting".to_string(),
         _ => normalized,
     }
@@ -99,13 +51,6 @@ fn metadata_key_for_permission(command_key: &str) -> &str {
         "ticket_settings" => "ticket",
         "ticket_add" | "ticket_remove" => "add",
         "ticket_close" => "close",
-        "suggestion_create" | "suggestion_settings" => "suggestion",
-        "setperm" => "set",
-        "delperm" => "del",
-        "changereset" => "change",
-        "serverlist" => "server",
-        "endgiveaway" => "end",
-        "mpsettings" => "mp",
         _ => command_key,
     }
 }

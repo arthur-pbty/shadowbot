@@ -11,7 +11,7 @@ pub async fn handle_set_muterole(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     };
 
-    let Some(raw_role) = args.get(1) else {
+    let Some(raw_role) = args.first() else {
         send_embed(
             ctx,
             msg,
@@ -68,7 +68,7 @@ impl crate::commands::command_contract::CommandSpec for SetMuteRoleCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "setmuterole",
             category: "mod",
-            params: "muterole <@role/ID/nom>",
+            params: "<@role/ID/nom>",
             description: "Definit le role utilise pour le mute lorsque le mode timeout est desactive.",
             examples: &["+setmuterole @Muted", "+help setmuterole"],
             default_aliases: &["smr"],

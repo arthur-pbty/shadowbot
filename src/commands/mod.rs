@@ -7,6 +7,8 @@ pub mod admin_service;
 pub mod advanced_tools;
 #[path = "perms/alias.rs"]
 pub mod alias;
+#[path = "perms/unalias.rs"]
+pub mod unalias;
 #[path = "info/alladmins.rs"]
 pub mod alladmins;
 #[path = "info/allbots.rs"]
@@ -30,6 +32,10 @@ pub mod autoconfiglog;
 pub mod automod_service;
 #[path = "automation/autopublish.rs"]
 pub mod autopublish;
+#[path = "automation/autopublishoff.rs"]
+pub mod autopublishoff;
+#[path = "automation/autopublishon.rs"]
+pub mod autopublishon;
 #[path = "automation/autoreact.rs"]
 pub mod autoreact;
 #[path = "automation/backup.rs"]
@@ -64,6 +70,8 @@ pub mod button;
 pub mod calc;
 #[path = "botconfig/change.rs"]
 pub mod change;
+#[path = "botconfig/changereset.rs"]
+pub mod changereset;
 #[path = "botconfig/changeall.rs"]
 pub mod changeall;
 #[path = "info/channel.rs"]
@@ -102,6 +110,8 @@ pub mod compet;
 pub mod create;
 #[path = "perms/del.rs"]
 pub mod del;
+#[path = "perms/delperm.rs"]
+pub mod delperm;
 #[path = "mod/delsanction.rs"]
 pub mod del_sanction;
 #[path = "roles/delrole.rs"]
@@ -118,6 +128,8 @@ pub mod embed;
 pub mod emoji;
 #[path = "event/end.rs"]
 pub mod end;
+#[path = "event/endgiveaway.rs"]
+pub mod endgiveaway;
 #[path = "event/giveaway.rs"]
 pub mod giveaway;
 #[path = "perms/help.rs"]
@@ -169,6 +181,12 @@ pub mod moderation_tools;
 pub mod modlog;
 #[path = "owner/mp.rs"]
 pub mod mp;
+#[path = "owner/mpdelete.rs"]
+pub mod mpdelete;
+#[path = "owner/mpsent.rs"]
+pub mod mpsent;
+#[path = "owner/mpsettings.rs"]
+pub mod mpsettings;
 #[path = "mod/mute.rs"]
 pub mod mute;
 #[path = "mod/mutelist.rs"]
@@ -179,6 +197,10 @@ pub mod muterole;
 pub mod newsticker;
 #[path = "roles/noderank.rs"]
 pub mod noderank;
+#[path = "roles/noderankadd.rs"]
+pub mod noderankadd;
+#[path = "roles/noderankdel.rs"]
+pub mod noderankdel;
 #[path = "config/nolog.rs"]
 pub mod nolog;
 #[path = "botconfig/online.rs"]
@@ -193,6 +215,10 @@ pub mod perms_service;
 pub mod pic;
 #[path = "automation/piconly.rs"]
 pub mod piconly;
+#[path = "automation/piconlyadd.rs"]
+pub mod piconlyadd;
+#[path = "automation/piconlydel.rs"]
+pub mod piconlydel;
 #[path = "info/ping.rs"]
 pub mod ping;
 #[path = "botconfig/playto.rs"]
@@ -203,6 +229,12 @@ pub mod prefix;
 pub mod public;
 #[path = "mod/punish.rs"]
 pub mod punish;
+#[path = "mod/punishadd.rs"]
+pub mod punishadd;
+#[path = "mod/punishdel.rs"]
+pub mod punishdel;
+#[path = "mod/punishsetup.rs"]
+pub mod punishsetup;
 #[path = "config/raidlog.rs"]
 pub mod raidlog;
 #[path = "botconfig/removeactivity.rs"]
@@ -227,12 +259,28 @@ pub mod rolemenu;
 pub mod sanctions;
 #[path = "fun/say.rs"]
 pub mod say;
-#[path = "info/server.rs"]
-pub mod server;
+#[path = "info/serverbanner.rs"]
+pub mod serverbanner;
+#[path = "info/serverlist.rs"]
+pub mod serverlist;
+#[path = "info/serverpic.rs"]
+pub mod serverpic;
+#[path = "info/servertarget.rs"]
+pub mod servertarget;
 #[path = "info/serverinfo.rs"]
 pub mod serverinfo;
 #[path = "botconfig/set.rs"]
 pub mod set;
+#[path = "botconfig/setbanner.rs"]
+pub mod setbanner;
+#[path = "botconfig/setname.rs"]
+pub mod setname;
+#[path = "botconfig/setperm.rs"]
+pub mod setperm;
+#[path = "botconfig/setpic.rs"]
+pub mod setpic;
+#[path = "botconfig/setprofil.rs"]
+pub mod setprofil;
 #[path = "config/setboostembed.rs"]
 pub mod set_boostembed;
 #[path = "config/setmodlogs.rs"]
@@ -255,6 +303,8 @@ pub mod stream;
 pub mod strikes;
 #[path = "fun/suggestion.rs"]
 pub mod suggestion;
+#[path = "fun/suggestionsettings.rs"]
+pub mod suggestionsettings;
 #[path = "roles/sync.rs"]
 pub mod sync;
 #[path = "mod/tempban.rs"]
@@ -343,10 +393,13 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         member::COMMAND_DESCRIPTOR.metadata(),
         pic::COMMAND_DESCRIPTOR.metadata(),
         banner::COMMAND_DESCRIPTOR.metadata(),
-        server::COMMAND_DESCRIPTOR.metadata(),
+        serverpic::COMMAND_DESCRIPTOR.metadata(),
+        serverbanner::COMMAND_DESCRIPTOR.metadata(),
+        serverlist::COMMAND_DESCRIPTOR.metadata(),
         snipe::COMMAND_DESCRIPTOR.metadata(),
         emoji::COMMAND_DESCRIPTOR.metadata(),
         giveaway::COMMAND_DESCRIPTOR.metadata(),
+        endgiveaway::COMMAND_DESCRIPTOR.metadata(),
         modlog::COMMAND_DESCRIPTOR.metadata(),
         messagelog::COMMAND_DESCRIPTOR.metadata(),
         voicelog::COMMAND_DESCRIPTOR.metadata(),
@@ -376,6 +429,9 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         link::COMMAND_DESCRIPTOR.metadata(),
         strikes::COMMAND_DESCRIPTOR.metadata(),
         punish::COMMAND_DESCRIPTOR.metadata(),
+        punishsetup::COMMAND_DESCRIPTOR.metadata(),
+        punishadd::COMMAND_DESCRIPTOR.metadata(),
+        punishdel::COMMAND_DESCRIPTOR.metadata(),
         public::COMMAND_DESCRIPTOR.metadata(),
         resetantiraide::COMMAND_DESCRIPTOR.metadata(),
         backup::COMMAND_DESCRIPTOR.metadata(),
@@ -387,8 +443,13 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         tickets::COMMAND_DESCRIPTOR.metadata(),
         showpics::COMMAND_DESCRIPTOR.metadata(),
         piconly::COMMAND_DESCRIPTOR.metadata(),
+        piconlyadd::COMMAND_DESCRIPTOR.metadata(),
+        piconlydel::COMMAND_DESCRIPTOR.metadata(),
         suggestion::COMMAND_DESCRIPTOR.metadata(),
+        suggestionsettings::COMMAND_DESCRIPTOR.metadata(),
         autopublish::COMMAND_DESCRIPTOR.metadata(),
+        autopublishon::COMMAND_DESCRIPTOR.metadata(),
+        autopublishoff::COMMAND_DESCRIPTOR.metadata(),
         tempvoc::COMMAND_DESCRIPTOR.metadata(),
         tempvoc_cmd::COMMAND_DESCRIPTOR.metadata(),
         autobackup::COMMAND_DESCRIPTOR.metadata(),
@@ -430,6 +491,8 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         delrole::COMMAND_DESCRIPTOR.metadata(),
         derank::COMMAND_DESCRIPTOR.metadata(),
         noderank::COMMAND_DESCRIPTOR.metadata(),
+        noderankadd::COMMAND_DESCRIPTOR.metadata(),
+        noderankdel::COMMAND_DESCRIPTOR.metadata(),
         del_sanction::COMMAND_DESCRIPTOR.metadata(),
         clear_sanctions::COMMAND_DESCRIPTOR.metadata(),
         clear_all_sanctions::COMMAND_DESCRIPTOR.metadata(),
@@ -440,7 +503,11 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         autoreact::COMMAND_DESCRIPTOR.metadata(),
         calc::COMMAND_DESCRIPTOR.metadata(),
         shadowbot::COMMAND_DESCRIPTOR.metadata(),
-        set::COMMAND_DESCRIPTOR.metadata(),
+        setname::COMMAND_DESCRIPTOR.metadata(),
+        setpic::COMMAND_DESCRIPTOR.metadata(),
+        setbanner::COMMAND_DESCRIPTOR.metadata(),
+        setprofil::COMMAND_DESCRIPTOR.metadata(),
+        setperm::COMMAND_DESCRIPTOR.metadata(),
         theme::COMMAND_DESCRIPTOR.metadata(),
         playto::COMMAND_DESCRIPTOR.metadata(),
         listen::COMMAND_DESCRIPTOR.metadata(),
@@ -461,17 +528,22 @@ pub fn all_command_metadata() -> Vec<CommandMetadata> {
         clear_bl::COMMAND_DESCRIPTOR.metadata(),
         say::COMMAND_DESCRIPTOR.metadata(),
         change::COMMAND_DESCRIPTOR.metadata(),
+        changereset::COMMAND_DESCRIPTOR.metadata(),
         changeall::COMMAND_DESCRIPTOR.metadata(),
         mainprefix::COMMAND_DESCRIPTOR.metadata(),
         prefix::COMMAND_DESCRIPTOR.metadata(),
         perms::COMMAND_DESCRIPTOR.metadata(),
-        del::COMMAND_DESCRIPTOR.metadata(),
+        delperm::COMMAND_DESCRIPTOR.metadata(),
         clear_perms::COMMAND_DESCRIPTOR.metadata(),
         allperms::COMMAND_DESCRIPTOR.metadata(),
         help::COMMAND_DESCRIPTOR.metadata(),
         helpsetting::COMMAND_DESCRIPTOR.metadata(),
         alias::COMMAND_DESCRIPTOR.metadata(),
+        unalias::COMMAND_DESCRIPTOR.metadata(),
         mp::COMMAND_DESCRIPTOR.metadata(),
+        mpsettings::COMMAND_DESCRIPTOR.metadata(),
+        mpsent::COMMAND_DESCRIPTOR.metadata(),
+        mpdelete::COMMAND_DESCRIPTOR.metadata(),
         invite::COMMAND_DESCRIPTOR.metadata(),
         leave::COMMAND_DESCRIPTOR.metadata(),
         leave_settings::COMMAND_DESCRIPTOR.metadata(),

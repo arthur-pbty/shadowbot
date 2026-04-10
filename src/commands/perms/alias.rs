@@ -18,7 +18,7 @@ pub async fn handle_alias(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     };
 
-    if args.len() == 1 {
+    if args.is_empty() {
         let aliases = list_command_aliases(&pool, bot_id)
             .await
             .unwrap_or_default();
@@ -40,28 +40,6 @@ pub async fn handle_alias(ctx: &Context, msg: &Message, args: &[&str]) {
             .title("Erreur")
             .description("Usage: `+alias <commande> <alias>`")
             .color(0xED4245);
-        send_embed(ctx, msg, embed).await;
-        return;
-    }
-
-    if args[0].eq_ignore_ascii_case("remove") || args[0].eq_ignore_ascii_case("delete") {
-        let alias_name = args[1].trim_start_matches('+').to_lowercase();
-        if alias_name.is_empty() {
-            let embed = serenity::builder::CreateEmbed::new()
-                .title("Erreur")
-                .description("Alias invalide.")
-                .color(0xED4245);
-            send_embed(ctx, msg, embed).await;
-            return;
-        }
-
-        let removed = remove_command_alias(&pool, bot_id, &alias_name)
-            .await
-            .unwrap_or(0);
-        let embed = serenity::builder::CreateEmbed::new()
-            .title("Alias supprimé")
-            .description(format!("`{}` : {} suppression(s).", alias_name, removed))
-            .color(0x57F287);
         send_embed(ctx, msg, embed).await;
         return;
     }
@@ -99,6 +77,46 @@ pub async fn handle_alias(ctx: &Context, msg: &Message, args: &[&str]) {
     send_embed(ctx, msg, embed).await;
 }
 
+pub async fn handle_unalias(ctx: &Context, msg: &Message, args: &[&str]) {
+    let bot_id = ctx.cache.current_user().id;
+    let Some(pool) = pool(ctx).await else {
+        let embed = serenity::builder::CreateEmbed::new()
+            .title("Erreur")
+            .description("DB indisponible.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    let Some(raw_alias) = args.first() else {
+        let embed = serenity::builder::CreateEmbed::new()
+            .title("Erreur")
+            .description("Usage: `+unalias <alias>`")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    };
+
+    let alias_name = raw_alias.trim_start_matches('+').to_lowercase();
+    if alias_name.is_empty() {
+        let embed = serenity::builder::CreateEmbed::new()
+            .title("Erreur")
+            .description("Alias invalide.")
+            .color(0xED4245);
+        send_embed(ctx, msg, embed).await;
+        return;
+    }
+
+    let removed = remove_command_alias(&pool, bot_id, &alias_name)
+        .await
+        .unwrap_or(0);
+    let embed = serenity::builder::CreateEmbed::new()
+        .title("Alias supprimé")
+        .description(format!("`{}` : {} suppression(s).", alias_name, removed))
+        .color(0x57F287);
+    send_embed(ctx, msg, embed).await;
+}
+
 async fn pool(ctx: &Context) -> Option<sqlx::PgPool> {
     let data = ctx.data.read().await;
     data.get::<DbPoolKey>().cloned()
@@ -124,9 +142,9 @@ impl crate::commands::command_contract::CommandSpec for AliasCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "alias",
             category: "perms",
-            params: "<commande> <alias> | remove <alias> | list",
-            description: "Liste, ajoute ou supprime des aliases de commandes stockes en base.",
-            examples: &["+alias", "+as", "+help alias"],
+            params: "[<commande> <alias>]",
+            description: "Liste les aliases (sans argument) ou ajoute un alias de commande.",
+            examples: &["+alias", "+alias mute m", "+help alias"],
             default_aliases: &["als"],
             allow_in_dm: false,
             default_permission: 6,

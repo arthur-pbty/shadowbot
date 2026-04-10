@@ -11,7 +11,7 @@ pub async fn handle_clear_limit(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     };
 
-    let Some(raw_value) = args.get(1) else {
+    let Some(raw_value) = args.first() else {
         send_embed(
             ctx,
             msg,
@@ -63,7 +63,7 @@ impl crate::commands::command_contract::CommandSpec for ClearLimitCommand {
         crate::commands::command_contract::CommandMetadata {
             name: "clearlimit",
             category: "mod",
-            params: "limit <nombre>",
+            params: "<nombre>",
             description: "Definit la limite max de messages supprimables avec +clear.",
             examples: &["+clearlimit 100", "+help clearlimit"],
             default_aliases: &["climit"],

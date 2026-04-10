@@ -11,16 +11,16 @@ pub async fn handle_del(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     }
 
-    if args.len() < 2 || !args[0].eq_ignore_ascii_case("perm") {
+    if args.is_empty() {
         let embed = CreateEmbed::new()
             .title("Erreur")
-            .description("Usage: `+delperm <role>`")
+            .description("Usage: `+delperm <role/membre>`")
             .color(0xED4245);
         send_embed(ctx, msg, embed).await;
         return;
     }
 
-    let Some((scope_type, scope_id)) = parse_user_or_role(args[1]) else {
+    let Some((scope_type, scope_id)) = parse_user_or_role(args[0]) else {
         let embed = CreateEmbed::new()
             .title("Erreur")
             .description("Role/membre invalide.")
@@ -50,20 +50,3 @@ pub async fn handle_del(ctx: &Context, msg: &Message, args: &[&str]) {
     send_embed(ctx, msg, embed).await;
 }
 
-pub struct DelCommand;
-pub static COMMAND_DESCRIPTOR: DelCommand = DelCommand;
-
-impl crate::commands::command_contract::CommandSpec for DelCommand {
-    fn metadata(&self) -> crate::commands::command_contract::CommandMetadata {
-        crate::commands::command_contract::CommandMetadata {
-            name: "del",
-            category: "perms",
-            params: "perm <@&rôle/@membre/ID>",
-            description: "Supprime les permissions ACL associees a un role ou utilisateur.",
-            examples: &["+del", "+dl", "+help del"],
-            default_aliases: &["dlp"],
-            allow_in_dm: false,
-            default_permission: 7,
-        }
-    }
-}
