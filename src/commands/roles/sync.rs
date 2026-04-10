@@ -85,7 +85,7 @@ impl crate::commands::command_contract::CommandSpec for SyncCommand {
             examples: &["+sync all", "+sync #general"],
             default_aliases: &["chsync"],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 7,
         }
     }
 }

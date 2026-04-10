@@ -57,7 +57,7 @@ impl crate::commands::command_contract::CommandSpec for DelroleCommand {
             examples: &["+delrole @User @Membre"],
             default_aliases: &["dr"],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 6,
         }
     }
 }

@@ -591,7 +591,7 @@ impl crate::commands::command_contract::CommandSpec for RolemenuCommand {
             ],
             default_aliases: &["rmenu"],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 6,
         }
     }
 }

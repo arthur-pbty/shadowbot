@@ -57,7 +57,7 @@ impl crate::commands::command_contract::CommandSpec for AddroleCommand {
             examples: &["+addrole @User @Membre"],
             default_aliases: &["ar"],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 6,
         }
     }
 }

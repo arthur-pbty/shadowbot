@@ -77,7 +77,7 @@ impl crate::commands::command_contract::CommandSpec for DerankCommand {
             examples: &["+derank @User"],
             default_aliases: &["drk"],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 7,
         }
     }
 }

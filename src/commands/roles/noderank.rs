@@ -95,7 +95,7 @@ impl crate::commands::command_contract::CommandSpec for NoderankCommand {
             examples: &["+noderank", "+noderank add @VIP", "+noderank del @VIP"],
             default_aliases: &["ndr"],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 7,
         }
     }
 }

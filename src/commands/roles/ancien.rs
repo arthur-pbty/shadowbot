@@ -501,7 +501,7 @@ impl crate::commands::command_contract::CommandSpec for AncienCommand {
             examples: &["+ancien", "+help ancien"],
             default_aliases: &[],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 6,
         }
     }
 }

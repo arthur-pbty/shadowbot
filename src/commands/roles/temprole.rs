@@ -123,7 +123,7 @@ impl crate::commands::command_contract::CommandSpec for TempRoleCommand {
             examples: &["+temprole @User @VIP 2h"],
             default_aliases: &["trole", "tmprole"],
             allow_in_dm: false,
-            default_permission: 8,
+            default_permission: 6,
         }
     }
 }
