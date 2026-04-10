@@ -2741,4 +2741,3 @@ pub async fn delete_tempvoc_room(pool: &PgPool, channel_id: i64) -> Result<(), s
 
     Ok(())
 }
-

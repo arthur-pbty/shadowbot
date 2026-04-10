@@ -2,7 +2,8 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 
 use crate::commands::{
-    advanced_tools, help, helpsetting, mp, perms_service, suggestion, tempvoc, ticket,
+    advanced_tools, boostembed, help, helpsetting, mp, perms_service, suggestion, tempvoc,
+    ticket,
 };
 
 pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction) {
@@ -18,6 +19,10 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
         }
 
         if suggestion::handle_component_interaction(ctx, component).await {
+            return;
+        }
+
+        if boostembed::handle_component_interaction(ctx, component).await {
             return;
         }
 
@@ -54,6 +59,10 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
             return;
         }
 
+        if boostembed::handle_modal_interaction(ctx, modal).await {
+            return;
+        }
+
         if tempvoc::handle_modal_interaction(ctx, modal).await {
             return;
         }
@@ -61,5 +70,3 @@ pub async fn handle_interaction_create(ctx: &Context, interaction: &Interaction)
         let _ = advanced_tools::handle_modal_interaction(ctx, modal).await;
     }
 }
-
-

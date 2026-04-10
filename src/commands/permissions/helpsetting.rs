@@ -77,7 +77,14 @@ fn build_embed(settings: &HelpSettingsData) -> CreateEmbed {
         .field("Mode d'affichage", format!("`{}`", settings.layout), true)
         .field(
             "Aliases",
-            format!("`{}`", if settings.aliases_enabled { "on" } else { "off" }),
+            format!(
+                "`{}`",
+                if settings.aliases_enabled {
+                    "on"
+                } else {
+                    "off"
+                }
+            ),
             true,
         )
         .field(
@@ -166,7 +173,11 @@ fn build_components(owner_id: UserId, settings: &HelpSettingsData) -> Vec<Create
     )
     .placeholder("Action rapide (select)");
 
-    vec![mode_row, toggle_row, CreateActionRow::SelectMenu(quick_menu)]
+    vec![
+        mode_row,
+        toggle_row,
+        CreateActionRow::SelectMenu(quick_menu),
+    ]
 }
 
 async fn send_settings_panel(

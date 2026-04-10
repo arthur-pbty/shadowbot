@@ -90,7 +90,10 @@ pub async fn handle_rename(ctx: &Context, msg: &Message, args: &[&str]) {
 
     if msg
         .channel_id
-        .edit(&ctx.http, serenity::builder::EditChannel::new().name(new_name.clone()))
+        .edit(
+            &ctx.http,
+            serenity::builder::EditChannel::new().name(new_name.clone()),
+        )
         .await
         .is_err()
     {

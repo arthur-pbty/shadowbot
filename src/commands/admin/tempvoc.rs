@@ -3,10 +3,10 @@ use serenity::builder::{
     CreateActionRow, CreateButton, CreateChannel, CreateEmbed, CreateInputText,
     CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreateModal,
 };
+use serenity::model::Colour;
 use serenity::model::application::{
     ActionRowComponent, ButtonStyle, ComponentInteraction, InputTextStyle, ModalInteraction,
 };
-use serenity::model::Colour;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
@@ -40,7 +40,11 @@ fn tempvoc_embed(settings: &db::TempvocSettings) -> CreateEmbed {
         .description("Gère les vocaux temporaires du serveur.")
         .colour(Colour::from_rgb(100, 180, 255))
         .timestamp(Utc::now())
-        .field("Statut", if settings.enabled { "Actif" } else { "Inactif" }, true);
+        .field(
+            "Statut",
+            if settings.enabled { "Actif" } else { "Inactif" },
+            true,
+        );
 
     if let Some(trigger) = settings.trigger_channel_id {
         embed = embed.field("Canal déclencheur", format!("<#{}>", trigger), true);
@@ -54,7 +58,11 @@ fn tempvoc_embed(settings: &db::TempvocSettings) -> CreateEmbed {
 }
 
 fn tempvoc_components(owner_id: UserId, settings: &db::TempvocSettings) -> Vec<CreateActionRow> {
-    let toggle_label = if settings.enabled { "Désactiver" } else { "Activer" };
+    let toggle_label = if settings.enabled {
+        "Désactiver"
+    } else {
+        "Activer"
+    };
 
     vec![CreateActionRow::Buttons(vec![
         CreateButton::new(format!("{}:toggle:{}", TEMPVOC_MENU, owner_id.get()))
@@ -254,10 +262,10 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
     };
 
     let bot_id = ctx.cache.current_user().id.get() as i64;
-    let trigger_channel_id = modal_value(modal, "trigger_channel_id")
-        .and_then(|value| value.trim().parse::<i64>().ok());
-    let category_id = modal_value(modal, "category_id")
-        .and_then(|value| value.trim().parse::<i64>().ok());
+    let trigger_channel_id =
+        modal_value(modal, "trigger_channel_id").and_then(|value| value.trim().parse::<i64>().ok());
+    let category_id =
+        modal_value(modal, "category_id").and_then(|value| value.trim().parse::<i64>().ok());
 
     let updated = db::update_tempvoc_settings(
         &pool,
@@ -317,14 +325,20 @@ async fn cached_room_members(ctx: &Context, guild_id: GuildId, channel_id: Chann
         .unwrap_or(0)
 }
 
-async fn create_temp_channel(ctx: &Context, guild_id: GuildId, user: &User, settings: &db::TempvocSettings) {
+async fn create_temp_channel(
+    ctx: &Context,
+    guild_id: GuildId,
+    user: &User,
+    settings: &db::TempvocSettings,
+) {
     let Some(trigger_channel_id) = settings.trigger_channel_id else {
         return;
     };
 
     let Ok(trigger_channel) = ChannelId::new(trigger_channel_id as u64)
         .to_channel(&ctx.http)
-        .await else {
+        .await
+    else {
         return;
     };
 

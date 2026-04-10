@@ -1,13 +1,13 @@
 use chrono::Utc;
+use serenity::all::{PermissionOverwrite, PermissionOverwriteType, Permissions};
 use serenity::builder::{
     CreateActionRow, CreateButton, CreateChannel, CreateEmbed, CreateInputText,
     CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreateModal,
 };
+use serenity::model::Colour;
 use serenity::model::application::{
     ActionRowComponent, ButtonStyle, ComponentInteraction, InputTextStyle, ModalInteraction,
 };
-use serenity::all::{PermissionOverwrite, PermissionOverwriteType, Permissions};
-use serenity::model::Colour;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
@@ -58,7 +58,11 @@ fn ticket_embed(settings: &db::TicketSettings) -> CreateEmbed {
         .description("Utilise les boutons ci-dessous pour gérer le système de tickets.")
         .colour(Colour::from_rgb(90, 160, 255))
         .timestamp(Utc::now())
-        .field("Statut", if settings.enabled { "Actif" } else { "Inactif" }, true);
+        .field(
+            "Statut",
+            if settings.enabled { "Actif" } else { "Inactif" },
+            true,
+        );
 
     if let Some(category_id) = settings.category_id {
         embed = embed.field("Catégorie", format!("<#{}>", category_id), true);
@@ -72,7 +76,11 @@ fn ticket_embed(settings: &db::TicketSettings) -> CreateEmbed {
 }
 
 fn ticket_components(owner_id: UserId, settings: &db::TicketSettings) -> Vec<CreateActionRow> {
-    let toggle_label = if settings.enabled { "Désactiver" } else { "Activer" };
+    let toggle_label = if settings.enabled {
+        "Désactiver"
+    } else {
+        "Activer"
+    };
 
     vec![CreateActionRow::Buttons(vec![
         CreateButton::new(format!("{}:create:{}", TICKET_MENU, owner_id.get()))
@@ -130,7 +138,9 @@ async fn create_ticket_channel(
     title: String,
     settings: &db::TicketSettings,
 ) -> Result<ChannelId, String> {
-    let pool = pool(ctx).await.ok_or_else(|| "Base de données indisponible".to_string())?;
+    let pool = pool(ctx)
+        .await
+        .ok_or_else(|| "Base de données indisponible".to_string())?;
 
     let name = sanitize_channel_name(&title);
     if name.is_empty() {
@@ -344,10 +354,10 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
     };
 
     if action.ends_with(":configure") {
-        let category_id = modal_value(modal, "category_id")
-            .and_then(|value| value.trim().parse::<i64>().ok());
-        let log_channel_id = modal_value(modal, "log_channel_id")
-            .and_then(|value| value.trim().parse::<i64>().ok());
+        let category_id =
+            modal_value(modal, "category_id").and_then(|value| value.trim().parse::<i64>().ok());
+        let log_channel_id =
+            modal_value(modal, "log_channel_id").and_then(|value| value.trim().parse::<i64>().ok());
 
         if let Ok(updated) = db::update_ticket_settings(
             &pool,

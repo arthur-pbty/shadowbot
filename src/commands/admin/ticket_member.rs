@@ -16,9 +16,10 @@ const TICKET_ALLOW: Permissions = Permissions::VIEW_CHANNEL
     .union(Permissions::ADD_REACTIONS);
 
 fn ticket_member_id(args: &[&str], msg: &Message) -> Option<UserId> {
-    msg.mentions.first().map(|user| user.id).or_else(|| {
-        args.first().and_then(|value| parse_user_id(value))
-    })
+    msg.mentions
+        .first()
+        .map(|user| user.id)
+        .or_else(|| args.first().and_then(|value| parse_user_id(value)))
 }
 
 async fn ticket_member_update(
@@ -81,9 +82,9 @@ async fn ticket_member_update(
     };
 
     let mut overwrites = guild_channel.permission_overwrites.clone();
-    overwrites.retain(|overwrite| {
-        !matches!(overwrite.kind, PermissionOverwriteType::Member(id) if id == user_id)
-    });
+    overwrites.retain(
+        |overwrite| !matches!(overwrite.kind, PermissionOverwriteType::Member(id) if id == user_id),
+    );
 
     if allow {
         overwrites.push(PermissionOverwrite {
@@ -117,7 +118,11 @@ async fn ticket_member_update(
         let _ = db::remove_ticket_member(&pool, ticket.id, user_id.get() as i64).await;
     }
 
-    let title = if allow { "Membre ajouté" } else { "Membre retiré" };
+    let title = if allow {
+        "Membre ajouté"
+    } else {
+        "Membre retiré"
+    };
     let description = if allow {
         format!("<@{}> a été ajouté au ticket.", user_id.get())
     } else {

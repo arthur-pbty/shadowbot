@@ -3,10 +3,10 @@ use serenity::builder::{
     CreateActionRow, CreateButton, CreateEmbed, CreateInputText, CreateInteractionResponse,
     CreateInteractionResponseMessage, CreateMessage, CreateModal,
 };
+use serenity::model::Colour;
 use serenity::model::application::{
     ActionRowComponent, ButtonStyle, ComponentInteraction, InputTextStyle, ModalInteraction,
 };
-use serenity::model::Colour;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
@@ -40,9 +40,7 @@ fn suggestion_embed(author: &User, content: &str) -> CreateEmbed {
         .title("💡 Suggestion")
         .description(content)
         .colour(Colour::from_rgb(255, 200, 0))
-        .author(
-            serenity::builder::CreateEmbedAuthor::new(&author.name).icon_url(author.face()),
-        )
+        .author(serenity::builder::CreateEmbedAuthor::new(&author.name).icon_url(author.face()))
         .timestamp(Utc::now())
 }
 
@@ -52,7 +50,11 @@ fn suggestion_settings_embed(settings: &db::SuggestionSettings) -> CreateEmbed {
         .description("Configure le système de suggestions du serveur.")
         .colour(Colour::from_rgb(255, 200, 0))
         .timestamp(Utc::now())
-        .field("Statut", if settings.enabled { "Actif" } else { "Inactif" }, true);
+        .field(
+            "Statut",
+            if settings.enabled { "Actif" } else { "Inactif" },
+            true,
+        );
 
     if let Some(channel_id) = settings.channel_id {
         embed = embed.field("Canal", format!("<#{}>", channel_id), true);
@@ -65,8 +67,15 @@ fn suggestion_settings_embed(settings: &db::SuggestionSettings) -> CreateEmbed {
     embed
 }
 
-fn suggestion_components(owner_id: UserId, settings: &db::SuggestionSettings) -> Vec<CreateActionRow> {
-    let toggle_label = if settings.enabled { "Désactiver" } else { "Activer" };
+fn suggestion_components(
+    owner_id: UserId,
+    settings: &db::SuggestionSettings,
+) -> Vec<CreateActionRow> {
+    let toggle_label = if settings.enabled {
+        "Désactiver"
+    } else {
+        "Activer"
+    };
 
     vec![CreateActionRow::Buttons(vec![
         CreateButton::new(format!("{}:submit:{}", SUGGESTION_MENU, owner_id.get()))
@@ -124,7 +133,9 @@ async fn submit_suggestion(
     author: &User,
     content: String,
 ) -> Result<(), String> {
-    let pool = pool(ctx).await.ok_or_else(|| "Base de données indisponible".to_string())?;
+    let pool = pool(ctx)
+        .await
+        .ok_or_else(|| "Base de données indisponible".to_string())?;
     let bot_id = ctx.cache.current_user().id.get() as i64;
     let settings = db::get_or_create_suggestion_settings(&pool, bot_id, guild_id.get() as i64)
         .await
@@ -134,12 +145,16 @@ async fn submit_suggestion(
         return Err("Le système de suggestions est désactivé.".to_string());
     }
 
-    let channel_id = settings.channel_id.ok_or_else(|| "Canal de suggestions non configuré".to_string())?;
+    let channel_id = settings
+        .channel_id
+        .ok_or_else(|| "Canal de suggestions non configuré".to_string())?;
     let channel = ChannelId::new(channel_id as u64)
         .to_channel(&ctx.http)
         .await
         .map_err(|e| format!("Erreur: {e}"))?;
-    let guild_channel = channel.guild().ok_or_else(|| "Canal de suggestions introuvable".to_string())?;
+    let guild_channel = channel
+        .guild()
+        .ok_or_else(|| "Canal de suggestions introuvable".to_string())?;
 
     let message = guild_channel
         .send_message(
@@ -184,7 +199,11 @@ async fn submit_suggestion(
 }
 
 pub async fn handle_suggestion(ctx: &Context, msg: &Message, args: &[&str]) {
-    if args.first().map(|value| value.eq_ignore_ascii_case("settings")).unwrap_or(false) {
+    if args
+        .first()
+        .map(|value| value.eq_ignore_ascii_case("settings"))
+        .unwrap_or(false)
+    {
         show_menu(ctx, msg).await;
         return;
     }
@@ -316,17 +335,24 @@ pub async fn handle_component_interaction(ctx: &Context, component: &ComponentIn
     }
 
     if action.ends_with(":configure") {
-        let modal = CreateModal::new(component.data.custom_id.clone(), "Configurer les suggestions")
-            .components(vec![
-                CreateActionRow::InputText(
-                    CreateInputText::new(InputTextStyle::Short, "Canal des suggestions", "channel_id")
-                        .required(false),
-                ),
-                CreateActionRow::InputText(
-                    CreateInputText::new(InputTextStyle::Short, "Canal d'approbation", "approve_channel_id")
-                        .required(false),
-                ),
-            ]);
+        let modal = CreateModal::new(
+            component.data.custom_id.clone(),
+            "Configurer les suggestions",
+        )
+        .components(vec![
+            CreateActionRow::InputText(
+                CreateInputText::new(InputTextStyle::Short, "Canal des suggestions", "channel_id")
+                    .required(false),
+            ),
+            CreateActionRow::InputText(
+                CreateInputText::new(
+                    InputTextStyle::Short,
+                    "Canal d'approbation",
+                    "approve_channel_id",
+                )
+                .required(false),
+            ),
+        ]);
 
         let _ = component
             .create_response(&ctx.http, CreateInteractionResponse::Modal(modal))
@@ -392,8 +418,8 @@ pub async fn handle_modal_interaction(ctx: &Context, modal: &ModalInteraction) -
     };
 
     if action.ends_with(":configure") {
-        let channel_id = modal_value(modal, "channel_id")
-            .and_then(|value| value.trim().parse::<i64>().ok());
+        let channel_id =
+            modal_value(modal, "channel_id").and_then(|value| value.trim().parse::<i64>().ok());
         let approve_channel_id = modal_value(modal, "approve_channel_id")
             .and_then(|value| value.trim().parse::<i64>().ok());
 

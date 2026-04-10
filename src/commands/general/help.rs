@@ -161,8 +161,9 @@ fn help_page_for_command(
         "owner" | "unowner" | "clear_owners" | "bl" | "unbl" | "blinfo" | "clear_bl"
         | "allbots" | "alladmins" | "botadmins" | "mainprefix" | "prefix" | "mp" | "invite"
         | "leave" | "discussion" => "administration",
-        "perms" | "del" | "clear_perms" | "allperms" | "alias" | "help"
-        | "helpsetting" => "permissions",
+        "perms" | "del" | "clear_perms" | "allperms" | "alias" | "help" | "helpsetting" => {
+            "permissions"
+        }
         _ => match meta.category {
             "general" => "infos",
             "profile" => "bot",
@@ -487,7 +488,9 @@ fn help_page_content(
                 } else {
                     lines.push(format!(
                         "`+{}`{} - {} · alias: `{}`",
-                        label, permission, summary,
+                        label,
+                        permission,
+                        summary,
                         aliases.join("`, `")
                     ));
                 }

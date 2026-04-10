@@ -29,15 +29,9 @@ pub async fn handle_tickets(ctx: &Context, msg: &Message, args: &[&str]) {
     let offset = (page - 1) * limit;
     let bot_id = ctx.cache.current_user().id.get() as i64;
 
-    let tickets = db::get_guild_tickets(
-        &pool,
-        bot_id,
-        guild_id.get() as i64,
-        limit,
-        offset,
-    )
-    .await
-    .unwrap_or_default();
+    let tickets = db::get_guild_tickets(&pool, bot_id, guild_id.get() as i64, limit, offset)
+        .await
+        .unwrap_or_default();
 
     if tickets.is_empty() {
         send_embed(

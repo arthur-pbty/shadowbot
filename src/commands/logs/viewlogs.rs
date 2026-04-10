@@ -6,7 +6,7 @@ use serenity::prelude::*;
 use crate::commands::common::{send_embed, theme_color};
 use crate::db::DbPoolKey;
 
-const LOGS_PER_PAGE: i64 = 5;
+const LOGS_PER_PAGE: i64 = 10;
 
 pub async fn pool(ctx: &Context) -> Option<sqlx::PgPool> {
     let data = ctx.data.read().await;

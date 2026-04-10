@@ -6,19 +6,19 @@ use std::sync::{Mutex, OnceLock};
 use crate::commands::moderation_tools;
 use crate::commands::remove_activity;
 use crate::commands::{
-    addrole, alias, autobackup, autoconfiglog, autoreact, backup, ban, banlist, banner, bl, blinfo,
-    boostembed, boosters, boostlog, bringall, button, calc, change, changeall, channel, choose,
-    cleanup, clear_all_sanctions, clear_bl, clear_messages, clear_owners, clear_perms,
-    clear_sanctions, claim, cmute, compet, create, del, del_sanction, delrole, derank, discussion,
-    dnd, embed, emoji, end, giveaway, help, helpsetting, hide, hideall, idle, invisible,
-    invite, join, kick, leave, leave_settings, listen, loading, lock, lockall, mainprefix,
-    massiverole, member, messagelog, modlog, mp, mute, mutelist, newsticker, nolog, online, owner,
-    perms, pic, ping, playto, prefix, raidlog, renew, rename, reroll, role, rolelog, rolemembers,
-    sanctions, say, server, serverinfo, set, set_boostembed, set_modlogs, shadowbot, showpics,
-    snipe, stream, sync, suggestion, tempban, tempcmute, tempmute, temprole, tempvoc, theme, tickets,
-    unban, unbanall, unbl, uncmute, unhide, unhideall, unlock, unlockall, unmassiverole, unmute,
-    unmuteall, unowner, untemprole, user, viewlogs, vocinfo, voicekick, voicelog, voicemove, warn,
-    watch, autopublish, ticket, ticket_member, close, tempvoc_cmd,
+    addrole, alias, autobackup, autoconfiglog, autopublish, autoreact, backup, ban, banlist,
+    banner, bl, blinfo, boostembed, boosters, boostlog, bringall, button, calc, change, changeall,
+    channel, choose, claim, cleanup, clear_all_sanctions, clear_bl, clear_messages, clear_owners,
+    clear_perms, clear_sanctions, close, cmute, compet, create, del, del_sanction, delrole, derank,
+    discussion, dnd, embed, emoji, end, giveaway, help, helpsetting, hide, hideall, idle,
+    invisible, invite, join, kick, leave, leave_settings, listen, loading, lock, lockall,
+    mainprefix, massiverole, member, messagelog, modlog, mp, mute, mutelist, newsticker, nolog,
+    online, owner, perms, pic, ping, playto, prefix, raidlog, rename, renew, reroll, role, rolelog,
+    rolemembers, sanctions, say, server, serverinfo, set, set_boostembed, set_modlogs, shadowbot,
+    showpics, snipe, stream, suggestion, sync, tempban, tempcmute, tempmute, temprole, tempvoc,
+    tempvoc_cmd, theme, ticket, ticket_member, tickets, unban, unbanall, unbl, uncmute, unhide,
+    unhideall, unlock, unlockall, unmassiverole, unmute, unmuteall, unowner, untemprole, user,
+    viewlogs, vocinfo, voicekick, voicelog, voicemove, warn, watch,
 };
 use crate::commands::{alladmins, allbots, allperms, botadmins};
 use crate::db::{DbPoolKey, upsert_message_observed};
@@ -145,12 +145,22 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         "del" => ticket_member::handle_ticket_remove(ctx, msg, &args).await,
         "close" => close::handle_close(ctx, msg, &args).await,
         "tickets" => tickets::handle_tickets(ctx, msg, &args).await,
-        "show" if args.first().map(|s| s.eq_ignore_ascii_case("pics")).unwrap_or(false) => {
+        "show"
+            if args
+                .first()
+                .map(|s| s.eq_ignore_ascii_case("pics"))
+                .unwrap_or(false) =>
+        {
             showpics::handle_show_pics(ctx, msg, &args[1..]).await
         }
         "suggestion" => suggestion::handle_suggestion(ctx, msg, &args).await,
         "autopublish" => autopublish::handle_autopublish(ctx, msg, &args).await,
-        "tempvoc" if args.first().map(|s| s.eq_ignore_ascii_case("cmd")).unwrap_or(false) => {
+        "tempvoc"
+            if args
+                .first()
+                .map(|s| s.eq_ignore_ascii_case("cmd"))
+                .unwrap_or(false) =>
+        {
             tempvoc_cmd::handle_tempvoc_cmd(ctx, msg, &args[1..]).await
         }
         "tempvoc" => tempvoc::handle_tempvoc(ctx, msg, &args).await,

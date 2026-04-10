@@ -15,8 +15,14 @@ pub async fn handle_show_pics(ctx: &Context, msg: &Message, args: &[&str]) {
         return;
     };
 
-    let members = guild.members(ctx, Some(200), None).await.unwrap_or_default();
-    let members: Vec<_> = members.into_iter().filter(|member| !member.user.bot).collect();
+    let members = guild
+        .members(ctx, Some(200), None)
+        .await
+        .unwrap_or_default();
+    let members: Vec<_> = members
+        .into_iter()
+        .filter(|member| !member.user.bot)
+        .collect();
 
     if members.is_empty() {
         send_embed(
