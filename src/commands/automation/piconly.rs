@@ -28,11 +28,10 @@ fn has_only_photo_attachments(msg: &Message) -> bool {
 }
 
 fn is_piconly_command_message(content: &str, prefix: &str) -> bool {
-    if !content.starts_with(prefix) {
+    let Some(without_prefix) = content.strip_prefix(prefix) else {
         return false;
-    }
-
-    let without_prefix = content.trim_start_matches(prefix).trim();
+    };
+    let without_prefix = without_prefix.trim();
     without_prefix
         .split_whitespace()
         .next()

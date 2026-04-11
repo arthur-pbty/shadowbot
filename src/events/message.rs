@@ -110,11 +110,10 @@ pub async fn handle_message(ctx: &Context, msg: &Message) {
         return;
     }
 
-    if !content.starts_with(&prefix_value) {
+    let Some(without_prefix) = content.strip_prefix(&prefix_value) else {
         return;
-    }
-
-    let without_prefix = content.trim_start_matches(&prefix_value).trim();
+    };
+    let without_prefix = without_prefix.trim();
     if without_prefix.is_empty() {
         return;
     }
