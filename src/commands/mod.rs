@@ -662,7 +662,7 @@ pub fn command_metadata_by_key(key: &str) -> Option<CommandMetadata> {
 }
 
 pub fn resolve_default_alias(alias: &str) -> Option<&'static str> {
-    let normalized = alias.trim().trim_start_matches('+').to_lowercase();
+    let normalized = alias.trim().to_lowercase();
     all_command_metadata().into_iter().find_map(|meta| {
         if meta
             .default_aliases
